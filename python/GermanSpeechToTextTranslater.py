@@ -310,7 +310,7 @@ class GermanSpeechToTextTranslater:
         print('Saving diff files')
         truncated_ds = pandas_df[
             ((pandas_df.Action == 'train') | (pandas_df.Action == 'translate')) & (pandas_df.Length <= 1200)
-            ]
+        ]
         bad_translation_ds = truncated_ds[truncated_ds[translation_column_name] != truncated_ds['OriginalText']]
 
         translations = bad_translation_ds[translation_column_name].tolist()

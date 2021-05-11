@@ -47,7 +47,7 @@ class SnippetDatasets:
         elif ds_id_to_use in self.extern_datasets:
             # TODO: Falls nicht genug Speicher da ist sollten nicht verwendete externe Datasets,
             #       welche lokal vorhanden sind, lokal gelöscht werden.
-            zip_file_name = f'{extern_audio_base_dir}/{ds_id_to_use}.zip'
+            zip_file_name = f'{self.extern_audio_base_dir}/{ds_id_to_use}.zip'
             print(f'Download and extract {zip_file_name} from gdrive')
 
             with ZipFile(zip_file_name, 'r') as zip:
