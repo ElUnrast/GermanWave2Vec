@@ -53,7 +53,7 @@ class SnippetDatasets:
             with ZipFile(zip_file_name, 'r') as zip:
                 zip.extractall(self.local_audio_base_dir)
 
-            self.local_datasets[f'{self.local_audio_base_dir}/{ds_id_to_use}'] = ds_id_to_use
+            self.local_datasets[ds_id_to_use] = f'{self.local_audio_base_dir}/{ds_id_to_use}'
             self.used_datasets.append(ds_id_to_use)
 
     def has_content(self, id_or_directory):
