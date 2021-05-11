@@ -111,7 +111,7 @@ class SnippetDatasets:
 
             if 'Length' in pandas_df.columns:
                 truncated_ds = truncated_ds[(truncated_ds.Length <= 4000) & (truncated_ds.Length >= 31)]
-                print(f' - {truncated_ds.shape[0]} Entries left after Length Cut (min=31, max={max_sample_size})')
+                print(f' - {truncated_ds.shape[0]} Entries left after Length Cut (min=31, max=4000)')
 
             if 'Action' in pandas_df.columns:
                 truncated_ds = truncated_ds[~truncated_ds.Action.str.startswith('exclude')]
