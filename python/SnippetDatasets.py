@@ -18,7 +18,7 @@ class SnippetDatasets:
 
         if extern_audio_base_dir:
             for zip_file in glob.glob(f'{extern_audio_base_dir}/*.zip'):
-                self.extern_datasets.append( zip_file[0:-4], zip_file )
+                self.extern_datasets[zip_file[0:-4]] = zip_file
 
     def directories_with_content(self, dir):
         result = []
