@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 # Known Snippet Directories with content.csv, content-with_original.csv
 class SnippetDatasets:
-    def __init__(self, run_on_colab, local_audio_base_dir=f'{home}/shared/NLP-Data/audio', extern_audio_base_dir=None):
+    def __init__(self, run_on_colab, local_audio_base_dir, extern_audio_base_dir=None):
         self.local_datasets = {}
         self.extern_datasets = {}
         self.used_datasets = []
