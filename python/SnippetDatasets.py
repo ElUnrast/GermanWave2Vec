@@ -127,3 +127,36 @@ class SnippetDatasets:
         
         pandas_df = truncated_ds
         return pandas_df
+
+
+def calc_wer(self, ds_with_translation_and_original, chunk_size=1000):
+    if 'Translated1' in ds_with_translation_and_original.columns:
+        translation_column = ds_with_translation_and_original.Translated1
+    else:
+        translation_column = ds_with_translation_and_original.Translated0
+
+    return chunked_wer(
+        targets=ds_with_translation_and_original.OriginalText,
+        predictions=translation_column,
+        chunk_size=chunk_size
+    )
+
+# Chunked version, see https://discuss.huggingface.co/t/spanish-asr-fine-tuning-wav2vec2/4586/5:
+def chunked_wer(self, targets, predictions, chunk_size=1000):
+    if chunk_size is None:
+        return jiwer.wer(targets, predictions)
+
+    start = 0
+    end = chunk_size
+    H, S, D, I = 0, 0, 0, 0
+
+    while start < len(targets):
+        chunk_metrics = jiwer.compute_measures(targets[start:end], predictions[start:end])
+        H = H + chunk_metrics["hits"]
+        S = S + chunk_metrics["substitutions"]
+        D = D + chunk_metrics["deletions"]
+        I = I + chunk_metrics["insertions"]
+        start += chunk_size
+        end += chunk_size
+
+    return float(S + D + I) / float(H + S + D)
