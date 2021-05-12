@@ -1,6 +1,8 @@
 import os
 import glob
 import pandas as pd
+import jiwer
+from jiwer import wer
 from zipfile import ZipFile
 
 
@@ -129,7 +131,7 @@ class SnippetDatasets:
         return pandas_df
 
 
-def calc_wer(self, ds_with_translation_and_original, chunk_size=1000):
+def calc_wer(ds_with_translation_and_original, chunk_size=1000):
     if 'Translated1' in ds_with_translation_and_original.columns:
         translation_column = ds_with_translation_and_original.Translated1
     else:
@@ -142,7 +144,7 @@ def calc_wer(self, ds_with_translation_and_original, chunk_size=1000):
     )
 
 # Chunked version, see https://discuss.huggingface.co/t/spanish-asr-fine-tuning-wav2vec2/4586/5:
-def chunked_wer(self, targets, predictions, chunk_size=1000):
+def chunked_wer(targets, predictions, chunk_size=1000):
     if chunk_size is None:
         return jiwer.wer(targets, predictions)
 
