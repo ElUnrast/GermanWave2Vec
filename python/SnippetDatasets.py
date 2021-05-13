@@ -138,8 +138,8 @@ def calc_wer(ds_with_translation_and_original, chunk_size=1000):
         translation_column = ds_with_translation_and_original.Translated0
 
     return chunked_wer(
-        targets=ds_with_translation_and_original.OriginalText,
-        predictions=translation_column,
+        targets=ds_with_translation_and_original.OriginalText.tolist(),
+        predictions=translation_column.tolist(),
         chunk_size=chunk_size
     )
 
