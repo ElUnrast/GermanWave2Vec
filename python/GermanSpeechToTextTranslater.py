@@ -1,28 +1,24 @@
 import os
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Union
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 
 import torch
 import torchaudio
-from torch import nn
-from torch.cuda.amp import autocast
 
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2CTCTokenizer, Wav2Vec2FeatureExtractor
 from transformers import Trainer, TrainingArguments
-from transformers.trainer_utils import get_last_checkpoint, is_main_process
 from transformers.trainer_pt_utils import LengthGroupedSampler, DistributedLengthGroupedSampler
 
 import json
 import collections
 import librosa
 import numpy as np
-import pandas as pd
 import sklearn
 import jiwer
-from jiwer import wer
 from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
 from sklearn.model_selection import train_test_split
+from SnippetDatasets import SnippetDatasets, calc_wer
 
 
 class GermanSpeechToTextTranslater:
@@ -33,11 +29,14 @@ class GermanSpeechToTextTranslater:
             # language_tool=None,
             # resampled_dir=None,
             model_name=None,
+            ds_handler=None,
             default_model_name='facebook/wav2vec2-large-xlsr-53-german',
             device='cuda'
     ):
         self.device = device
+        self.ds_handler = ds_handler if ds_handler else SnippetDatasets()
         self.model_name = model_name if model_name else default_model_name
+        self.trained_model_directory = None
         print(f'Using Model: {self.model_name}')
         print('Loading processor')
         # Anlegen eines eigenen Processors, da in Wav2Vec2Processor.from_pretrained(facebook/wav2vec2-large-xlsr-53-german)
@@ -45,6 +44,18 @@ class GermanSpeechToTextTranslater:
         self.my_processor = processor if processor else self.create_processor()
         print('Loading metric')
         self.my_metric = load_metric('wer')
+        self.trained_epochs = 1
+
+        if os.path.isfile(f'{self.model_name}/pytorch_model.bin'):
+            self.trained_model_directory = self.model_name
+            
+            if os.path.isfile(f'{self.trained_model_directory}/trained_epochs.json'):
+                with open(f'{self.trained_model_directory}/trained_epochs.json', 'r') as json_file:
+                    self.trained_epochs = json.load(json_file)['trained_epochs']
+            else:
+                with open(f'{self.trained_model_directory}/trained_epochs.json', 'w') as json_file:
+                    json.dump({'trained_epochs' : self.trained_epochs}, json_file)
+
         # TODO: in abgeleitete Klasse verlagern
         # print('Loading language tool')
         # self.my_tool = language_tool if language_tool else language_tool_python.LanguageTool('de-DE')
@@ -76,7 +87,7 @@ class GermanSpeechToTextTranslater:
         torch.cuda.empty_cache()
         self.model_name = checkpoint
         print(f'Using Model: {self.model_name}')
-        self.my_model = Wav2Vec2ForCTC.from_pretrained(self.model_name).to(device)
+        self.my_model = Wav2Vec2ForCTC.from_pretrained(self.model_name).to(self.device)
         torch.cuda.empty_cache()
         self.my_model.freeze_feature_extractor()
 
@@ -112,7 +123,6 @@ class GermanSpeechToTextTranslater:
         if new_path != None:
             torch.save(samples, new_path)
 
-        samples_size = samples.shape[0]
         return samples, samples.shape[0]
 
     def audio_to_cuda_inputs(self, audio_file_name):
@@ -131,19 +141,19 @@ class GermanSpeechToTextTranslater:
         # Converting audio to text - Passing the prediction to the tokenzer decode to get the transcription
         return self.my_processor.decode(predicted_ids[0]), samples_size
 
-    def translate_and_extend_dataset_from_directory(self, ds_loader, id_or_directory):
-        if not ds_loader.needs_translation(id_or_directory):
+    def translate_and_extend_dataset_from_directory(self, id_or_directory):
+        if not self.ds_handler.needs_translation(id_or_directory):
             return
 
         print(f'Translating and extend Dataset: {id_or_directory}')
-        has_original = ds_loader.has_content_original(id_or_directory)
+        has_original = self.ds_handler.has_content_original(id_or_directory)
 
         if not has_original:
-            ds = ds_loader.load_ds_content(id_or_directory)
+            ds = self.ds_handler.load_ds_content(id_or_directory)
         else:
-            ds = ds_loader.load_ds_content_with_original(id_or_directory)
+            ds = self.ds_handler.load_ds_content_with_original(id_or_directory)
 
-        ds_dir_name = ds_loader.get_snippet_directory(id_or_directory)
+        ds_dir_name = self.ds_handler.get_snippet_directory(id_or_directory)
         translated_list, size_list = self.translate_dataset(ds_dir_name, ds)
 
         if 'Translated1' in ds.columns:
@@ -158,9 +168,9 @@ class GermanSpeechToTextTranslater:
             ds.insert(loc=9, column='Translated0', value=translated_list)
 
         if not has_original:
-            ds.to_csv(f'{ds_dir_name}/content-translated.csv', sep=';')
+            ds.to_csv(f'{ds_dir_name}/content-translated.csv', sep=';', index=False)
         else:
-            ds.to_csv(f'{ds_dir_name}/content-translated-with_original.csv', sep=';')
+            ds.to_csv(f'{ds_dir_name}/content-translated-with_original.csv', sep=';', index=False)
 
     def translate_dataset(self, mp3_dir, ds):
         if isinstance(ds, GermanTrainingWav2Vec2Dataset):
@@ -186,12 +196,14 @@ class GermanSpeechToTextTranslater:
 
         return translated_list, size_list
 
+    # TODO: deprecated use intern train method instead
     def split_dataset(
             self,
             pandas_df,
             max_trainingset_size=25000,
             max_sample_size=1000,
-            use_only_incorrect_translated=True
+            use_only_incorrect_translated=True,
+            fixed_training_set_size=None
     ):
         used_df = pandas_df
         has_action = 'Action' in pandas_df.columns
@@ -237,7 +249,7 @@ class GermanSpeechToTextTranslater:
             use_grouped_legth_trainer=False
     ):
         train_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, train_ds, 'train')
-        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, test_ds, 'eval')
+        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, test_ds, 'eval') if not test_ds.empty else None
         data_collator = DataCollatorCTCWithPadding(processor=self.my_processor, padding=True)
 
         if use_grouped_legth_trainer:
@@ -291,45 +303,171 @@ class GermanSpeechToTextTranslater:
         )
         return Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
 
-    def test(self, ds_id, pandas_df, mp3_dir, diff_file_extension, diff_calc_wer=False):
-        if not 'Autor' in pandas_df.columns:
+    ## returns 
+    ##   1. bad_translated as pandas_df
+    ##   2. word_error_rate of the hole pandas_df, if diff_calc_wer=True else 1
+    def test(self, ds_id, pandas_df=None, diff_file_extension=None, diff_calc_wer=True):
+        pandas_df = pandas_df if pandas_df else self.ds_handler.load_ds_content_translated_with_original(ds_id)
+        translation_column_name = 'Translated1' if pandas_df in pandas_df.columns else 'Translated0'
+        
+        if not 'OriginalText' in pandas_df.columns:
             raise ValueError
 
+        old_word_error_rate = self.ds_handler.get_word_error_rate(ds_id)
+
+        if self.trained_epochs == old_word_error_rate['trained_epochs']:
+            return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']
+        elif old_word_error_rate['trained_epochs'] == 0:        
+            wer_result = calc_wer(pandas_df, use_akt_translation=False)
+            wer = 100 * wer_result
+            self.ds_handler.save_word_error_rate(ds_id, 0, wer)
+
+        diff_file_extension = diff_file_extension if diff_file_extension else f'{self.trained_epochs:05d}'
+        mp3_dir = self.ds_handler.get_snippet_directory(ds_id)
+
         wer_result = 1.0
-        translation_column_name = 'Translated1'
 
         print(f'Translate all')
         predictions, _ = self.translate_dataset(mp3_dir, pandas_df)
         pandas_df[translation_column_name] = predictions
-        pandas_df.to_csv(f'{mp3_dir}/content-translated-with_original.csv', sep=';')
+        pandas_df['ModelEpoche'] = self.trained_epochs
+        self.ds_handler.save_content_translated_with_original(ds_id, pandas_df)
 
-        if diff_calc_wer:
-            print('Calculate WER')
-            wer_result = self.calc_wer(pandas_df)
-            print(f'WER: {wer_result}')
+        print('Calculate WER')
+        wer_result = calc_wer(pandas_df)
+        wer = 100 * wer_result
+        self.ds_handler.save_word_error_rate(ds_id, self.trained_epochs, wer)
+        print(f'WER: {wer_result}')
 
-        print('Saving diff files')
-        truncated_ds = pandas_df[
-            ((pandas_df.Action == 'train') | (pandas_df.Action == 'translate')) & (pandas_df.Length <= 1200)
-        ]
-        bad_translation_ds = truncated_ds[truncated_ds[translation_column_name] != truncated_ds['OriginalText']]
+        bad_translation_ds = pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']]
+        print(f'No. of bad translated snippets: {bad_translation_ds.shape[0]}')
 
         translations = bad_translation_ds[translation_column_name].tolist()
         original_texts = bad_translation_ds['OriginalText'].tolist()
         file_names = bad_translation_ds['Datei'].tolist()
 
-        orig_file = open(f'{model_dir}/{ds_id}-original-{diff_file_extension}.txt', 'w')
-        translated_file = open(f'{model_dir}/{ds_id}-translated-{diff_file_extension}.txt', 'w')
+        print('Saving diff files')
+        if self.trained_model_directory:
+            with open(f'{self.trained_model_directory}/test.log', 'a') as log_file:
+                log_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
 
-        for file_name, original_text, translation in zip(file_names, original_texts, translations):
-            orig_file.write(f'{file_name}, {original_text}\n')
-            translated_file.write(f'{file_name}, {translation}\n')
+            orig_file = open(f'{self.trained_model_directory}/{ds_id}-original-{diff_file_extension}.txt', 'w')
+            translated_file = open(f'{self.trained_model_directory}/{ds_id}-translated-{diff_file_extension}.txt', 'w')
 
-        orig_file.close()
-        translated_file.close()
+            for file_name, original_text, translation in zip(file_names, original_texts, translations):
+                orig_file.write(f'{file_name}, {original_text}\n')
+                translated_file.write(f'{file_name}, {translation}\n')
 
-        return bad_translation_ds, truncated_ds, wer_result
+            orig_file.close()
+            translated_file.close()
 
+        return bad_translation_ds, wer_result
+
+    def train(
+        self,
+        trained_model_path,
+        dataset_loader, 
+        ds_to_train, 
+        max_trainingset_size, 
+        max_rounds, 
+        num_train_epochs,
+        num_steps_per_epoche, # max_steps,
+        per_device_train_batch_size,
+        per_device_eval_batch_size,
+        gradient_accumulation_steps,
+        logging_steps,
+        learning_rate,
+        warmup_steps,
+        early_stopping_value=0.2
+    ):
+        training_args = TrainingArguments(
+            output_dir=trained_model_path,
+            group_by_length=True,
+            per_device_train_batch_size=per_device_train_batch_size,
+            # per_device_eval_batch_size=per_device_eval_batch_size,
+            gradient_accumulation_steps=gradient_accumulation_steps,
+            evaluation_strategy="steps",
+            max_steps=num_steps_per_epoche,
+            fp16=True,
+            # save_steps=save_steps,
+            # eval_steps=eval_steps,
+            logging_steps=logging_steps,
+            learning_rate=learning_rate,
+            warmup_steps=warmup_steps,
+            # save_total_limit=2
+        )
+
+        for runde in range(max_rounds):
+            print('======================================')
+            print(f'Starting round {runde} of {max_rounds}')
+
+            for ds_id in ds_to_train:
+                if not dataset_loader.has_translation_with_original(ds_id):
+                    ds_to_train.remove(ds_id)
+                    continue
+
+                os.environ["WANDB_NOTES"] = ds_id
+                pandas_df = dataset_loader.load_ds_content_translated_with_original(ds_id)
+                print(f'Dataset - {ds_id} loaded with {pandas_df.shape[0]} Entries')
+                mp3_dir = dataset_loader.get_snippet_directory(ds_id)
+
+                for epoche in range(num_train_epochs):
+                    print('**************************************')
+                    print(f'Starting round {runde} of {max_rounds}, epoche {epoche} of {num_train_epochs}')
+                    print(f'Splitting Dataset {ds_id} with {pandas_df.shape[0]} Entries')
+                    bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
+                    early_stopping = False
+
+                    if (bad_translation_ds.shape[0] > (pandas_df.shape[0] * early_stopping_value)) and (wer_result < early_stopping_value):                    
+                        train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
+                        
+                        if max_trainingset_size:
+                            train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
+                            print(f' - {train_pandas_ds.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')
+
+                        print(f'Creating Trainer for {ds_id}')
+                        trainer = self.get_trainer(
+                            training_args, 
+                            mp3_dir,
+                            train_pandas_ds,
+                            None,  # test_pandas_ds,
+                            use_grouped_legth_trainer=False
+                        )
+                        print(f'Training of Dataset: {ds_id}')
+                        train_result = trainer.train()
+
+                        print(f'Save Model')
+                        trainer.save_model()
+                        metrics = train_result.metrics
+                        max_train_samples = train_pandas_ds.shape[0]
+                        metrics["train_samples"] = min(max_train_samples, train_pandas_ds.shape[0])
+                        trainer.log_metrics("train", metrics)
+                        trainer.save_metrics("train", metrics)
+                        trainer.save_state()
+                        torch.cuda.empty_cache()
+                        self.trained_epochs = self.trained_epochs + 1
+                        with open(f'{self.model_name}/trained_epochs.json', 'w') as json_file:
+                            json.dump({'trained_epochs', self.trained_epochs}, json_file)
+                    else:
+                        # mindestens 98% der Sätze wurde korrekt übersetzt. Überprüfung der Problemfälle ist angebracht.
+                        # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
+                        print('Early stopping!')
+                        early_stopping = True
+                        ds_to_train.remove(ds_id)
+                        break
+
+                if not early_stopping:
+                    print(f'final check und update of {ds_id}')
+                    bad_translation_ds, truncated_ds, wer_result = self.test(
+                        ds_id, 
+                        pandas_df, 
+                        mp3_dir, 
+                        diff_file_extension=f'{epoche}-{runde}', 
+                        diff_calc_wer=True
+                    )
+
+        print('Training finisched!')
+    
     def compute_metrics(self, pred):
         # we do not want to group tokens when computing the metrics
         label_str = self.my_processor.batch_decode(pred.label_ids, group_tokens=False)
@@ -342,7 +480,6 @@ class GermanSpeechToTextTranslater:
         #       strings in the list of strings 'label_str' have extra charecters '[UNK]'
         # Correction:
         # pred_str = [item[:-2] for item in pred_str]
-
         def g(s):
             s = s.strip()
 
@@ -353,15 +490,7 @@ class GermanSpeechToTextTranslater:
 
         label_str_c = [g(item) for item in label_str]
 
-        # def f(s):
-        #     if len(s) <= 2:    # maybe 2 -> 1 later
-        #         return s
-        #     else:
-        #         return s[:-2]   # maybe 2 -> 1 later
-
-        # pred_str_c = [f(item) for item in pred_str]
         pred_str_c = pred_str
-        # print(f'"{label_str_c}" - "{pred_str_c}"')
         return {"wer": jiwer.compute_measures(label_str_c, pred_str_c)["wer"]}
 
 
@@ -399,8 +528,6 @@ class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
             inputs = inputs[:self.max_input_length]
 
         label_str = self.labels[idx]
-        # print(f'Label: {type(label_str)}')
-
         processor = self.german_speech_translator.my_processor
 
         with processor.as_target_processor():
@@ -466,7 +593,6 @@ class DataCollatorCTCWithPadding:
 
         # replace padding with -100 to ignore loss correctly
         labels = labels_batch["input_ids"].masked_fill(labels_batch.attention_mask.ne(1), -100)
-
         batch["labels"] = labels
 
         return batch
