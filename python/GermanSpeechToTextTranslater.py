@@ -373,7 +373,6 @@ class GermanSpeechToTextTranslater:
         num_train_epochs,
         num_steps_per_epoche, # max_steps,
         per_device_train_batch_size,
-        per_device_eval_batch_size,
         gradient_accumulation_steps,
         logging_steps,
         learning_rate,
