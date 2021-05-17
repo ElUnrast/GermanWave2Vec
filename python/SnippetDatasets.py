@@ -152,7 +152,7 @@ class SnippetDatasets:
         return self._get_dataframe(id_or_directory, 'content-translated.csv')
 
     def load_ds_content_translated_with_original(self, id_or_directory):
-        self.use_dataset(self, id_or_directory)
+        self.use_dataset(id_or_directory)
         # TODO: wenn hier ein Verzeichnis stimmt der Algorithmus noch nicht
         # File for Action: train or repeated translation
         git_directory = self.get_ds_git_directory(id_or_directory)
