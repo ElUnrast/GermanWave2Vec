@@ -412,13 +412,13 @@ class GermanSpeechToTextTranslater:
             print(f'Starting round {runde} of {max_rounds}')
 
             for ds_id in ds_to_train:
-                if not dataset_loader.has_translation_with_original(ds_id):
+                os.environ['WANDB_NOTES'] = ds_id
+                pandas_df = dataset_loader.load_ds_content_translated_with_original(ds_id)
+                if not 'OriginalText' in pandas_df.columns:
                     print(f'unable to handle: {ds_id}, cause no Original found')
                     ds_to_train.remove(ds_id)
                     continue
 
-                os.environ['WANDB_NOTES'] = ds_id
-                pandas_df = dataset_loader.load_ds_content_translated_with_original(ds_id)
                 print(f'Dataset - {ds_id} loaded with {pandas_df.shape[0]} Entries')
                 mp3_dir = dataset_loader.get_snippet_directory(ds_id)
 
@@ -457,6 +457,7 @@ class GermanSpeechToTextTranslater:
                         trainer.log_metrics("train", metrics)
                         trainer.save_metrics("train", metrics)
                         trainer.save_state()
+                        del trainer
                         torch.cuda.empty_cache()
                         self.trained_epochs = self.trained_epochs + 1
                         with open(f'{self.model_name}/trained_epochs.json', 'w') as json_file:
