@@ -311,7 +311,7 @@ class GermanSpeechToTextTranslater:
     ## returns 
     ##   1. bad_translated as pandas_df
     ##   2. word_error_rate of the hole pandas_df, if diff_calc_wer=True else 1
-    def test(self, ds_id, pandas_df=None, diff_file_extension=None, diff_calc_wer=True):
+    def test(self, ds_id, pandas_df=pd.DataFrame(), diff_file_extension=None, diff_calc_wer=True):
         if pandas_df.empty:
             print(f'Loading Dataset: {ds_id}')
             pandas_df = self.ds_handler.load_ds_content_translated_with_original(ds_id)
@@ -394,13 +394,13 @@ class GermanSpeechToTextTranslater:
             output_dir=trained_model_path,
             group_by_length=True,
             per_device_train_batch_size=per_device_train_batch_size,
-            # per_device_eval_batch_size=per_device_eval_batch_size,
+            per_device_eval_batch_size=per_device_train_batch_size // 2,
             gradient_accumulation_steps=gradient_accumulation_steps,
             evaluation_strategy="steps",
             max_steps=num_steps_per_epoche,
             fp16=True,
             # save_steps=save_steps,
-            eval_steps=4 * num_steps_per_epoche,  # eval_steps=eval_steps,
+            eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
             logging_steps=logging_steps,
             learning_rate=learning_rate,
             warmup_steps=warmup_steps,
@@ -443,6 +443,7 @@ class GermanSpeechToTextTranslater:
                             training_args, 
                             mp3_dir,
                             train_pandas_ds,
+                            pandas_df.sort_values(by=['Size'], ascending=False).head(20),
                             use_grouped_legth_trainer=False
                         )
                         print(f'Training of Dataset: {ds_id}')
