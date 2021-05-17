@@ -64,7 +64,7 @@ class GermanSpeechDatasetWidgetFactory:
         if audio_file_name:
             display(InvisibleAudio(filename=audio_file_name, autoplay=True))
         elif audio_url:
-            display(InvisibleAudio(url=audio_file_name, autoplay=True))
+            display(InvisibleAudio(url=audio_url, autoplay=True))
 
     def _html_diff(self, text, n_text):
         """

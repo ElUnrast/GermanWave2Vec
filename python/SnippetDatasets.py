@@ -109,12 +109,12 @@ class SnippetDatasets:
         }
         
         if git_directory:
-            with open(f'{git_directory}/wer.json', 'a') as wer_file:
+            with open(f'{git_directory}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
                 json.dump(ds_word_error_rate, wer_file)
         else:
             mp3_dir = self.get_snippet_directory(ds_id)
-            with open(f'{mp3_dir}/wer.json', 'a') as wer_file:
+            with open(f'{mp3_dir}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
                 json.dump(ds_word_error_rate, wer_file)
 

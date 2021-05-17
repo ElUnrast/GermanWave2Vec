@@ -15,6 +15,7 @@ import librosa
 import numpy as np
 import sklearn
 import jiwer
+import pandas as pd
 from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
 from sklearn.model_selection import train_test_split
@@ -51,7 +52,11 @@ class GermanSpeechToTextTranslater:
             
             if os.path.isfile(f'{self.trained_model_directory}/trained_epochs.json'):
                 with open(f'{self.trained_model_directory}/trained_epochs.json', 'r') as json_file:
-                    self.trained_epochs = json.load(json_file)['trained_epochs']
+                    file_contend_json = json.load(json_file)
+                    print(f'json loaded: {file_contend_json}')
+                    saved_epoche = file_contend_json['trained_epochs']
+                    print(f'Saved Epoch: {saved_epoche}')
+                    self.trained_epochs = saved_epoche if saved_epoche > 1 else 1
             else:
                 with open(f'{self.trained_model_directory}/trained_epochs.json', 'w') as json_file:
                     json.dump({'trained_epochs' : self.trained_epochs}, json_file)
@@ -59,7 +64,7 @@ class GermanSpeechToTextTranslater:
         # TODO: in abgeleitete Klasse verlagern
         # print('Loading language tool')
         # self.my_tool = language_tool if language_tool else language_tool_python.LanguageTool('de-DE')
-        print('Loading model')
+        print(f'Loading model. Epoche {self.trained_epochs}')
 
         if model:
             self.my_model = model
@@ -245,11 +250,11 @@ class GermanSpeechToTextTranslater:
             training_args,
             snippet_directory,
             train_ds,
-            test_ds,
+            test_ds=pd.DataFrame(),
             use_grouped_legth_trainer=False
     ):
         train_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, train_ds, 'train')
-        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, test_ds, 'eval') if not test_ds.empty else None
+        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, test_ds, 'eval')
         data_collator = DataCollatorCTCWithPadding(processor=self.my_processor, padding=True)
 
         if use_grouped_legth_trainer:
@@ -259,7 +264,7 @@ class GermanSpeechToTextTranslater:
                 args=training_args,
                 compute_metrics=self.compute_metrics,
                 train_dataset=train_dataset,
-                eval_dataset=test_dataset,
+                eval_dataset=test_dataset if not test_ds.empty else None,
                 tokenizer=self.my_processor.feature_extractor,
                 train_seq_lengths=train_dataset.input_seq_lengths
             )
@@ -270,7 +275,7 @@ class GermanSpeechToTextTranslater:
                 args=training_args,
                 compute_metrics=self.compute_metrics,
                 train_dataset=train_dataset,
-                eval_dataset=test_dataset,
+                eval_dataset=test_dataset if not test_ds.empty else None,
                 tokenizer=self.my_processor.feature_extractor,
             )
 
@@ -307,19 +312,25 @@ class GermanSpeechToTextTranslater:
     ##   1. bad_translated as pandas_df
     ##   2. word_error_rate of the hole pandas_df, if diff_calc_wer=True else 1
     def test(self, ds_id, pandas_df=None, diff_file_extension=None, diff_calc_wer=True):
-        pandas_df = pandas_df if pandas_df else self.ds_handler.load_ds_content_translated_with_original(ds_id)
-        translation_column_name = 'Translated1' if pandas_df in pandas_df.columns else 'Translated0'
+        if pandas_df.empty:
+            print(f'Loading Dataset: {ds_id}')
+            pandas_df = self.ds_handler.load_ds_content_translated_with_original(ds_id)
+
+        translation_column_name = 'Translated1' if 'Translated1' in pandas_df.columns else 'Translated0'
         
         if not 'OriginalText' in pandas_df.columns:
             raise ValueError
 
         old_word_error_rate = self.ds_handler.get_word_error_rate(ds_id)
+        print(f'aktual trained epoches: {self.trained_epochs}')
+        print(f'old trained epoches: {old_word_error_rate["trained_epochs"]}')
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
             return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']
         elif old_word_error_rate['trained_epochs'] == 0:        
             wer_result = calc_wer(pandas_df, use_akt_translation=False)
             wer = 100 * wer_result
+            print(f'Saving word_error_rate: {wer}')
             self.ds_handler.save_word_error_rate(ds_id, 0, wer)
 
         diff_file_extension = diff_file_extension if diff_file_extension else f'{self.trained_epochs:05d}'
@@ -389,7 +400,7 @@ class GermanSpeechToTextTranslater:
             max_steps=num_steps_per_epoche,
             fp16=True,
             # save_steps=save_steps,
-            # eval_steps=eval_steps,
+            eval_steps=4 * num_steps_per_epoche,  # eval_steps=eval_steps,
             logging_steps=logging_steps,
             learning_rate=learning_rate,
             warmup_steps=warmup_steps,
@@ -402,10 +413,11 @@ class GermanSpeechToTextTranslater:
 
             for ds_id in ds_to_train:
                 if not dataset_loader.has_translation_with_original(ds_id):
+                    print(f'unable to handle: {ds_id}, cause no Original found')
                     ds_to_train.remove(ds_id)
                     continue
 
-                os.environ["WANDB_NOTES"] = ds_id
+                os.environ['WANDB_NOTES'] = ds_id
                 pandas_df = dataset_loader.load_ds_content_translated_with_original(ds_id)
                 print(f'Dataset - {ds_id} loaded with {pandas_df.shape[0]} Entries')
                 mp3_dir = dataset_loader.get_snippet_directory(ds_id)
@@ -415,11 +427,13 @@ class GermanSpeechToTextTranslater:
                     print(f'Starting round {runde} of {max_rounds}, epoche {epoche} of {num_train_epochs}')
                     print(f'Splitting Dataset {ds_id} with {pandas_df.shape[0]} Entries')
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
+                    print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
+                    print(f'Actual WER: {wer_result}')
                     early_stopping = False
 
-                    if (bad_translation_ds.shape[0] > (pandas_df.shape[0] * early_stopping_value)) and (wer_result < early_stopping_value):                    
+                    if (bad_translation_ds.shape[0] > 200) or (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
-                        
+
                         if max_trainingset_size:
                             train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
                             print(f' - {train_pandas_ds.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')
@@ -429,7 +443,6 @@ class GermanSpeechToTextTranslater:
                             training_args, 
                             mp3_dir,
                             train_pandas_ds,
-                            None,  # test_pandas_ds,
                             use_grouped_legth_trainer=False
                         )
                         print(f'Training of Dataset: {ds_id}')
@@ -446,7 +459,7 @@ class GermanSpeechToTextTranslater:
                         torch.cuda.empty_cache()
                         self.trained_epochs = self.trained_epochs + 1
                         with open(f'{self.model_name}/trained_epochs.json', 'w') as json_file:
-                            json.dump({'trained_epochs', self.trained_epochs}, json_file)
+                            json.dump({'trained_epochs' : self.trained_epochs}, json_file)
                     else:
                         # mindestens 98% der Sätze wurde korrekt übersetzt. Überprüfung der Problemfälle ist angebracht.
                         # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
@@ -457,13 +470,9 @@ class GermanSpeechToTextTranslater:
 
                 if not early_stopping:
                     print(f'final check und update of {ds_id}')
-                    bad_translation_ds, truncated_ds, wer_result = self.test(
-                        ds_id, 
-                        pandas_df, 
-                        mp3_dir, 
-                        diff_file_extension=f'{epoche}-{runde}', 
-                        diff_calc_wer=True
-                    )
+                    bad_translation_ds, truncated_ds, wer_result = self.test(ds_id, pandas_df)
+                    print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
+                    print(f'Actual WER: {wer_result}')
 
         print('Training finisched!')
     
@@ -508,11 +517,15 @@ class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
             self.max_input_length = torch.tensor(self.input_seq_lengths).float() \
                 .quantile(self.max_input_length_quantile).int().item()
 
-        self.labels = ds['OriginalText'].tolist()
-        self.paths = ds['Datei'].tolist()
+        if not ds.empty:
+            self.labels = ds['OriginalText'].tolist()
+            self.paths = ds['Datei'].tolist()
+        else:
+            self.labels = None
+            self.paths = None
 
     def __len__(self):
-        return len(self.paths)
+        return 0 if not self.paths else len(self.paths)
 
     def __getitem__(self, idx):
         mp3_file = f'{self.snippet_directory}/{self.paths[idx]}'
