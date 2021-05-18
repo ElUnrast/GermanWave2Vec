@@ -10,6 +10,7 @@ from transformers import Trainer, TrainingArguments
 from transformers.trainer_pt_utils import LengthGroupedSampler, DistributedLengthGroupedSampler
 
 import json
+import math
 import collections
 import librosa
 import numpy as np
@@ -390,23 +391,6 @@ class GermanSpeechToTextTranslater:
         warmup_steps,
         early_stopping_value=0.2
     ):
-        training_args = TrainingArguments(
-            output_dir=trained_model_path,
-            group_by_length=True,
-            per_device_train_batch_size=per_device_train_batch_size,
-            per_device_eval_batch_size=per_device_train_batch_size // 2,
-            gradient_accumulation_steps=gradient_accumulation_steps,
-            evaluation_strategy="steps",
-            max_steps=num_steps_per_epoche,
-            fp16=True,
-            # save_steps=save_steps,
-            eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
-            logging_steps=logging_steps,
-            learning_rate=learning_rate,
-            warmup_steps=warmup_steps,
-            # save_total_limit=2
-        )
-
         for runde in range(max_rounds):
             print('======================================')
             print(f'Starting round {runde} of {max_rounds}')
@@ -437,6 +421,23 @@ class GermanSpeechToTextTranslater:
                         if max_trainingset_size:
                             train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
                             print(f' - {train_pandas_ds.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')
+
+                            training_args = TrainingArguments(
+                                output_dir=trained_model_path,
+                                group_by_length=True,
+                                per_device_train_batch_size=per_device_train_batch_size,
+                                per_device_eval_batch_size=per_device_train_batch_size // 2,
+                                gradient_accumulation_steps=gradient_accumulation_steps,
+                                evaluation_strategy="steps",
+                                max_steps=num_steps_per_epoche,
+                                fp16=True,
+                                # save_steps=save_steps,
+                                eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
+                                logging_steps=logging_steps,
+                                learning_rate=learning_rate/math.log10(wer_result)**2,
+                                warmup_steps=warmup_steps,
+                                # save_total_limit=2
+                            )
 
                         print(f'Creating Trainer for {ds_id}')
                         trainer = self.get_trainer(
@@ -472,7 +473,7 @@ class GermanSpeechToTextTranslater:
 
                 if not early_stopping:
                     print(f'final check und update of {ds_id}')
-                    bad_translation_ds, truncated_ds, wer_result = self.test(ds_id, pandas_df)
+                    bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
                     print(f'Actual WER: {wer_result}')
 
