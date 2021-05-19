@@ -379,7 +379,8 @@ class GermanSpeechToTextTranslater:
         self,
         trained_model_path,
         dataset_loader, 
-        ds_to_train, 
+        ds_to_train,
+        max_training_sample_size,
         max_trainingset_size, 
         max_rounds, 
         num_train_epochs,
@@ -418,26 +419,29 @@ class GermanSpeechToTextTranslater:
                     if (bad_translation_ds.shape[0] > 200) or (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
+                        train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
+                        print(f' - {train_pandas_ds.shape[0]} Entries left after Length Cut (min=31, max={max_training_sample_size})')
+
                         if max_trainingset_size:
                             train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
                             print(f' - {train_pandas_ds.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')
 
-                            training_args = TrainingArguments(
-                                output_dir=trained_model_path,
-                                group_by_length=True,
-                                per_device_train_batch_size=per_device_train_batch_size,
-                                per_device_eval_batch_size=per_device_train_batch_size // 2,
-                                gradient_accumulation_steps=gradient_accumulation_steps,
-                                evaluation_strategy="steps",
-                                max_steps=num_steps_per_epoche,
-                                fp16=True,
-                                # save_steps=save_steps,
-                                eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
-                                logging_steps=logging_steps,
-                                learning_rate=learning_rate/math.log10(wer_result)**2,
-                                warmup_steps=warmup_steps,
-                                # save_total_limit=2
-                            )
+                        training_args = TrainingArguments(
+                            output_dir=trained_model_path,
+                            group_by_length=True,
+                            per_device_train_batch_size=per_device_train_batch_size,
+                            per_device_eval_batch_size=per_device_train_batch_size // 2,
+                            gradient_accumulation_steps=gradient_accumulation_steps,
+                            evaluation_strategy="steps",
+                            max_steps=num_steps_per_epoche,
+                            fp16=True,
+                            # save_steps=save_steps,
+                            eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
+                            logging_steps=logging_steps,
+                            learning_rate=learning_rate/math.log10(wer_result)**2,
+                            warmup_steps=warmup_steps,
+                            # save_total_limit=2
+                        )
 
                         print(f'Creating Trainer for {ds_id}')
                         trainer = self.get_trainer(
