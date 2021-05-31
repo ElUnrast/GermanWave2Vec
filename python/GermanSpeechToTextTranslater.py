@@ -20,6 +20,7 @@ import pandas as pd
 from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
 from sklearn.model_selection import train_test_split
+from pathlib import Path
 from SnippetDatasets import SnippetDatasets, calc_wer
 
 
@@ -102,38 +103,38 @@ class GermanSpeechToTextTranslater:
     #    return self.my_tool.correct(translation), translation
 
     def load_as_sr16000(self, audio_file_name):
-        new_path = None
-
         if not audio_file_name.endswith('.mp3'):
             samples, sampling_rate = librosa.load(audio_file_name, sr=16_000)  # Downsample to 16kHz
         else:
             # print( f'load {audio_file_name}')
             samples, sampling_rate = torchaudio.load(audio_file_name)
             # print(f'samples.shape : {samples.shape}, sampling_rate : {sampling_rate}')
-            samples = samples[0]
+            samples = np.asarray(samples[0])
 
             if sampling_rate != 16_000:
                 # print( f'Converting from {sampling_rate}')
-                samples = librosa.resample(np.asarray(samples), sampling_rate, 16_000)
+                samples = librosa.resample(samples, sampling_rate, 16_000)
                 # funktioniert auch:
                 # samples = torchaudio.transforms.Resample(orig_freq=sampling_rate, new_freq=16_000)(samples).squeeze().numpy()
 
         if samples.shape[0] == 2:
             samples = samples[0]
 
-        if isinstance(samples, (np.ndarray, np.generic)):
-            samples = torch.from_numpy(samples).float().flatten()
-        else:
-            samples = samples.squeeze().numpy()
-
-        if new_path != None:
-            torch.save(samples, new_path)
-
         return samples, samples.shape[0]
 
     def audio_to_cuda_inputs(self, audio_file_name):
+        cache_file_name = f'/tmp/{Path(audio_file_name).name}.cache'
+
+        if os.path.isfile(cache_file_name):
+            db = torch.load(cache_file_name)
+            return db['ci'], db['ss'].item()
+
         samples, samples_size = self.load_as_sr16000(audio_file_name)
-        return self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values, samples_size
+        ci = self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values
+        db = {'ci': ci, 'ss': torch.tensor([samples_size])}
+        torch.save(db, cache_file_name)
+
+        return ci, samples_size
 
     def translate_audio(self, audio_file_name):
         samples, samples_size = self.audio_to_cuda_inputs(audio_file_name)
@@ -166,12 +167,9 @@ class GermanSpeechToTextTranslater:
             ds['Size'] = size_list
             ds['Translated0'] = translated_list
             del ds['Translated1']
-        elif 'Translated0' in ds.columns:
+        else:
             ds['Size'] = size_list
             ds['Translated0'] = translated_list
-        else:
-            ds.insert(loc=8, column='Size', value=size_list)
-            ds.insert(loc=9, column='Translated0', value=translated_list)
 
         if not has_original:
             ds.to_csv(f'{ds_dir_name}/content-translated.csv', sep=';', index=False)
@@ -318,7 +316,7 @@ class GermanSpeechToTextTranslater:
             pandas_df = self.ds_handler.load_ds_content_translated_with_original(ds_id)
 
         translation_column_name = 'Translated1' if 'Translated1' in pandas_df.columns else 'Translated0'
-        
+
         if not 'OriginalText' in pandas_df.columns:
             raise ValueError
 
@@ -342,8 +340,7 @@ class GermanSpeechToTextTranslater:
         print(f'Translate all')
         predictions, _ = self.translate_dataset(mp3_dir, pandas_df)
         pandas_df[translation_column_name] = predictions
-        pandas_df['ModelEpoche'] = self.trained_epochs
-        self.ds_handler.save_content_translated_with_original(ds_id, pandas_df)
+        self.ds_handler.save_content_translated_with_original(ds_id, pandas_df, self.trained_epochs)
 
         print('Calculate WER')
         wer_result = calc_wer(pandas_df)

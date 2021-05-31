@@ -83,18 +83,27 @@ class SnippetDatasets:
 
     def get_ds_git_directory(self, ds_id):
         if self.git_repository:
-            snippet_directory = self.get_snippet_directory(ds_id)
+            result = f'{self.git_repository}/datasets/{ds_id}'
 
-            if snippet_directory:
-                return f'{self.git_repository}/datasets/{ds_id}'
+            if os.path.isfile(f'{result}/content-translated-with_original.csv'):
+                return result
 
         return None;
 
-    def save_content_translated_with_original(self, ds_id, pandas_df):
+    def save_content_translated_with_original(self, ds_id, pandas_df, epoche=None):
         git_directory = self.get_ds_git_directory(ds_id)
-        
+
         if git_directory:
             pandas_df.to_csv(f'{git_directory}/content-translated-with_original.csv', sep=';', index=False)
+            git_view_path = self.git_repository
+
+            if epoche:
+                git_comment = f'Translation of {ds_id} on epoche {epoche:d}'
+            else:
+                git_comment = f'Translation of {ds_id}'
+
+            # !cd $git_view_path; git commit -m '$git_comment'
+            # os.system(f'cd ${git_view_path}; git commit -m "${git_comment}"')
         else:
             mp3_dir = self.get_snippet_directory(ds_id)
             pandas_df.to_csv(f'{mp3_dir}/content-translated-with_original.csv', sep=';', index=False)
@@ -107,7 +116,7 @@ class SnippetDatasets:
             'ds_id' : ds_id,
             'wer' : wer
         }
-        
+
         if git_directory:
             with open(f'{git_directory}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
