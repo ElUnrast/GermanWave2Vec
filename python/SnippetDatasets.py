@@ -3,8 +3,8 @@ import glob
 import pandas as pd
 import jiwer
 import json
-# from jiwer import wer
 from zipfile import ZipFile
+from os import path
 
 
 # Known Snippet Directories with content.csv, content-with_original.csv
@@ -60,17 +60,17 @@ class SnippetDatasets:
             self.local_datasets[ds_id_to_use] = f'{self.local_audio_base_dir}/{ds_id_to_use}'
             self.used_datasets.append(ds_id_to_use)
 
-    def has_content(self, id_or_directory):
-        return os.path.isfile(f'{self._get_directory(id_or_directory)}/content.csv')
+    def has_content(self, ds_id):
+        return os.path.isfile(f'{self._get_directory(ds_id)}/content.csv')
 
-    def has_content_original(self, id_or_directory):
-        return os.path.isfile(f'{self._get_directory(id_or_directory)}/content-with_original.csv')
+    def has_content_original(self, ds_id):
+        return os.path.isfile(f'{self._get_directory(ds_id)}/content-with_original.csv')
 
-    def has_translation(self, id_or_directory):
-        return os.path.isfile(f'{self._get_directory(id_or_directory)}/content-translated.csv')
+    def has_translation(self, ds_id):
+        return os.path.isfile(f'{self._get_directory(ds_id)}/content-translated.csv')
 
-    def has_translation_with_original(self, id_or_directory):
-        return os.path.isfile(f'{self._get_directory(id_or_directory)}/content-translated-with_original.csv')
+    def has_translation_with_original(self, ds_id):
+        return os.path.isfile(f'{self._get_directory(ds_id)}/content-translated-with_original.csv')
 
     def needs_translation(self, directory):
         if self.has_content(directory):
@@ -79,14 +79,12 @@ class SnippetDatasets:
             return not self.has_translation_with_original(directory)
 
     def get_snippet_directory(self, ds_id):
+        self.use_dataset(ds_id)    
         return self.local_datasets[ds_id]
 
     def get_ds_git_directory(self, ds_id):
         if self.git_repository:
             result = f'{self.git_repository}/datasets/{ds_id}'
-
-            if os.path.isfile(f'{result}/content-translated-with_original.csv'):
-                return result
 
         return None;
 
@@ -94,19 +92,30 @@ class SnippetDatasets:
         git_directory = self.get_ds_git_directory(ds_id)
 
         if git_directory:
+            is_new = not path.exists(git_directory)
+            
+            if is_new:
+                os.mkdir(git_directory)
+                os.system(f"cd ${git_view_path}; git add '${git_directory}'")
+
+            print(f'Save new translations to: {git_directory}/content-translated-with_original.csv')
             pandas_df.to_csv(f'{git_directory}/content-translated-with_original.csv', sep=';', index=False)
-            git_view_path = self.git_repository
+
+            if is_new:
+                os.system(f"cd ${git_view_path}; git add '${git_directory}/content-translated-with_original.csv'")
 
             if epoche:
                 git_comment = f'Translation of {ds_id} on epoche {epoche:d}'
             else:
                 git_comment = f'Translation of {ds_id}'
 
-            # !cd $git_view_path; git commit -m '$git_comment'
-            # os.system(f'cd ${git_view_path}; git commit -m "${git_comment}"')
+            git_view_path = self.git_repository
+            # !cd $git_view_path; git commit -am '$git_comment'
+            os.system(f"cd ${git_view_path}; git commit -am '${git_comment}'")
         else:
-            mp3_dir = self.get_snippet_directory(ds_id)
-            pandas_df.to_csv(f'{mp3_dir}/content-translated-with_original.csv', sep=';', index=False)
+            ds_directory = self._get_directory(ds_id)
+            print(f'Save new translations to: {ds_directory}/content-translated-with_original.csv')
+            pandas_df.to_csv(f'{ds_directory}/content-translated-with_original.csv', sep=';', index=False)
 
     def save_word_error_rate(self, ds_id, epoche, wer):
         git_directory = self.get_ds_git_directory(ds_id)
@@ -118,12 +127,15 @@ class SnippetDatasets:
         }
 
         if git_directory:
+            if not path.exists(git_directory):
+                os.mkdir(git_directory)
+
             with open(f'{git_directory}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
                 json.dump(ds_word_error_rate, wer_file)
         else:
-            mp3_dir = self.get_snippet_directory(ds_id)
-            with open(f'{mp3_dir}/wer.json', 'w') as wer_file:
+            ds_directory = self._get_directory(ds_id)
+            with open(f'{ds_directory}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
                 json.dump(ds_word_error_rate, wer_file)
 
@@ -136,10 +148,10 @@ class SnippetDatasets:
                 return json.load(wer_file)
 
         else:
-            mp3_dir = self.get_snippet_directory(ds_id)
+            ds_directory = self._get_directory(ds_id)
             
-            if os.path.isfile(f'{mp3_dir}/wer.json'):
-                with open(f'{mp3_dir}/wer.json', 'r') as wer_file:
+            if os.path.isfile(f'{ds_directory}/wer.json'):
+                with open(f'{ds_directory}/wer.json', 'r') as wer_file:
                     return json.load(wer_file)
         
         return {
@@ -148,45 +160,43 @@ class SnippetDatasets:
             'wer' : 1
         }
 
-    def load_ds_content(self, id_or_directory):
+    def load_ds_content(self, ds_id):
         # Action: translate -> find original
-        return self._get_dataframe(id_or_directory, 'content.csv')
+        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content.csv')
 
-    def load_ds_content_with_original(self, id_or_directory):
+    def load_ds_content_with_original(self, ds_id):
         # Action: translate -> train
-        return self._get_dataframe(id_or_directory, 'content-with_original.csv')
+        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-with_original.csv')
 
-    def load_ds_content_translated(self, id_or_directory):
+    def load_ds_content_translated(self, ds_id):
         # File for Action: find original
-        return self._get_dataframe(id_or_directory, 'content-translated.csv')
+        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated.csv')
 
-    def load_ds_content_translated_with_original(self, id_or_directory):
-        self.use_dataset(id_or_directory)
+    def load_ds_content_translated_with_original(self, ds_id):
+        self.use_dataset(ds_id)
         # TODO: wenn hier ein Verzeichnis stimmt der Algorithmus noch nicht
         # File for Action: train or repeated translation
-        git_directory = self.get_ds_git_directory(id_or_directory)
+        git_directory = self.get_ds_git_directory(ds_id)
         
-        if not git_directory:
+        if git_directory and os.path.isfile(f'{git_directory}/content-translated-with_original.csv'):
             return self._get_dataframe(git_directory, 'content-translated-with_original.csv')
         
-        return self._get_dataframe(id_or_directory, 'content-translated-with_original.csv')
+        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated-with_original.csv')
 
-    def _get_directory(self, id_or_directory):
-        if id_or_directory in self.local_datasets:
-            return self.get_snippet_directory(id_or_directory)
+    def _get_directory(self, ds_id):
+        if ds_id in self.local_datasets:
+            return self.local_datasets[ds_id]
 
-        return id_or_directory
+        return ds_id
 
-    def _get_dataframe(self, id_or_directory, file_name):
+    def _get_dataframe(self, ds_id, ds_directory, file_name):
         print('-----------------------------')
-        print(f'Loading Dataset: {id_or_directory} - {file_name}')
-        self.use_dataset(id_or_directory)
-        ds_directory = self._get_directory(id_or_directory)
+        print(f'Loading Dataset: {ds_id} - {ds_directory}/{file_name}')
         pandas_df = pd.read_csv(f'{ds_directory}/{file_name}', sep=';')
         truncated_ds = pandas_df
 
         if 'OriginalText' in pandas_df.columns:
-            print(f'Pruning Dataset {id_or_directory} with {pandas_df.shape[0]} Entries')
+            print(f'Pruning Dataset {ds_id} with {pandas_df.shape[0]} Entries')
 
             if 'Length' in pandas_df.columns:
                 truncated_ds = truncated_ds[(truncated_ds.Length <= 4000) & (truncated_ds.Length >= 31)]
@@ -199,10 +209,10 @@ class SnippetDatasets:
             if pandas_df.Length.max() > (1600 * 3):
                 raise ValueError
 
-        if pandas_df.shape[0] != truncated_ds.shape[0]:
-            print(f'Dataset was truncated from {pandas_df.shape[0]} to {truncated_ds.shape[0]} Entries. Saving Backup.')
-            pandas_df.to_csv(f'{ds_directory}/original-{file_name}', sep=';', index=False)
-            truncated_ds.to_csv(f'{ds_directory}/{file_name}', sep=';', index=False)
+        # if pandas_df.shape[0] != truncated_ds.shape[0]:
+        #     print(f'Dataset was truncated from {pandas_df.shape[0]} to {truncated_ds.shape[0]} Entries. Saving Backup.')
+        #     pandas_df.to_csv(f'{ds_directory}/original-{file_name}', sep=';', index=False)
+        #     truncated_ds.to_csv(f'{ds_directory}/{file_name}', sep=';', index=False)
         
         pandas_df = truncated_ds
         return pandas_df
@@ -210,13 +220,13 @@ class SnippetDatasets:
 
 def calc_wer(ds_with_translation_and_original, use_akt_translation=True, chunk_size=1000):
     if use_akt_translation and ('Translated1' in ds_with_translation_and_original.columns):
-        translation_column = ds_with_translation_and_original.Translated1
+        translation_column = 'Translated1'
     else:
-        translation_column = ds_with_translation_and_original.Translated0
+        translation_column = 'Translated0'
 
     return chunked_wer(
-        targets=ds_with_translation_and_original.OriginalText.tolist(),
-        predictions=translation_column.tolist(),
+        targets=ds_with_translation_and_original['OriginalText'].tolist(),
+        predictions=ds_with_translation_and_original[translation_column].tolist(),
         chunk_size=chunk_size
     )
 
