@@ -200,50 +200,6 @@ class GermanSpeechToTextTranslater:
 
         return translated_list, size_list
 
-    # TODO: deprecated use intern train method instead
-    def split_dataset(
-            self,
-            pandas_df,
-            max_trainingset_size=25000,
-            max_sample_size=1000,
-            use_only_incorrect_translated=True,
-            fixed_training_set_size=None
-    ):
-        used_df = pandas_df
-        has_action = 'Action' in pandas_df.columns
-
-        if has_action:
-            used_df = used_df[(used_df.Action == 'train') | (used_df.Action == 'translate')]
-            print(f' - {used_df.shape[0]} Entries left after Action Cut')
-
-        used_df = used_df[used_df.Length <= max_sample_size] if max_sample_size else pandas_df
-        print(f' - {used_df.shape[0]} Entries left after Length Cut (max={max_sample_size})')
-        used_df = used_df[used_df.Length > 30]
-        print(f' - {used_df.shape[0]} Entries left after minimal Size Cut (min=31)')
-
-        # Test Dataset should be fixed_training_set_size Entries long
-        test_percentage = fixed_training_set_size / used_df.shape[0] if fixed_training_set_size else 0.2
-
-        train, test = train_test_split(used_df, test_size=test_percentage, random_state=143)
-        print(f'Training Dataset Size: {train.shape[0]}, Validation Dataset Size {test.shape[0]}')
-
-        if use_only_incorrect_translated:
-            if 'Translated1' in train.columns:
-                train = train[(train.OriginalText != train.Translated1)]
-            else:
-                train = train[(train.OriginalText != train.Translated0)]
-
-            print(f' - {train.shape[0]} Entries left after first Recognition Cut')
-
-        train = sklearn.utils.shuffle(train)
-
-        if max_trainingset_size:
-            train = train[:min(train.shape[0], max_trainingset_size)]
-            print(f' - {train.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')
-
-        print(f'Training Dataset Size: {train.shape[0]}, Validation Dataset Size {test.shape[0]}')
-        return train, test
-
     def get_trainer(
             self,
             training_args,
@@ -323,12 +279,15 @@ class GermanSpeechToTextTranslater:
         old_word_error_rate = self.ds_handler.get_word_error_rate(ds_id)
         print(f'aktual trained epoches: {self.trained_epochs}')
         print(f'old trained epoches: {old_word_error_rate["trained_epochs"]}')
+        print(f'old word error rate: {old_word_error_rate["wer"]}')
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
+            print('Translation is up to date')
             return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']
         elif old_word_error_rate['trained_epochs'] == 0:        
-            wer_result = calc_wer(pandas_df, use_akt_translation=False)
-            wer = 100 * wer_result
+            # wer_result = calc_wer(pandas_df, use_akt_translation=False)
+            # wer = 100 * wer_result
+            wer = 100
             print(f'Saving word_error_rate: {wer}')
             self.ds_handler.save_word_error_rate(ds_id, 0, wer)
 
@@ -410,7 +369,7 @@ class GermanSpeechToTextTranslater:
                     print(f'Splitting Dataset {ds_id} with {pandas_df.shape[0]} Entries')
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
-                    print(f'Actual WER: {wer_result}')
+                    print(f'Actual WER: {wer_result}%')
                     early_stopping = False
 
                     if (bad_translation_ds.shape[0] > 200) or (wer_result > early_stopping_value):
