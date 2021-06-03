@@ -179,7 +179,7 @@ class SnippetDatasets:
         git_directory = self.get_ds_git_directory(ds_id)
         
         if git_directory and os.path.isfile(f'{git_directory}/content-translated-with_original.csv'):
-            return self._get_dataframe(git_directory, 'content-translated-with_original.csv')
+            return self._get_dataframe(ds_id, git_directory, 'content-translated-with_original.csv')
         
         return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated-with_original.csv')
 
