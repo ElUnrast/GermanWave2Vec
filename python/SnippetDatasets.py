@@ -84,7 +84,7 @@ class SnippetDatasets:
 
     def get_ds_git_directory(self, ds_id):
         if self.git_repository:
-            result = f'{self.git_repository}/datasets/{ds_id}'
+            return f'{self.git_repository}/datasets/{ds_id}'
 
         return None;
 
