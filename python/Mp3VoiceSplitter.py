@@ -21,7 +21,7 @@ def load_mp3_as_sr16000(audio_file_name : str):
         if sampling_rate != 16_000:
             samples = librosa.resample(samples, sampling_rate, 16_000)
 
-    print(f'Audio Type: {type(samples)}, {type(sample[0])}')
+    print(f'Audio Type: {type(samples)}, {type(samples[0])}')
     
     return samples, samples.shape[0]
 
