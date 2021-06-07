@@ -111,7 +111,7 @@ class SnippetDatasets:
 
             # git_view_path = self.git_repository
             # !cd $git_view_path; git commit -am '$git_comment'
-            os.system(f"cd ${git_repository}; git commit -am '${git_comment}'")
+            os.system(f"cd ${self.git_repository}; git commit -am '${git_comment}'")
         else:
             ds_directory = self._get_directory(ds_id)
             print(f'Save new translations to: {ds_directory}/content-translated-with_original.csv')
