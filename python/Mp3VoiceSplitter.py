@@ -21,7 +21,7 @@ def load_mp3_as_sr16000(audio_file_name : str):
         if sampling_rate != 16_000:
             samples = librosa.resample(samples, sampling_rate, 16_000)
 
-    print(f'Audio Type: {type(samples)}, {type(sample[0])}')
+    print(f'Audio Type: {type(samples)}, {type(samples[0])}')
     
     return samples, samples.shape[0]
 
@@ -284,3 +284,15 @@ def split_mp3s(ds_id, translator, source_dir, destination_dir):
     
     result.to_csv(f'{destination_dir}/content-translated.csv', sep=';', index=False)
     return result
+
+
+'''returns: 'file_name, start, end, length, duration, size' of the MP3-Snippet'''
+def get_snippet_info_from_mp3_file(mp3_file_path):
+    file_name = Path(mp3_file_path).name
+    sample_rate = 16_000;
+    samples, sample_length = load_mp3_as_sr16000(mp3_file_path)
+    audio = convert_numpy_samples_to_audio_bytes(samples)
+    frame_duration_ms = 30
+    frames = frame_generator(frame_duration_ms, audio, sample_rate)
+    snippet = VoicedSnippet(list(frames))
+    return file_name, snippet.start, snippet.end, snippet.length, snippet.duration, sample_length
