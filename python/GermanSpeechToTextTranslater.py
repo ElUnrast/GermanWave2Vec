@@ -350,7 +350,7 @@ class GermanSpeechToTextTranslater:
     ):
         for runde in range(max_rounds):
             print('======================================')
-            print(f'Starting round {runde} of {max_rounds}')
+            print(f'Starting round {runde + 1} of {max_rounds}')
 
             for ds_id in ds_to_train:
                 os.environ['WANDB_NOTES'] = ds_id
@@ -365,14 +365,14 @@ class GermanSpeechToTextTranslater:
 
                 for epoche in range(num_train_epochs):
                     print('**************************************')
-                    print(f'Starting round {runde} of {max_rounds}, epoche {epoche} of {num_train_epochs}')
+                    print(f'Starting round {runde + 1} of {max_rounds}, epoche {epoche + 1} of {num_train_epochs}')
                     print(f'Splitting Dataset {ds_id} with {pandas_df.shape[0]} Entries')
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
                     print(f'Actual WER: {wer_result}%')
                     early_stopping = False
 
-                    if (bad_translation_ds.shape[0] > 200) or (wer_result > early_stopping_value):
+                    if (bad_translation_ds.shape[0] > 200) and (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
