@@ -1,7 +1,7 @@
 import difflib
 from IPython.display import Audio, display
 from ipywidgets import widgets
-from .SnippetDatasets import calc_wer
+from SnippetDatasets import calc_wer
 from tqdm.notebook import tqdm_notebook
 
 class InvisibleAudio(Audio):

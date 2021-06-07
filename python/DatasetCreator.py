@@ -2,7 +2,7 @@ import os
 import glob
 import pandas as pd
 from pathlib import Path
-from .Mp3VoiceSplitter import get_snippet_info_from_mp3_file
+from Mp3VoiceSplitter import get_snippet_info_from_mp3_file
 
 
 # Create content.csv
