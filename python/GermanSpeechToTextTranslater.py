@@ -122,22 +122,25 @@ class GermanSpeechToTextTranslater:
 
         return samples, samples.shape[0]
 
-    def audio_to_cuda_inputs(self, audio_file_name):
-        cache_file_name = f'/tmp/{Path(audio_file_name).name}.cache'
+    def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
+        if ds_id:
+            cache_file_name = f'/tmp/{ds_id}/{Path(audio_file_name).name}.cache'
 
-        if os.path.isfile(cache_file_name):
-            db = torch.load(cache_file_name)
-            return db['ci'], db['ss'].item()
+            if os.path.isfile(cache_file_name):
+                db = torch.load(cache_file_name)
+                return db['ci'], db['ss'].item()
 
         samples, samples_size = self.load_as_sr16000(audio_file_name)
         ci = self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values
         db = {'ci': ci, 'ss': torch.tensor([samples_size])}
-        torch.save(db, cache_file_name)
+        
+        if ds_id:
+            torch.save(db, cache_file_name)
 
         return ci, samples_size
 
-    def translate_audio(self, audio_file_name):
-        samples, samples_size = self.audio_to_cuda_inputs(audio_file_name)
+    def translate_audio(self, audio_file_name, ds_id=None):
+        samples, samples_size = self.audio_to_cuda_inputs(audio_file_name, ds_id)
         samples_size = samples_size
 
         with torch.no_grad():
@@ -148,20 +151,20 @@ class GermanSpeechToTextTranslater:
         # Converting audio to text - Passing the prediction to the tokenzer decode to get the transcription
         return self.my_processor.decode(predicted_ids[0]), samples_size
 
-    def translate_and_extend_dataset_from_directory(self, id_or_directory):
-        if not self.ds_handler.needs_translation(id_or_directory):
+    def translate_and_extend_dataset_from_directory(self, ds_id):
+        if not self.ds_handler.needs_translation(ds_id):
             return
 
-        print(f'Translating and extend Dataset: {id_or_directory}')
-        has_original = self.ds_handler.has_content_original(id_or_directory)
+        print(f'Translating and extend Dataset: {ds_id}')
+        has_original = self.ds_handler.has_content_original(ds_id)
 
         if not has_original:
-            ds = self.ds_handler.load_ds_content(id_or_directory)
+            ds = self.ds_handler.load_ds_content(ds_id)
         else:
-            ds = self.ds_handler.load_ds_content_with_original(id_or_directory)
+            ds = self.ds_handler.load_ds_content_with_original(ds_id)
 
-        ds_dir_name = self.ds_handler.get_snippet_directory(id_or_directory)
-        translated_list, size_list = self.translate_dataset(ds_dir_name, ds)
+        ds_dir_name = self.ds_handler.get_snippet_directory(ds_id)
+        translated_list, size_list = self.translate_dataset(ds_dir_name, ds, ds_id)
 
         if 'Translated1' in ds.columns:
             ds['Size'] = size_list
@@ -176,15 +179,15 @@ class GermanSpeechToTextTranslater:
         else:
             ds.to_csv(f'{ds_dir_name}/content-translated-with_original.csv', sep=';', index=False)
 
-    def translate_dataset(self, mp3_dir, ds):
+    def translate_dataset(self, mp3_dir, ds, ds_id=None):
         if isinstance(ds, GermanTrainingWav2Vec2Dataset):
             files = [f'{mp3_dir}/{file_name}' for file_name in ds.paths]
         else:
             files = [f'{mp3_dir}/{file_name}' for file_name in ds.Datei]
 
-        return self.translate_audio_files(files)
+        return self.translate_audio_files(files, ds_id)
 
-    def translate_audio_files(self, files):
+    def translate_audio_files(self, files, ds_id=None):
         translated_list = []
         size_list = []
         idx = 0
@@ -297,7 +300,7 @@ class GermanSpeechToTextTranslater:
         wer_result = 1.0
 
         print(f'Translate all')
-        predictions, _ = self.translate_dataset(mp3_dir, pandas_df)
+        predictions, _ = self.translate_dataset(mp3_dir, pandas_df, ds_id)
         pandas_df[translation_column_name] = predictions
         self.ds_handler.save_content_translated_with_original(ds_id, pandas_df, self.trained_epochs)
 
