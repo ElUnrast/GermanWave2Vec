@@ -124,7 +124,12 @@ class GermanSpeechToTextTranslater:
 
     def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
         if ds_id:
-            cache_file_name = f'/tmp/{ds_id}/{Path(audio_file_name).name}.cache'
+            tmp_directory = os.path.dirname(f'/tmp/{ds_id}')
+            
+            if not os.path.exists(tmp_directory):
+                os.makedirs(tmp_directory)
+
+            cache_file_name = f'{tmp_directory}/{Path(audio_file_name).name}.cache'
 
             if os.path.isfile(cache_file_name):
                 db = torch.load(cache_file_name)
