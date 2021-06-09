@@ -206,7 +206,7 @@ class GermanSpeechToTextTranslater:
                 torch.cuda.empty_cache()
 
             idx = idx + 1
-            translated, sample_size = self.translate_audio(file_name)
+            translated, sample_size = self.translate_audio(file_name, ds_id)
             translated_list.append(translated)
             size_list.append(sample_size)
 
