@@ -212,12 +212,13 @@ class GermanSpeechToTextTranslater:
             self,
             training_args,
             snippet_directory,
+            ds_id,
             train_ds,
             test_ds=pd.DataFrame(),
             use_grouped_legth_trainer=False
     ):
-        train_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, train_ds, 'train')
-        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, test_ds, 'eval')
+        train_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, ds_id, train_ds, 'train')
+        test_dataset = GermanTrainingWav2Vec2Dataset(self, snippet_directory, ds_id, test_ds, 'eval')
         data_collator = DataCollatorCTCWithPadding(processor=self.my_processor, padding=True)
 
         if use_grouped_legth_trainer:
@@ -411,6 +412,7 @@ class GermanSpeechToTextTranslater:
                         trainer = self.get_trainer(
                             training_args, 
                             mp3_dir,
+                            ds_id,
                             train_pandas_ds,
                             pandas_df.sort_values(by=['Size'], ascending=False).head(20),
                             use_grouped_legth_trainer=False
@@ -474,7 +476,7 @@ class GermanSpeechToTextTranslater:
 
 
 class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
-    def __init__(self, german_speech_translator, snippet_directory, ds, split):
+    def __init__(self, german_speech_translator, snippet_directory, ds_id, ds, split):
         super().__init__()
         assert split in {'train', 'eval'}
         self.split = split
@@ -482,6 +484,7 @@ class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
         self.german_speech_translator = german_speech_translator
         self.max_input_length_quantile = .98
         self.max_input_length = None
+        self.ds_id = ds_id
 
         if split == 'train':
             self.input_seq_lengths = ds['Size'].tolist()
@@ -502,7 +505,7 @@ class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
         mp3_file = f'{self.snippet_directory}/{self.paths[idx]}'
         # print(f'Loading MP3: {mp3_file}')
         inputs, _ = self.german_speech_translator.audio_to_cuda_inputs(
-            mp3_file
+            mp3_file, self.ds_id
         )
 
         inputs = inputs.squeeze()
