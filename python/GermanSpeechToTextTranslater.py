@@ -127,7 +127,11 @@ class GermanSpeechToTextTranslater:
             tmp_directory = os.path.dirname(f'/tmp/{ds_id}')
             
             if not os.path.exists(tmp_directory):
+                print(f'Creating cache directory: {tmp_directory}')
                 os.makedirs(tmp_directory)
+                
+            if not os.path.exists(tmp_directory):
+                raise ValueError
 
             cache_file_name = f'{tmp_directory}/{Path(audio_file_name).name}.cache'
 
