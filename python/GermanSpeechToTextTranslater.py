@@ -292,7 +292,7 @@ class GermanSpeechToTextTranslater:
         old_word_error_rate = self.ds_handler.get_word_error_rate(ds_id)
         print(f'aktual trained epoches: {self.trained_epochs}')
         print(f'old trained epoches: {old_word_error_rate["trained_epochs"]}')
-        print(f'old word error rate: {old_word_error_rate["wer"]%}')
+        print(f'old word error rate: {old_word_error_rate["wer"]}%')
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
             print('Translation is up to date')
