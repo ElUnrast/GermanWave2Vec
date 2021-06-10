@@ -124,7 +124,7 @@ class GermanSpeechToTextTranslater:
 
     def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
         if ds_id:
-            tmp_directory = os.path.dirname(f'/tmp/{ds_id}')
+            tmp_directory = f'/tmp/{ds_id}'
             
             if not os.path.exists(tmp_directory):
                 print(f'Creating cache directory: {tmp_directory}')
@@ -292,22 +292,22 @@ class GermanSpeechToTextTranslater:
         old_word_error_rate = self.ds_handler.get_word_error_rate(ds_id)
         print(f'aktual trained epoches: {self.trained_epochs}')
         print(f'old trained epoches: {old_word_error_rate["trained_epochs"]}')
-        print(f'old word error rate: {old_word_error_rate["wer"]}')
+        print(f'old word error rate: {old_word_error_rate["wer"]%}')
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
             print('Translation is up to date')
             return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']
         elif old_word_error_rate['trained_epochs'] == 0:        
-            # wer_result = calc_wer(pandas_df, use_akt_translation=False)
-            # wer = 100 * wer_result
             wer = 100
-            print(f'Saving word_error_rate: {wer}')
+            print(f'Saving word_error_rate: {wer}%')
             self.ds_handler.save_word_error_rate(ds_id, 0, wer)
 
         diff_file_extension = diff_file_extension if diff_file_extension else f'{self.trained_epochs:05d}'
         mp3_dir = self.ds_handler.get_snippet_directory(ds_id)
 
         wer_result = 1.0
+        orig_good_translation_ds = pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']]
+        orig_bad_translation_ds = pandas_df[pandas_df[translation_column_name] == pandas_df['OriginalText']]
 
         print(f'Translate all')
         predictions, _ = self.translate_dataset(mp3_dir, pandas_df, ds_id)
@@ -318,8 +318,9 @@ class GermanSpeechToTextTranslater:
         wer_result = calc_wer(pandas_df)
         wer = 100 * wer_result
         self.ds_handler.save_word_error_rate(ds_id, self.trained_epochs, wer)
-        print(f'WER: {wer_result}')
+        print(f'WER: {wer:3.4f}%')
 
+        good_translation_ds = pandas_df[pandas_df[translation_column_name] == pandas_df['OriginalText']]
         bad_translation_ds = pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']]
         print(f'No. of bad translated snippets: {bad_translation_ds.shape[0]}')
 
@@ -382,7 +383,7 @@ class GermanSpeechToTextTranslater:
                     print(f'Splitting Dataset {ds_id} with {pandas_df.shape[0]} Entries')
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
-                    print(f'Actual WER: {wer_result}%')
+                    print(f'Actual WER: {100 * wer_result:3.4f}%')
                     early_stopping = False
 
                     if (bad_translation_ds.shape[0] > 200) and (wer_result > early_stopping_value):
@@ -407,7 +408,7 @@ class GermanSpeechToTextTranslater:
                             # save_steps=save_steps,
                             eval_steps=logging_steps,  # 4 * num_steps_per_epoche,  # eval_steps=eval_steps,
                             logging_steps=logging_steps,
-                            learning_rate=learning_rate/math.log10(wer_result)**2,
+                            learning_rate=learning_rate/max(4, math.log10(wer_result)**2),
                             warmup_steps=warmup_steps,
                             # save_total_limit=2
                         )
@@ -449,7 +450,7 @@ class GermanSpeechToTextTranslater:
                     print(f'final check und update of {ds_id}')
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
-                    print(f'Actual WER: {wer_result}')
+                    print(f'Actual WER: {100 * wer_result:3.4f}')
 
         print('Training finisched!')
     
