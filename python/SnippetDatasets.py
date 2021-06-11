@@ -96,13 +96,13 @@ class SnippetDatasets:
 
             if is_new:
                 os.mkdir(git_directory)
-                os.system(f"cd ${self.git_repository}; git add '${git_directory}'")
+                os.system(f"cd {self.git_repository}; git add '{git_directory}'")
 
             print(f'Save new translations to: {git_directory}/content-translated-with_original.csv')
             pandas_df.to_csv(f'{git_directory}/content-translated-with_original.csv', sep=';', index=False)
 
             if is_new:
-                os.system(f"cd ${self.git_repository}; git add '${git_directory}/content-translated-with_original.csv'")
+                os.system(f"cd {self.git_repository}; git add '{git_directory}/content-translated-with_original.csv'")
 
             if epoche:
                 git_comment = f'Translation of {ds_id} on epoche {epoche:d}'
@@ -111,7 +111,7 @@ class SnippetDatasets:
 
             # git_view_path = self.git_repository
             # !cd $git_view_path; git commit -am '$git_comment'
-            os.system(f"cd ${self.git_repository}; git commit -am '${git_comment}'")
+            os.system(f"cd {self.git_repository}; git commit -am '{git_comment}'")
         else:
             ds_directory = self._get_directory(ds_id)
             print(f'Save new translations to: {ds_directory}/content-translated-with_original.csv')
@@ -130,7 +130,7 @@ class SnippetDatasets:
             is_new = not path.exists(git_directory)
             if is_new:
                 os.mkdir(git_directory)
-                os.system(f"cd ${self.git_repository}; git add '${git_directory}'")
+                os.system(f"cd {self.git_repository}; git add '{git_directory}'")
 
             with open(f'{git_directory}/wer.json', 'w') as wer_file:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
@@ -143,7 +143,7 @@ class SnippetDatasets:
 
             # git_view_path = self.git_repository
             # !cd $git_view_path; git commit -am '$git_comment'
-            os.system(f"cd ${self.git_repository}; git commit -am '${git_comment}'")
+            os.system(f"cd {self.git_repository}; git commit -am '{git_comment}'")
         else:
             ds_directory = self._get_directory(ds_id)
             with open(f'{ds_directory}/wer.json', 'w') as wer_file:
