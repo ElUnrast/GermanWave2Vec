@@ -365,8 +365,12 @@ class GermanSpeechToTextTranslater:
         for runde in range(max_rounds):
             print('======================================')
             print(f'Starting round {runde + 1} of {max_rounds}')
+            print('======================================')
 
             for ds_id in ds_to_train:
+                print('--------------------------------------')
+                print(f'-- Start train of Dataset: {ds_id}')
+                print('--------------------------------------')
                 os.environ['WANDB_NOTES'] = ds_id
                 pandas_df = dataset_loader.load_ds_content_translated_with_original(ds_id)
                 if not 'OriginalText' in pandas_df.columns:
@@ -443,7 +447,7 @@ class GermanSpeechToTextTranslater:
                         # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
                         print('Early stopping!')
                         early_stopping = True
-                        ds_to_train.remove(ds_id)
+                        # keine gute Idee: ds_to_train.remove(ds_id)
                         break
 
                 if not early_stopping:
@@ -451,6 +455,8 @@ class GermanSpeechToTextTranslater:
                     bad_translation_ds, wer_result = self.test(ds_id, pandas_df)
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
                     print(f'Actual WER: {100 * wer_result:3.4f}')
+
+                print(f'finished training of {ds_id} on epoche {self.trained_epochs}')
 
         print('Training finisched!')
     
