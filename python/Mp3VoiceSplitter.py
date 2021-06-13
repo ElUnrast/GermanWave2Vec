@@ -11,7 +11,7 @@ from pathlib import Path
 import webrtcvad
 
 
-def load_mp3_as_sr16000(audio_file_name : str):
+def load_mp3_as_sr16000(audio_file_name: str):
     print(f'Loading: {audio_file_name}')
 
     if audio_file_name.endswith('.mp3'):
@@ -22,34 +22,34 @@ def load_mp3_as_sr16000(audio_file_name : str):
             samples = librosa.resample(samples, sampling_rate, 16_000)
 
         print(f'Audio Type: {type(samples)}, {type(samples[0])}')
-    
+
         return samples, samples.shape[0]
 
     raise ValueError
 
 
-def convert_audio_bytes_to_numpy(audio : bytes, normalize=True):
+def convert_audio_bytes_to_numpy(audio: bytes, normalize=True):
     il = []
     k = 0
-    
-    for i in range(0,len(audio),2):
+
+    for i in range(0, len(audio), 2):
         b = audio[i:i+2]
         j = int.from_bytes(b, 'little', signed=True)
         il.append(j)
-        k = k + 1    
-    
+        k = k + 1
+
     result = np.array(il, dtype=np.float32)
 
     if normalize:
         max_peak = abs(result).max()
-        
+
         if max_peak > 0:
             return result / max_peak
         else:
             return result
     else:
         return result / 32768
-    
+
 
 def convert_numpy_samples_to_audio_bytes(samples):
     m = abs(samples).max()
@@ -60,18 +60,19 @@ def convert_numpy_samples_to_audio_bytes(samples):
 
     for i in il:
         ba.extend(i.to_bytes(2, 'little', signed=True))
-    
-    return bytes(ba)
-    
 
-def write_mp3(audio_file_name : str, audio : bytes, sample_rate=16_000):
+    return bytes(ba)
+
+
+def write_mp3(audio_file_name: str, audio: bytes, sample_rate=16_000):
     ia1 = convert_audio_bytes_to_numpy(audio)
-    ia = np.array([ia1,ia1])
+    ia = np.array([ia1, ia1])
     torchaudio.save(audio_file_name, torch.from_numpy(ia).float(), sample_rate, format='mp3')
-    
-    
+
+
 class Frame(object):
     """Represents a "frame" of audio data."""
+
     def __init__(self, bytes, offset, timestamp, duration):
         self.bytes = bytes
         self.offset = offset
@@ -86,10 +87,10 @@ class VoicedSnippet(object):
         self.end = voiced_frames[-1].offset + len(voiced_frames[-1].bytes)
         self.length = len(voiced_frames)
         self.duration = sum([f.duration for f in voiced_frames])
-        
+
     def get_samples(self):
         return convert_audio_bytes_to_numpy(self.bytes)
-    
+
     def write_mp3(self, destination_path, orig_mp3_file_name_without_extension):
         new_file_name = f'{orig_mp3_file_name_without_extension}-{self.start:09d}.mp3'
         print(f'Writing {new_file_name}, duration: {self.duration:f}ms')
@@ -115,7 +116,7 @@ def frame_generator(frame_duration_ms, audio, sample_rate):
 
 
 def vad_collector_orig(sample_rate, frame_duration_ms,
-                  padding_duration_ms, vad, frames):
+                       padding_duration_ms, vad, frames):
     """Filters out non-voiced audio frames.
     Given a webrtcvad.Vad and a source of audio frames, yields only
     the voiced audio.
@@ -177,10 +178,10 @@ def vad_collector_orig(sample_rate, frame_duration_ms,
                 yield VoicedSnippet(voiced_frames)
                 ring_buffer.clear()
                 voiced_frames = []
-    
+
     if triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
-        
+
     sys.stdout.write('\n')
     # If we have any leftover voiced audio when we run out of input,
     # yield it.
@@ -231,10 +232,10 @@ def vad_collector(sample_rate, vad, frames):
                 yield VoicedSnippet(voiced_frames)
                 ring_buffer.clear()
                 voiced_frames = []
-    
+
     if triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
-        
+
     sys.stdout.write('\n')
     # If we have any leftover voiced audio when we run out of input,
     # yield it.
@@ -243,7 +244,7 @@ def vad_collector(sample_rate, vad, frames):
 
 
 def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=None):
-    sample_rate = 16_000;
+    sample_rate = 16_000
     samples, sample_length = load_mp3_as_sr16000(mp3_file_path)
     audio = convert_numpy_samples_to_audio_bytes(samples)
     vad = webrtcvad.Vad(1)
@@ -265,14 +266,14 @@ def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=Non
         snippet_df['End'] = [snippet.end]
         snippet_df['Length'] = [snippet.length]
         snippet_df['Duration'] = [snippet.duration]
-        
+
         if translator:
             translation, samples_size = translator.translate_audio(f'{destination_path}/{new_file_name}')
             snippet_df['Size'] = [samples_size]
             snippet_df['Translated0'] = [translation]
-            
-        result = result.append(snippet_df, ignore_index = True)
-        
+
+        result = result.append(snippet_df, ignore_index=True)
+
     return result
 
 
@@ -282,16 +283,18 @@ def split_mp3s(ds_id, translator, source_dir, destination_dir):
 
     for mp3_file_path in mp3FilenamesList:
         df = pd.DataFrame({'DsId': [ds_id], 'Orginaldatei': Path(mp3_file_path).name})
-        result = result.append(split_mp3(mp3_file_path, destination_dir, df, translator), ignore_index = True)
-    
+        result = result.append(split_mp3(mp3_file_path, destination_dir, df, translator), ignore_index=True)
+
     result.to_csv(f'{destination_dir}/content-translated.csv', sep=';', index=False)
     return result
 
 
 '''returns: 'file_name, start, end, length, duration, size' of the MP3-Snippet'''
+
+
 def get_snippet_info_from_mp3_file(mp3_file_path):
     file_name = Path(mp3_file_path).name
-    sample_rate = 16_000;
+    sample_rate = 16_000
     samples, sample_length = load_mp3_as_sr16000(mp3_file_path)
     audio = convert_numpy_samples_to_audio_bytes(samples)
     frame_duration_ms = 30
