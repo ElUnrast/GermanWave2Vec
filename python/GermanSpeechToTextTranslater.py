@@ -51,7 +51,7 @@ class GermanSpeechToTextTranslater:
 
         if os.path.isfile(f'{self.model_name}/pytorch_model.bin'):
             self.trained_model_directory = self.model_name
-            
+
             if os.path.isfile(f'{self.trained_model_directory}/trained_epochs.json'):
                 with open(f'{self.trained_model_directory}/trained_epochs.json', 'r') as json_file:
                     file_contend_json = json.load(json_file)
@@ -61,7 +61,7 @@ class GermanSpeechToTextTranslater:
                     self.trained_epochs = saved_epoche if saved_epoche > 1 else 1
             else:
                 with open(f'{self.trained_model_directory}/trained_epochs.json', 'w') as json_file:
-                    json.dump({'trained_epochs' : self.trained_epochs}, json_file)
+                    json.dump({'trained_epochs': self.trained_epochs}, json_file)
 
         # TODO: in abgeleitete Klasse verlagern
         # print('Loading language tool')
@@ -125,11 +125,11 @@ class GermanSpeechToTextTranslater:
     def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
         if ds_id:
             tmp_directory = f'/tmp/{ds_id}'
-            
+
             if not os.path.exists(tmp_directory):
                 print(f'Creating cache directory: {tmp_directory}')
                 os.makedirs(tmp_directory)
-                
+
             if not os.path.exists(tmp_directory):
                 raise ValueError
 
@@ -142,7 +142,7 @@ class GermanSpeechToTextTranslater:
         samples, samples_size = self.load_as_sr16000(audio_file_name)
         ci = self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values
         db = {'ci': ci, 'ss': torch.tensor([samples_size])}
-        
+
         if ds_id:
             torch.save(db, cache_file_name)
 
@@ -276,9 +276,9 @@ class GermanSpeechToTextTranslater:
         )
         return Wav2Vec2Processor(feature_extractor=feature_extractor, tokenizer=tokenizer)
 
-    ## returns 
-    ##   1. bad_translated as pandas_df
-    ##   2. word_error_rate of the hole pandas_df, if diff_calc_wer=True else 1
+    # returns
+    # 1. bad_translated as pandas_df
+    # 2. word_error_rate of the hole pandas_df, if diff_calc_wer=True else 1
     def test(self, ds_id, pandas_df=pd.DataFrame(), diff_file_extension=None, diff_calc_wer=True):
         if pandas_df.empty:
             print(f'Loading Dataset: {ds_id}')
@@ -296,8 +296,8 @@ class GermanSpeechToTextTranslater:
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
             print('Translation is up to date')
-            return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']
-        elif old_word_error_rate['trained_epochs'] == 0:        
+            return pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']], old_word_error_rate['wer']/100
+        elif old_word_error_rate['trained_epochs'] == 0:
             wer = 100
             print(f'Saving word_error_rate: {wer}%')
             self.ds_handler.save_word_error_rate(ds_id, 0, wer)
@@ -348,13 +348,13 @@ class GermanSpeechToTextTranslater:
     def train(
         self,
         trained_model_path,
-        dataset_loader, 
+        dataset_loader,
         ds_to_train,
         max_training_sample_size,
-        max_trainingset_size, 
-        max_rounds, 
+        max_trainingset_size,
+        max_rounds,
         num_train_epochs,
-        num_steps_per_epoche, # max_steps,
+        num_steps_per_epoche,  # max_steps,
         per_device_train_batch_size,
         gradient_accumulation_steps,
         logging_steps,
@@ -419,7 +419,7 @@ class GermanSpeechToTextTranslater:
 
                         print(f'Creating Trainer for {ds_id}')
                         trainer = self.get_trainer(
-                            training_args, 
+                            training_args,
                             mp3_dir,
                             ds_id,
                             train_pandas_ds,
@@ -441,7 +441,7 @@ class GermanSpeechToTextTranslater:
                         torch.cuda.empty_cache()
                         self.trained_epochs = self.trained_epochs + 1
                         with open(f'{self.model_name}/trained_epochs.json', 'w') as json_file:
-                            json.dump({'trained_epochs' : self.trained_epochs}, json_file)
+                            json.dump({'trained_epochs': self.trained_epochs}, json_file)
                     else:
                         # mindestens 98% der Sätze wurde korrekt übersetzt. Überprüfung der Problemfälle ist angebracht.
                         # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
@@ -459,7 +459,7 @@ class GermanSpeechToTextTranslater:
                 print(f'finished training of {ds_id} on epoche {self.trained_epochs}')
 
         print('Training finisched!')
-    
+
     def compute_metrics(self, pred):
         # we do not want to group tokens when computing the metrics
         label_str = self.my_processor.batch_decode(pred.label_ids, group_tokens=False)
