@@ -1,73 +1,12 @@
 import glob
-import torch
-import torchaudio
-import librosa
 import collections
 import sys
 import pandas as pd
-import numpy as np
 from pathlib import Path
+from queue import Queue
+from SrcAudioTools import convert_audio_bytes_to_numpy, write_mp3, load_mp3_as_sr16000, convert_numpy_samples_to_audio_bytes
 
 import webrtcvad
-
-
-def load_mp3_as_sr16000(audio_file_name: str):
-    print(f'Loading: {audio_file_name}')
-
-    if audio_file_name.endswith('.mp3'):
-        samples, sampling_rate = torchaudio.load(audio_file_name)
-        samples = np.asarray(samples[0])
-
-        if sampling_rate != 16_000:
-            samples = librosa.resample(samples, sampling_rate, 16_000)
-
-        print(f'Audio Type: {type(samples)}, {type(samples[0])}')
-
-        return samples, samples.shape[0]
-
-    raise ValueError
-
-
-def convert_audio_bytes_to_numpy(audio: bytes, normalize=True):
-    il = []
-    k = 0
-
-    for i in range(0, len(audio), 2):
-        b = audio[i:i+2]
-        j = int.from_bytes(b, 'little', signed=True)
-        il.append(j)
-        k = k + 1
-
-    result = np.array(il, dtype=np.float32)
-
-    if normalize:
-        max_peak = abs(result).max()
-
-        if max_peak > 0:
-            return result / max_peak
-        else:
-            return result
-    else:
-        return result / 32768
-
-
-def convert_numpy_samples_to_audio_bytes(samples):
-    m = abs(samples).max()
-    s = samples * (32768 / m)
-    s16 = s.astype(np.int16)
-    il = s16.tolist()
-    ba = bytearray()
-
-    for i in il:
-        ba.extend(i.to_bytes(2, 'little', signed=True))
-
-    return bytes(ba)
-
-
-def write_mp3(audio_file_name: str, audio: bytes, sample_rate=16_000):
-    ia1 = convert_audio_bytes_to_numpy(audio)
-    ia = np.array([ia1, ia1])
-    torchaudio.save(audio_file_name, torch.from_numpy(ia).float(), sample_rate, format='mp3')
 
 
 class Frame(object):
@@ -78,6 +17,9 @@ class Frame(object):
         self.offset = offset
         self.timestamp = timestamp
         self.duration = duration
+
+    def get_samples(self):
+        return convert_audio_bytes_to_numpy(self.bytes)
 
 
 class VoicedSnippet(object):
@@ -116,7 +58,7 @@ def frame_generator(frame_duration_ms, audio, sample_rate):
         offset += n
 
 
-def vad_collector(sample_rate, vad, frames):
+def vad_collector(sample_rate, vad, frame_queue: Queue):
     num_padding_frames = 5
     # We use a deque for our sliding window/ring buffer.
     ring_buffer = collections.deque(maxlen=num_padding_frames)
@@ -124,8 +66,16 @@ def vad_collector(sample_rate, vad, frames):
     triggered = False
 
     voiced_frames = []
-    for frame in frames:
+
+    while True:
+        frame = frame_queue.get()
+
+        if not frame:
+            frame_queue.task_done()
+            break
+
         is_speech = vad.is_speech(frame.bytes, sample_rate)
+        frame_queue.task_done()
 
         sys.stdout.write('1' if is_speech else '0')
         if not triggered:
@@ -153,14 +103,17 @@ def vad_collector(sample_rate, vad, frames):
             # If more than 90% of the frames in the ring buffer are
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
-            if num_unvoiced > 0.8 * ring_buffer.maxlen:
-                sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+            if num_unvoiced > (0.8 * ring_buffer.maxlen):
                 triggered = False
-                yield VoicedSnippet(voiced_frames)
+
+                if len(voiced_frames) > 30:
+                    sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+                    yield VoicedSnippet(voiced_frames)
+
                 ring_buffer.clear()
                 voiced_frames = []
 
-    if triggered:
+    if frame and triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
 
     sys.stdout.write('\n')
@@ -169,25 +122,36 @@ def vad_collector(sample_rate, vad, frames):
         yield VoicedSnippet(voiced_frames)
 
 
-def join_frame_list(mp3_file_path, destination_path, sample_rate, frames, df=pd.DataFrame(), translator=None):
-    vad = webrtcvad.Vad(1)
-    snippets = vad_collector(sample_rate, vad, frames)
+def join_frames(
+    orig_mp3_file_name_without_extension,
+    destination_path,
+    sample_rate,
+    frame_queue,
+    df=pd.DataFrame(),
+    translator=None,
+    translated_text_queue=None,
+    vad_level=1  # (0 - 3)
+):
+    vad = webrtcvad.Vad(vad_level)
+    snippets = vad_collector(sample_rate, vad, frame_queue)
 
-    orig_mp3_file_name = Path(mp3_file_path).name
-    orig_mp3_file_name_without_extension = orig_mp3_file_name[0:-4]
     result = pd.DataFrame()
 
     for snippet in snippets:
         new_file_name = snippet.write_mp3(destination_path, orig_mp3_file_name_without_extension)
         snippet_df = df.copy()
         snippet_df['Datei'] = [new_file_name]
-        snippet_df['Start'] = [snippet.start]
-        snippet_df['End'] = [snippet.end]
+        snippet_df['Start'] = [snippet.start // 2]
+        snippet_df['End'] = [snippet.end // 2]
         snippet_df['Length'] = [snippet.length]
         snippet_df['Duration'] = [snippet.duration]
 
         if translator:
             translation, samples_size = translator.translate_audio(f'{destination_path}/{new_file_name}')
+
+            if translated_text_queue:
+                translated_text_queue.put(translation)
+
             snippet_df['Size'] = [samples_size]
             snippet_df['Translated0'] = [translation]
 
@@ -202,7 +166,13 @@ def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=Non
     sample_rate = 16_000
     frame_duration_ms = 30
     frames = frame_generator(frame_duration_ms, audio_bytes, sample_rate)
-    return join_frame_list(mp3_file_path, destination_path, sample_rate, list(frames), df, translator)
+    frame_queue = Queue()
+
+    for frame in frames:
+        frame_queue.put(frame)
+
+    frame_queue.put(None)
+    return join_frames(mp3_file_path, destination_path, sample_rate, frame_queue, df, translator)
 
 
 def split_mp3s(ds_id, translator, source_dir, destination_dir):
@@ -217,10 +187,8 @@ def split_mp3s(ds_id, translator, source_dir, destination_dir):
     return result
 
 
-'''returns: 'file_name, start, end, length, duration, size' of the MP3-Snippet'''
-
-
 def get_snippet_info_from_mp3_file(mp3_file_path):
+    '''returns: 'file_name, start, end, length, duration, size' of the MP3-Snippet'''
     file_name = Path(mp3_file_path).name
     sample_rate = 16_000
     samples, sample_length = load_mp3_as_sr16000(mp3_file_path)

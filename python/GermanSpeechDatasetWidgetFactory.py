@@ -1,6 +1,6 @@
 import difflib
 from IPython.display import Audio, display
-from ipywidgets import widgets, Textarea, Layout, Box, HBox, VBox, Button
+from ipywidgets import widgets, Textarea, Layout, HBox, VBox, Button
 from SnippetDatasets import calc_wer
 from tqdm.notebook import tqdm_notebook
 
