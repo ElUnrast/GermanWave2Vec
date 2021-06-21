@@ -8,7 +8,7 @@ from SrcAudioTools import convert_numpy_samples_to_audio_bytes
 
 class RecordingThread(Thread):
     def __init__(self, audio_in_queue: Queue = None, input_device_index=None, output_device_index=None):
-        super(RecordingThread, self).__init__(name='Recording Thread')
+        super().__init__(name='Recording Thread')
         self.audio_in_queue = audio_in_queue
         self.input_device_index = 1  # input_device_index
         self.output_device_index = 4  # output_device_index

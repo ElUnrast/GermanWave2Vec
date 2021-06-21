@@ -9,7 +9,7 @@ from SnippetDatasets import SnippetDatasets
 
 class QtValidationApp(QMainWindow):
     def __init__(self, dataset_loader: SnippetDatasets):
-        super(QtValidationApp, self).__init__()
+        super().__init__()
         self.focus_color = QColor(int("A48111", 16))  # gold
         self.exclude_color = QColor(int("ffcccb", 16))  # Light red #ffcccb
         self.correct_color = QColor(int("90EE90", 16))  # lightgreen #90EE90

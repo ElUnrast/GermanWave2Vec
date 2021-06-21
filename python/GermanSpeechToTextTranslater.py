@@ -33,7 +33,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
             cache_directory=None,
             device='cuda'
     ):
-        super(self, GermanSpeechToTextTranslater).__init__(
+        super().__init__(
             model=model,
             processor=processor,
             model_name=model_name,

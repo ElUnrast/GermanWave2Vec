@@ -13,7 +13,7 @@ class SplitterThread(Thread):
         translator=None,
         translated_text_queue: Queue = None
     ):
-        super(SplitterThread, self).__init__(name='Splitter Thread')
+        super().__init__(name='Splitter Thread')
         self.snippet_path = snippet_path
         self.translator = translator
         self.vad_level = vad_level
