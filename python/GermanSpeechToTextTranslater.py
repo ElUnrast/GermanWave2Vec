@@ -30,12 +30,14 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
             processor=None,
             model_name=None,
             ds_handler=None,
+            cache_directory=None,
             device='cuda'
     ):
         super(self, GermanSpeechToTextTranslater).__init__(
             model=model,
             processor=processor,
             model_name=model_name,
+            cache_directory=cache_directory,
             device=device
         )
         print('Set Dataset-Handler')
