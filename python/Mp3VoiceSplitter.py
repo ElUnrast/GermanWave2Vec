@@ -1,6 +1,4 @@
 import glob
-# import torch
-# import torchaudio
 import collections
 import sys
 import pandas as pd
@@ -19,6 +17,9 @@ class Frame(object):
         self.offset = offset
         self.timestamp = timestamp
         self.duration = duration
+
+    def get_samples(self):
+        return convert_audio_bytes_to_numpy(self.bytes)
 
 
 class VoicedSnippet(object):
@@ -102,14 +103,17 @@ def vad_collector(sample_rate, vad, frame_queue: Queue):
             # If more than 90% of the frames in the ring buffer are
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
-            if (len(voiced_frames) > 30) and (num_unvoiced > 0.8 * ring_buffer.maxlen):
-                sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+            if num_unvoiced > (0.8 * ring_buffer.maxlen):
                 triggered = False
-                yield VoicedSnippet(voiced_frames)
+
+                if len(voiced_frames) > 30:
+                    sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+                    yield VoicedSnippet(voiced_frames)
+
                 ring_buffer.clear()
                 voiced_frames = []
 
-    if triggered:
+    if frame and triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
 
     sys.stdout.write('\n')
@@ -118,12 +122,19 @@ def vad_collector(sample_rate, vad, frame_queue: Queue):
         yield VoicedSnippet(voiced_frames)
 
 
-def join_frames(mp3_file_path, destination_path, sample_rate, frame_queue, df=pd.DataFrame(), translator=None):
-    vad = webrtcvad.Vad(1)
+def join_frames(
+    orig_mp3_file_name_without_extension,
+    destination_path,
+    sample_rate,
+    frame_queue,
+    df=pd.DataFrame(),
+    translator=None,
+    translated_text_queue=None,
+    vad_level=1  # (0 - 3)
+):
+    vad = webrtcvad.Vad(vad_level)
     snippets = vad_collector(sample_rate, vad, frame_queue)
 
-    orig_mp3_file_name = Path(mp3_file_path).name
-    orig_mp3_file_name_without_extension = orig_mp3_file_name[0:-4]
     result = pd.DataFrame()
 
     for snippet in snippets:
@@ -137,6 +148,10 @@ def join_frames(mp3_file_path, destination_path, sample_rate, frame_queue, df=pd
 
         if translator:
             translation, samples_size = translator.translate_audio(f'{destination_path}/{new_file_name}')
+
+            if translated_text_queue:
+                translated_text_queue.put(translation)
+
             snippet_df['Size'] = [samples_size]
             snippet_df['Translated0'] = [translation]
 

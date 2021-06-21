@@ -7,9 +7,9 @@ from SrcTextUtils import html_diff
 from SnippetDatasets import SnippetDatasets
 
 
-class MyApp(QMainWindow):
+class QtValidationApp(QMainWindow):
     def __init__(self, dataset_loader: SnippetDatasets):
-        super().__init__()
+        super(QtValidationApp, self).__init__()
         self.focus_color = QColor(int("A48111", 16))  # gold
         self.exclude_color = QColor(int("ffcccb", 16))  # Light red #ffcccb
         self.correct_color = QColor(int("90EE90", 16))  # lightgreen #90EE90
@@ -17,49 +17,46 @@ class MyApp(QMainWindow):
         self.corrected2_color = QColor(int("9999FF", 16))  #
         self.my_datasets = dataset_loader
         self.setWindowTitle('Dataset Validation')
-        self.window_width, self.window_height = 700, 100
-        self.resize(self.window_width, self.window_height)
 
         pygame.init()
         pygame.mixer.init()
 
         class OrigTextEdit(QTextEdit):
-            def __init__(self, app: MyApp):
+            def __init__(self, app: QtValidationApp, translation_row: str):
                 super(OrigTextEdit, self).__init__()
                 self.myApp = app
+                self.translation_row = translation_row
 
             def focusOutEvent(self, event):
                 idx = self.myApp.curr_index
 
-                if not self.myApp.action[idx].endswith('9'):
-                    orig_text_in_gui = self.myApp.edit_rows[idx].toPlainText()
-                    ds_idx = self.myApp.ds_index[idx]
-                    orig_text_in_ds = self.myApp.ds['OriginalText'].values[ds_idx]
+                orig_text_in_gui = self.myApp.edit_rows[idx].toPlainText()
+                ds_idx = self.myApp.ds_index[idx]
+                orig_text_in_ds = self.myApp.ds['OriginalText'].values[ds_idx]
 
-                    if orig_text_in_gui != orig_text_in_ds:
-                        self.myApp.action[idx] = 'train8'
-                        self.myApp.ds['Action'].values[ds_idx] = 'train8'
-                        self.myApp.ds['OriginalText'].values[ds_idx] = orig_text_in_gui
+                if orig_text_in_gui != orig_text_in_ds:
+                    self.myApp.ds['OriginalText'].values[ds_idx] = orig_text_in_gui
+
+                    if not self.myApp.action[idx].endswith('exclude'):
+                        orig_translated_in_ds = self.myApp.ds[self.translation_row].values[ds_idx]
+
+                        if orig_text_in_gui == orig_translated_in_ds:
+                            self.myApp.action[idx] = 'train9'
+                            self.myApp.ds['Action'].values[ds_idx] = 'train9'
+                        else:
+                            self.myApp.action[idx] = 'train8'
+                            self.myApp.ds['Action'].values[ds_idx] = 'train8'
 
                 super().focusOutEvent(event)
 
             def focusInEvent(self, event):
-                if event.type() == QEvent.Type.FocusIn:
-                    print('Focus in erkannt')
-                elif event.type() == QEvent.Type.FocusOut:
-                    print('Focus out erkannt')
-
-                ## old_textedit = self.myApp.get_current_text_edit()
                 tmpCursor = self.textCursor()
                 tmpCursor.movePosition(QTextCursor.MoveOperation.Right, QTextCursor.MoveMode.MoveAnchor, 4)
                 self.setTextCursor(tmpCursor)
 
-                print(f'old current index: {self.myApp.curr_index}')
                 self.myApp.set_groupbox_color(self.myApp.curr_index)
-                # super(OrigTextEdit, self).focusInEvent(event)
                 super().focusInEvent(event)
                 self.myApp.curr_index = self.myApp.get_current_row_index()
-                print(f'new current index: {self.myApp.curr_index}')
                 self.myApp.set_groupbox_color(self.myApp.curr_index)
                 self.myApp.play()
 
@@ -68,7 +65,7 @@ class MyApp(QMainWindow):
         self.vbox = QVBoxLayout()
         self.widget.setLayout(self.vbox)
 
-        self.ds_id = 'HP4-FvM'
+        self.ds_id = 'abu1'
         wer = self.my_datasets.get_word_error_rate(self.ds_id)
         self.ds_epoche = wer['trained_epochs']
         self.ds = self.my_datasets.load_ds_content_translated_with_original(self.ds_id)
@@ -111,7 +108,7 @@ class MyApp(QMainWindow):
             h = textSize.height() + 10
             diff.setMinimumHeight(h)
             diff.setMaximumHeight(h)
-            orig = OrigTextEdit(self)
+            orig = OrigTextEdit(self, self.translation_row)
             orig.setPlainText(original_text)
             orig.setReadOnly(False)
             orig.setProperty('index', idx)
@@ -166,12 +163,8 @@ class MyApp(QMainWindow):
             elif e.key() == Qt.Key.Key_T:
                 idx = self.get_current_row_index()
                 ds_idx = self.ds_index[idx]
-                self.action[idx] = 'train9'
-                self.ds['Action'].values[ds_idx] = 'train9'
                 translated_text = self.ds[self.translation_row].values[ds_idx]
                 self.edit_rows[idx].setPlainText(translated_text)
-                self.ds['OriginalText'].values[ds_idx] = translated_text
-                self.play_next()
             elif e.key() == Qt.Key.Key_PageUp:
                 self.play_previos()
             elif e.key() == Qt.Key.Key_PageDown:
@@ -227,7 +220,7 @@ class MyApp(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
-    w = MyApp(dataset_loader)
+    w = QtValidationApp(dataset_loader)
     w.showMaximized()
     w.show()
 

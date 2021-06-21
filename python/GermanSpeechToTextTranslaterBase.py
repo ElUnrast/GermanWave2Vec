@@ -1,9 +1,11 @@
 import os
 import json
 import torch
+import librosa
+import numpy as np
 from tqdm.notebook import tqdm_notebook
 from pathlib import Path
-from SrcAudioTools import load_as_sr16000
+from SrcAudioTools import load_mp3_as_sr16000
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2CTCTokenizer, Wav2Vec2FeatureExtractor
 
 
@@ -13,10 +15,12 @@ class GermanSpeechToTextTranslaterBase:
             model=None,
             processor=None,
             model_name=None,
+            cache_directory=None,
             default_model_name='facebook/wav2vec2-large-xlsr-53-german',
             device='cuda'
     ):
         self.device = device
+        self.cache_directory = cache_directory
         self.model_name = model_name if model_name else default_model_name
         self.trained_model_directory = None
         print(f'Using Model: {self.model_name}')
@@ -66,29 +70,40 @@ class GermanSpeechToTextTranslaterBase:
                 ).to(device)
         self.my_model.freeze_feature_extractor()
 
+    def load_as_sr16000(self, audio_file_name):
+        if audio_file_name.endswith('.mp3'):
+            samples, _ = load_mp3_as_sr16000(audio_file_name)
+        else:
+            samples, _ = librosa.load(audio_file_name, sr=16_000)  # Downsample to 16kHz
+            samples = np.asarray(samples[0])
+
+        return samples, samples.shape[0]
+
     def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
         if ds_id:
-            tmp_directory = f'/tmp/{ds_id}'
+            if self.cache_directory:
+                tmp_directory = f'{self.cache_directory}/{ds_id}'
 
-            if not os.path.exists(tmp_directory):
-                print(f'Creating cache directory: {tmp_directory}')
-                os.makedirs(tmp_directory)
+                if not os.path.exists(tmp_directory):
+                    print(f'Creating cache directory: {tmp_directory}')
+                    os.makedirs(tmp_directory)
 
-            if not os.path.exists(tmp_directory):
-                raise ValueError
+                if not os.path.exists(tmp_directory):
+                    raise ValueError
 
-            cache_file_name = f'{tmp_directory}/{Path(audio_file_name).name}.cache'
+                cache_file_name = f'{tmp_directory}/{Path(audio_file_name).name}.cache'
 
-            if os.path.isfile(cache_file_name):
-                db = torch.load(cache_file_name)
-                return db['ci'], db['ss'].item()
+                if os.path.isfile(cache_file_name):
+                    db = torch.load(cache_file_name)
+                    return db['ci'], db['ss'].item()
 
-        samples, samples_size = load_as_sr16000(audio_file_name)
+        samples, samples_size = self.load_as_sr16000(audio_file_name)
         ci = self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values
         db = {'ci': ci, 'ss': torch.tensor([samples_size])}
 
         if ds_id:
-            torch.save(db, cache_file_name)
+            if self.cache_directory:
+                torch.save(db, cache_file_name)
 
         return ci, samples_size
 

@@ -7,9 +7,9 @@ from SrcAudioTools import convert_numpy_samples_to_audio_bytes
 
 
 class RecordingThread(Thread):
-    def __init__(self, q: Queue = None, input_device_index=None, output_device_index=None):
+    def __init__(self, audio_in_queue: Queue = None, input_device_index=None, output_device_index=None):
         super(RecordingThread, self).__init__(name='Recording Thread')
-        self.q = q
+        self.audio_in_queue = audio_in_queue
         self.input_device_index = 1  # input_device_index
         self.output_device_index = 4  # output_device_index
 
@@ -36,15 +36,15 @@ class RecordingThread(Thread):
         self.stream.abort()  # abort the stream processing
         self.event.set()  # break self.event.wait()
 
-        if self.q != None:
-            self.q.put(None)
+        if self.audio_in_queue != None:
+            self.audio_in_queue.put(None)
 
     def callback(self, indata, outdata, frames, time, status=None):
         """This is called (from a separate thread) for each audio block."""
-        if self.q == None:
+        if self.audio_in_queue == None:
             print(f'data: {len(indata)}, status: {status}, frames: {frames}, time: {time}', flush=True)
         else:
             audio = convert_numpy_samples_to_audio_bytes(indata[:, 0], normalize=False)
-            self.q.put(Frame(audio, self.offset, self.timestamp, self.duration))
+            self.audio_in_queue.put(Frame(audio, self.offset, self.timestamp, self.duration))
             self.timestamp += self.duration
             self.offset += self.blocksize
