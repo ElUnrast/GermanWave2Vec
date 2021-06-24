@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 import getpass
 import os
+import re
 import sounddevice as sd
 import pandas as pd
 from queue import Queue
@@ -96,6 +97,11 @@ class QtSpeechToTextApp(QMainWindow):
             if not translated_text:
                 print('Exiting Display Thread')
                 break
+
+            # evtl können hier Satzzeichen ersetzt werden
+            satzzeichen = {'punkt': '.', 'komma': ',', 'fragezeichen': '?', 'ausrufezeichen': '!'}
+            regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
+            translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
 
             self._append_text(translated_text)
 

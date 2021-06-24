@@ -5,6 +5,7 @@ import librosa
 import json
 import contextlib
 import wave
+import lameenc
 
 
 def audio_to_json(audio_np_array):
@@ -50,6 +51,20 @@ def load_mp3_as_sr16000(audio_file_name: str):
     raise ValueError
 
 
+def convertaudio_bytes_to_int16(audio: bytes) -> np.array:
+    il = []
+    k = 0
+
+    for i in range(0, len(audio), 2):
+        b = audio[i:i+2]
+        j = int.from_bytes(b, 'little', signed=True)
+        il.append(j)
+        k = k + 1
+
+    result = np.array(il, dtype=np.int16)
+    return result
+
+
 def convert_audio_bytes_to_numpy(audio: bytes, normalize=True):
     il = []
     k = 0
@@ -60,7 +75,7 @@ def convert_audio_bytes_to_numpy(audio: bytes, normalize=True):
         il.append(j)
         k = k + 1
 
-    result = np.array(il, dtype=np.float32)
+    result = convertaudio_bytes_to_int16(audio).astype(np.float32)
 
     if normalize:
         max_peak = abs(result).max()
@@ -71,6 +86,15 @@ def convert_audio_bytes_to_numpy(audio: bytes, normalize=True):
             return result
     else:
         return result / 32768
+
+
+def convert_audio_bytes_to_numpy_pcm(audio: bytes, normalize=True):
+    if normalize:
+        result = convert_audio_bytes_to_numpy(audio) * 32767
+        result = result.astype(np.int16)
+        return result
+
+    return convertaudio_bytes_to_int16(audio)
 
 
 def convert_numpy_samples_to_audio_bytes(samples, normalize=True):
@@ -87,16 +111,37 @@ def convert_numpy_samples_to_audio_bytes(samples, normalize=True):
 
 
 def write_mp3(audio_file_name: str, audio: bytes, sample_rate=16_000):
-    audio_segment = pydub.AudioSegment(
-        audio,
-        frame_rate=sample_rate,
-        sample_width=2,
-        channels=1
-    )
-    audio_segment.export(audio_file_name, format='mp3', codec='mp3')
+    ############################
+    # Kovertierung mit pydub
+    # audio_segment = pydub.AudioSegment(
+    #     audio,
+    #     frame_rate=sample_rate,
+    #     sample_width=2,
+    #     channels=1
+    # )
+    # audio_segment.export(audio_file_name, format='mp3', codec='mp3')
+
+    ############################
+    # Kovertierung mit torchaudio
     # ia1 = convert_audio_bytes_to_numpy(audio)
     # ia = np.array([ia1, ia1])
     # torchaudio.save(audio_file_name, torch.from_numpy(ia).float(), sample_rate, format='mp3')
+
+    ############################
+    # Kovertierung mit lameencoder
+    interleaved_pcm_data = convert_audio_bytes_to_numpy_pcm(audio)
+    encoder = lameenc.Encoder()
+    encoder.set_bit_rate(96)
+    encoder.set_in_sample_rate(sample_rate)
+    encoder.set_channels(1)
+    encoder.set_quality(2)  # 2-highest, 7-fastest
+    # Can call this in a loop
+    mp3_data = encoder.encode(interleaved_pcm_data)
+    # Flush when finished encoding the entire stream
+    mp3_data += encoder.flush()
+
+    with open(audio_file_name, 'wb') as f:
+        f.write(bytes(mp3_data))
 
 
 def read_wave(path):

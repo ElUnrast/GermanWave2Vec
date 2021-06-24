@@ -37,9 +37,8 @@ class VoicedSnippet(object):
         return convert_audio_bytes_to_numpy(self.bytes)
 
     def write_audio(self, destination_path, file_name_without_extension):
-        if 'Windows' == platform.system():
-            return self.write_wave(destination_path, file_name_without_extension)
-
+        # if 'Windows' == platform.system():
+        #     return self.write_wave(destination_path, file_name_without_extension)
         return self.write_mp3(destination_path, file_name_without_extension)
 
     def write_mp3(self, destination_path, file_name_without_extension):
@@ -74,11 +73,12 @@ def frame_generator(frame_duration_ms, audio, sample_rate) -> Iterator[Frame]:
 
 
 def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippet]:
-    num_padding_frames = 6
+    num_padding_frames = 8
     # We use a deque for our sliding window/ring buffer.
     ring_buffer = collections.deque(maxlen=num_padding_frames)
     # We have two states: TRIGGERED and NOTTRIGGERED. We start in the NOTTRIGGERED state.
     triggered = False
+    vad.set_mode(3)
 
     voiced_frames = []
 
@@ -99,6 +99,7 @@ def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippe
 
             if num_voiced > 0.5 * ring_buffer.maxlen:
                 triggered = True
+                vad.set_mode(2)
                 # sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
@@ -119,6 +120,7 @@ def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippe
             # num_unvoiced > (0.8 * ring_buffer.maxlen)
             if num_unvoiced == ring_buffer.maxlen:
                 triggered = False
+                vad.set_mode(3)
 
                 if len(voiced_frames) > 30:
                     sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
