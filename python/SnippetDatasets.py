@@ -28,7 +28,7 @@ class SnippetDatasets:
     def directories_with_content(self, dir):
         result = []
 
-        if self.has_content(dir) or self.has_content_original(dir):
+        if self.has_content(dir) or self.has_content_original(dir) or self.has_translation_with_original(dir):
             result.append(dir)
         else:
             sub_dir = [f'{dir}/{d}' for d in os.listdir(dir) if os.path.isdir(f'{dir}/{d}')]
@@ -79,14 +79,14 @@ class SnippetDatasets:
             return not self.has_translation_with_original(directory)
 
     def get_snippet_directory(self, ds_id):
-        self.use_dataset(ds_id)    
+        self.use_dataset(ds_id)
         return self.local_datasets[ds_id]
 
     def get_ds_git_directory(self, ds_id):
         if self.git_repository:
             return f'{self.git_repository}/datasets/{ds_id}'
 
-        return None;
+        return None
 
     def save_content_translated_with_original(self, ds_id, pandas_df, epoche=None):
         git_directory = self.get_ds_git_directory(ds_id)
@@ -112,9 +112,9 @@ class SnippetDatasets:
         git_directory = self.get_ds_git_directory(ds_id)
 
         ds_word_error_rate = {
-            'trained_epochs' : epoche,
-            'ds_id' : ds_id,
-            'wer' : wer
+            'trained_epochs': epoche,
+            'ds_id': ds_id,
+            'wer': wer
         }
 
         if git_directory:
@@ -141,25 +141,25 @@ class SnippetDatasets:
                 # wer_file.write(f'{self.trained_epochs:05d} - {ds_id} - WER: {wer:3.4f}\n')
                 json.dump(ds_word_error_rate, wer_file)
 
-    ## return a dict { 'trained_epochs', 'ds_id', 'wer' }
+    # return a dict { 'trained_epochs', 'ds_id', 'wer' }
     def get_word_error_rate(self, ds_id):
         git_directory = self.get_ds_git_directory(ds_id)
-        
+
         if git_directory and os.path.isfile(f'{git_directory}/wer.json'):
             with open(f'{git_directory}/wer.json', 'r') as wer_file:
                 return json.load(wer_file)
 
         else:
             ds_directory = self._get_directory(ds_id)
-            
+
             if os.path.isfile(f'{ds_directory}/wer.json'):
                 with open(f'{ds_directory}/wer.json', 'r') as wer_file:
                     return json.load(wer_file)
-        
+
         return {
-            'trained_epochs' : 0,
-            'ds_id' : ds_id,
-            'wer' : 1
+            'trained_epochs': 0,
+            'ds_id': ds_id,
+            'wer': 1
         }
 
     def load_ds_content(self, ds_id):
@@ -174,16 +174,16 @@ class SnippetDatasets:
         # File for Action: find original
         return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated.csv')
 
-    def load_ds_content_translated_with_original(self, ds_id):
+    def load_ds_content_translated_with_original(self, ds_id, prune=True):
         self.use_dataset(ds_id)
         # TODO: wenn hier ein Verzeichnis stimmt der Algorithmus noch nicht
         # File for Action: train or repeated translation
         git_directory = self.get_ds_git_directory(ds_id)
-        
+
         if git_directory and os.path.isfile(f'{git_directory}/content-translated-with_original.csv'):
-            return self._get_dataframe(ds_id, git_directory, 'content-translated-with_original.csv')
-        
-        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated-with_original.csv')
+            return self._get_dataframe(ds_id, git_directory, 'content-translated-with_original.csv', prune)
+
+        return self._get_dataframe(ds_id, self._get_directory(ds_id), 'content-translated-with_original.csv', prune)
 
     def _get_directory(self, ds_id):
         if ds_id in self.local_datasets:
@@ -191,13 +191,13 @@ class SnippetDatasets:
 
         return ds_id
 
-    def _get_dataframe(self, ds_id, ds_directory, file_name):
+    def _get_dataframe(self, ds_id, ds_directory, file_name, prune=True):
         print('-----------------------------')
         print(f'Loading Dataset: {ds_id} - {ds_directory}/{file_name}')
         pandas_df = pd.read_csv(f'{ds_directory}/{file_name}', sep=';')
         truncated_ds = pandas_df
 
-        if 'OriginalText' in pandas_df.columns:
+        if prune and ('OriginalText' in pandas_df.columns):
             print(f'Pruning Dataset {ds_id} with {pandas_df.shape[0]} Entries')
 
             if 'Length' in pandas_df.columns:
@@ -215,7 +215,7 @@ class SnippetDatasets:
         #     print(f'Dataset was truncated from {pandas_df.shape[0]} to {truncated_ds.shape[0]} Entries. Saving Backup.')
         #     pandas_df.to_csv(f'{ds_directory}/original-{file_name}', sep=';', index=False)
         #     truncated_ds.to_csv(f'{ds_directory}/{file_name}', sep=';', index=False)
-        
+
         pandas_df = truncated_ds
         return pandas_df
 
@@ -233,6 +233,8 @@ def calc_wer(ds_with_translation_and_original, use_akt_translation=True, chunk_s
     )
 
 # Chunked version, see https://discuss.huggingface.co/t/spanish-asr-fine-tuning-wav2vec2/4586/5:
+
+
 def chunked_wer(targets, predictions, chunk_size=1000):
     if chunk_size is None:
         return jiwer.wer(targets, predictions)

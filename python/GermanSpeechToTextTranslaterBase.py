@@ -79,7 +79,10 @@ class GermanSpeechToTextTranslaterBase:
 
         return samples, samples.shape[0]
 
-    def audio_to_cuda_inputs(self, audio_file_name, ds_id=None):
+    def audio_to_cuda_inputs(self, numpy_audio: np.ndarray):
+        return self.my_processor(numpy_audio, return_tensors="pt", sampling_rate=16_000).input_values
+
+    def audio_file_to_cuda_inputs(self, audio_file_name, ds_id=None):
         if ds_id:
             if self.cache_directory:
                 tmp_directory = f'{self.cache_directory}/{ds_id}'
@@ -98,26 +101,26 @@ class GermanSpeechToTextTranslaterBase:
                     return db['ci'], db['ss'].item()
 
         samples, samples_size = self.load_as_sr16000(audio_file_name)
-        ci = self.my_processor(samples, return_tensors="pt", sampling_rate=16_000).input_values
-        db = {'ci': ci, 'ss': torch.tensor([samples_size])}
+        ci = self.my_processor(samples)
 
-        if ds_id:
-            if self.cache_directory:
-                torch.save(db, cache_file_name)
+        if ds_id and self.cache_directory:
+            db = {'ci': ci, 'ss': torch.tensor([samples_size])}
+            torch.save(db, cache_file_name)
 
         return ci, samples_size
 
-    def translate_audio(self, audio_file_name, ds_id=None):
-        samples, samples_size = self.audio_to_cuda_inputs(audio_file_name, ds_id)
-        samples_size = samples_size
-
+    def translate_numpy_audio(self, numpy_audio: np.ndarray):
+        samples = self.audio_to_cuda_inputs(numpy_audio)
         with torch.no_grad():
             logits = self.my_model(samples.to(self.device)).logits
 
         # Storing predicted ids
         predicted_ids = torch.argmax(logits, dim=-1)
         # Converting audio to text - Passing the prediction to the tokenzer decode to get the transcription
-        return self.my_processor.decode(predicted_ids[0]), samples_size
+        return self.my_processor.decode(predicted_ids[0]), numpy_audio.shape[0]
+
+    def translate_audio(self, audio_file_name, ds_id=None):
+        return self.translate_numpy_audio(self.audio_file_to_cuda_inputs(audio_file_name, ds_id))
 
     def translate_dataset(self, mp3_dir, ds, cache_id=None):
         files = [f'{mp3_dir}/{file_name}' for file_name in ds.Datei]

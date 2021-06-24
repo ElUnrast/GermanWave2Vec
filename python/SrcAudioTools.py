@@ -12,6 +12,7 @@ def audio_to_json(audio_np_array):
 
 
 def json_to_audio(json_str):
+    np.mean()
     return np.array(json.loads(json_str))
 
 
@@ -114,7 +115,7 @@ def read_wave(path):
         return pcm_data, sample_rate
 
 
-def write_wave(path, audio, sample_rate):
+def write_wave(path, audio, sample_rate=16_000):
     """Writes a .wav file.
     Takes path, PCM audio data, and sample rate.
     """

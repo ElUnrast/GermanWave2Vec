@@ -1,10 +1,13 @@
 import glob
 import collections
 import sys
+import platform
 import pandas as pd
 from pathlib import Path
 from queue import Queue
-from SrcAudioTools import convert_audio_bytes_to_numpy, write_mp3, load_mp3_as_sr16000, convert_numpy_samples_to_audio_bytes
+from typing import Iterator
+from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
+from SrcAudioTools import convert_audio_bytes_to_numpy, write_mp3, write_wave, load_mp3_as_sr16000, convert_numpy_samples_to_audio_bytes
 
 import webrtcvad
 
@@ -33,14 +36,26 @@ class VoicedSnippet(object):
     def get_samples(self):
         return convert_audio_bytes_to_numpy(self.bytes)
 
-    def write_mp3(self, destination_path, orig_mp3_file_name_without_extension):
-        new_file_name = f'{orig_mp3_file_name_without_extension}-{self.start:09d}.mp3'
-        print(f'Writing {new_file_name}, duration: {self.duration:f}ms')
-        write_mp3(f'{destination_path}/{new_file_name}', self.bytes)
-        return new_file_name
+    def write_audio(self, destination_path, file_name_without_extension):
+        if 'Windows' == platform.system():
+            return self.write_wave(destination_path, file_name_without_extension)
+
+        return self.write_mp3(destination_path, file_name_without_extension)
+
+    def write_mp3(self, destination_path, file_name_without_extension):
+        file_name = f'{file_name_without_extension}.mp3'
+        print(f'Writing {file_name}, duration: {self.duration:f}ms')
+        write_mp3(f'{destination_path}/{file_name}', self.bytes)
+        return file_name
+
+    def write_wave(self, destination_path, file_name_without_extension):
+        file_name = f'{file_name_without_extension}.wav'
+        print(f'Writing {file_name}, duration: {self.duration:f}ms')
+        write_wave(f'{destination_path}/{file_name}', self.bytes)
+        return file_name
 
 
-def frame_generator(frame_duration_ms, audio, sample_rate):
+def frame_generator(frame_duration_ms, audio, sample_rate) -> Iterator[Frame]:
     """Generates audio frames from PCM audio data.
     Takes the desired frame duration in milliseconds, the PCM data, and
     the sample rate.
@@ -58,8 +73,8 @@ def frame_generator(frame_duration_ms, audio, sample_rate):
         offset += n
 
 
-def vad_collector(sample_rate, vad, frame_queue: Queue):
-    num_padding_frames = 5
+def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippet]:
+    num_padding_frames = 6
     # We use a deque for our sliding window/ring buffer.
     ring_buffer = collections.deque(maxlen=num_padding_frames)
     # We have two states: TRIGGERED and NOTTRIGGERED. We start in the NOTTRIGGERED state.
@@ -77,20 +92,18 @@ def vad_collector(sample_rate, vad, frame_queue: Queue):
         is_speech = vad.is_speech(frame.bytes, sample_rate)
         frame_queue.task_done()
 
-        sys.stdout.write('1' if is_speech else '0')
+        # sys.stdout.write('1' if is_speech else '0')
         if not triggered:
             ring_buffer.append((frame, is_speech))
             num_voiced = len([f for f, speech in ring_buffer if speech])
-            # If we're NOTTRIGGERED and more than 90% of the frames in
-            # the ring buffer are voiced frames, then enter the
-            # TRIGGERED state.
-            if num_voiced > 0.8 * ring_buffer.maxlen:
+
+            if num_voiced > 0.5 * ring_buffer.maxlen:
                 triggered = True
-                sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
+                # sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
                 # audio that's already in the ring buffer.
-                for f, s in ring_buffer:
+                for f, _ in ring_buffer:
                     voiced_frames.append(f)
 
                 ring_buffer.clear()
@@ -103,7 +116,8 @@ def vad_collector(sample_rate, vad, frame_queue: Queue):
             # If more than 90% of the frames in the ring buffer are
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
-            if num_unvoiced > (0.8 * ring_buffer.maxlen):
+            # num_unvoiced > (0.8 * ring_buffer.maxlen)
+            if num_unvoiced == ring_buffer.maxlen:
                 triggered = False
 
                 if len(voiced_frames) > 30:
@@ -115,52 +129,68 @@ def vad_collector(sample_rate, vad, frame_queue: Queue):
 
     if frame and triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
-
-    sys.stdout.write('\n')
-    # If we have any leftover voiced audio when we run out of input, yield it.
-    if voiced_frames:
-        yield VoicedSnippet(voiced_frames)
+        sys.stdout.write('\n')
+        # If we have any leftover voiced audio when we run out of input, yield it.
+        if voiced_frames:
+            yield VoicedSnippet(voiced_frames)
 
 
 def join_frames(
-    orig_mp3_file_name_without_extension,
     destination_path,
+    orig_file_name_without_extension,
     sample_rate,
     frame_queue,
     df=pd.DataFrame(),
-    translator=None,
+    translator: GermanSpeechToTextTranslaterBase = None,
     translated_text_queue=None,
     vad_level=1  # (0 - 3)
-):
+) -> pd.DataFrame:
     vad = webrtcvad.Vad(vad_level)
     snippets = vad_collector(sample_rate, vad, frame_queue)
 
     result = pd.DataFrame()
 
     for snippet in snippets:
-        new_file_name = snippet.write_mp3(destination_path, orig_mp3_file_name_without_extension)
         snippet_df = df.copy()
-        snippet_df['Datei'] = [new_file_name]
         snippet_df['Start'] = [snippet.start // 2]
         snippet_df['End'] = [snippet.end // 2]
         snippet_df['Length'] = [snippet.length]
         snippet_df['Duration'] = [snippet.duration]
 
         if translator:
-            translation, samples_size = translator.translate_audio(f'{destination_path}/{new_file_name}')
+            translation, samples_size = translator.translate_numpy_audio(snippet.get_samples())
+
+            if not translation:
+                continue
+
+            print(f'Translation: {translation}')
 
             if translated_text_queue:
+                print(f'Put Translation into queue')
                 translated_text_queue.put(translation)
 
             snippet_df['Size'] = [samples_size]
             snippet_df['Translated0'] = [translation]
 
+        new_file_fame_without_extension = f'{orig_file_name_without_extension}-{snippet.start:09d}'
+        new_file_name = snippet.write_audio(destination_path, new_file_fame_without_extension)
+        snippet_df['Datei'] = [new_file_name]
         result = result.append(snippet_df, ignore_index=True)
 
+    ordered_column_names = ['Datei', 'Start', 'End', 'Length', 'Duration']
+
+    if translator:
+        ordered_column_names.extend(['Size', 'Translated0'])
+
+    result = result[ordered_column_names]
     return result
 
 
-def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=None):
+def generate_file_name_without_extnsion(self, orig_file_name_without_extension):
+    return
+
+
+def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=None) -> pd.DataFrame:
     samples, _ = load_mp3_as_sr16000(mp3_file_path)
     audio_bytes = convert_numpy_samples_to_audio_bytes(samples)
     sample_rate = 16_000
@@ -175,7 +205,7 @@ def split_mp3(mp3_file_path, destination_path, df=pd.DataFrame(), translator=Non
     return join_frames(mp3_file_path, destination_path, sample_rate, frame_queue, df, translator)
 
 
-def split_mp3s(ds_id, translator, source_dir, destination_dir):
+def split_mp3s(ds_id, translator, source_dir, destination_dir) -> pd.DataFrame:
     mp3FilenamesList = glob.glob(f'{source_dir}/*.mp3')
     result = pd.DataFrame()
 
