@@ -24,10 +24,10 @@ class SplitterThread(Thread):
         self.df = df
 
     def run(self):
-        orig_mp3_file_name_without_extension = self.df['Orginaldatei'].values[0][0:-4]
+        orig_file_name_without_extension = self.df['Orginaldatei'].values[0][0:-4]
         self.result = join_frames(
             destination_path=self.snippet_path,
-            orig_mp3_file_name_without_extension=orig_mp3_file_name_without_extension,
+            orig_file_name_without_extension=orig_file_name_without_extension,
             sample_rate=16_000,
             frame_queue=self.audio_in_queue,
             df=self.df,

@@ -63,10 +63,6 @@ class SpeechRecordingGui:
         SpeechRecordingGui.root.geometry('270x80+950+300')
         SpeechRecordingGui.root.resizable(True, True)
 
-    def display_new_messages(self):
-        while not self.translated_text_queue.empty():
-            self.text_area.appendPlainText(self.translated_text_queue.empty().get())
-
     def start(self):
         if not self.allow_recording:
             self.allow_recording = True
