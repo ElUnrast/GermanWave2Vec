@@ -12,16 +12,32 @@ def html_diff(text, n_text):
 
     try:
         seqm = difflib.SequenceMatcher(None, text, n_text)
+        dist = 0
 
         for opcode, a0, a1, b0, b1 in seqm.get_opcodes():
             if opcode == 'equal':
                 output.append(seqm.a[a0:a1])
             elif opcode == 'insert':
+                if (b1-b0) > 2:
+                    dist += 100000
+                else:
+                    dist += 10000 * (b1-b0)
+
                 output.append("<font color=red>^" + seqm.b[b0:b1] + "</font>")
             elif opcode == 'delete':
+                if (a1-a0) > 2:
+                    dist += 1000
+                else:
+                    dist += 100 * (a1-a0)
+
                 output.append("<font color=blue>^" + seqm.a[a0:a1] + "</font>")
             elif opcode == 'replace':
                 # seqm.a[a0:a1] -> seqm.b[b0:b1]
+                if (b1-b0) > 2:
+                    dist += 10
+                else:
+                    dist += (b1-b0)
+
                 output.append("<font color=green>^" + seqm.b[b0:b1] + "</font>")
             else:
                 raise RuntimeError("unexpected opcode")
@@ -29,4 +45,4 @@ def html_diff(text, n_text):
         print(f'ERROR in {text}')
 
     output.append('</p>')
-    return ''.join(output)
+    return ''.join(output), dist

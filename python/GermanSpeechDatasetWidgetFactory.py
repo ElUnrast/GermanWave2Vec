@@ -97,7 +97,8 @@ class GermanSpeechDatasetWidgetFactory:
         return ''.join(output)
 
     def _create_diff_row(self, ds_id, audio_file, translated_text, original_text, id):
-        diff_widget = widgets.HTML(value=self._html_diff(original_text, translated_text))
+        html_diff_text, _ = self._html_diff(original_text, translated_text)
+        diff_widget = widgets.HTML(value=html_diff_text)
         input_widget = Textarea(value=original_text, placeholder='Original Text', layout=Layout(width='60vw'))
         play_button_widget = widgets.Button(description='Play')
         delete_button_widget = widgets.Button(description='Delete')

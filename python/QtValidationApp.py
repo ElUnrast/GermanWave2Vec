@@ -23,13 +23,14 @@ class QtValidationApp(QMainWindow):
         pygame.init()
         pygame.mixer.init()
 
-        all_ds_ids = set()
-        all_ds_ids.update(list(self.my_datasets.local_datasets.keys()))
-        all_ds_ids.update(list(self.my_datasets.extern_datasets.keys()))
+        all_ds_ids_set = set()
+        all_ds_ids_set.update(list(self.my_datasets.local_datasets.keys()))
+        all_ds_ids_set.update(list(self.my_datasets.extern_datasets.keys()))
+        self.all_ds_ids = sorted(list(all_ds_ids_set))
 
-        self.ds_id = list(all_ds_ids)[0]
         self.ds_id_combo = QComboBox()
-        self.ds_id_combo.addItems(list(all_ds_ids))
+        self.ds_id_combo.addItems(self.all_ds_ids)
+        self.ds_id_combo.setCurrentIndex(0)
         self.ds_id_combo.currentIndexChanged.connect(self.on_dataset_change)
 
         top_widget_layout = QHBoxLayout()
@@ -53,6 +54,7 @@ class QtValidationApp(QMainWindow):
         self.edit_rows[self.curr_index].setFocus()
 
     def create_sentence_list_widget(self):
+        self.ds_id = self.ds_id_combo.currentText()
         wer = self.my_datasets.get_word_error_rate(self.ds_id)
         self.ds_epoche = wer['trained_epochs']
 
@@ -69,6 +71,7 @@ class QtValidationApp(QMainWindow):
         self.rows = []
         self.ds_index = []
         self.edit_rows = []
+        manuell_validated_train_actions = ['train7', 'train8', 'train9']
 
         for idx in range(len(ds_problematic)):
             self.ds_index.append(ds_problematic.index[idx])
@@ -78,10 +81,10 @@ class QtValidationApp(QMainWindow):
             original_text = ds_problematic.iloc[idx]['OriginalText']
             file_name = ds_problematic.iloc[idx]['Datei']
             self.mp3_files.append(file_name)
-            html = html_diff(original_text, translated_text)
-            row = QGroupBox(title=f'{file_name}')
+            html, diff_value1 = html_diff(original_text, translated_text)
+            row = QGroupBox(title=f'{file_name} - {diff_value1}')
 
-            if aktion.startswith('exclude') or (aktion == 'train8') or (aktion == 'train9'):
+            if aktion.startswith('exclude') or (aktion in manuell_validated_train_actions):
                 self.set_initial_groupbox_color(row, self.get_color_for_action(aktion))
 
             self.rows.append(row)
@@ -120,6 +123,7 @@ class QtValidationApp(QMainWindow):
     def on_dataset_change(self):
         print(f'Dataset changed to: {self.ds_id_combo.currentText()}')
         # TODO: Speichern Abfrage und Neuaufbau der Liste
+        self.scroll.setWidget(self.create_sentence_list_widget())
 
     def set_initial_groupbox_color(self, group_box: QGroupBox, color: QColor):
         p = group_box.palette()
@@ -176,6 +180,14 @@ class QtValidationApp(QMainWindow):
             elif e.key() == Qt.Key.Key_PageUp:
                 self.play_previos()
             elif e.key() == Qt.Key.Key_PageDown:
+                idx = self.get_current_row_index()
+                ds_idx = self.ds_index[idx]
+
+                if not self.action[idx].startswith('exclude'):
+                    if (not self.action[idx] == 'train8') and (not self.action[idx] == 'train9'):
+                        self.action[idx] = 'train7'
+                        self.ds['Action'].values[ds_idx] = 'train7'
+
                 self.play_next()
             elif e.key() == Qt.Key.Key_E:
                 # Toggle Exclude
@@ -264,8 +276,8 @@ class QtValidationApp(QMainWindow):
 
 
 def main():
-    # dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
-    dataset_loader = SnippetDatasets(False, local_audio_base_dir='C:/temp/audio')
+    dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
+    # dataset_loader = SnippetDatasets(False, local_audio_base_dir='C:/temp/audio')
     print(f'Local Datasets: {dataset_loader.local_datasets}')
     app = QApplication(sys.argv)
     w = QtValidationApp(dataset_loader)

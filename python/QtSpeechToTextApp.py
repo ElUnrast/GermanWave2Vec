@@ -58,25 +58,29 @@ class QtSpeechToTextApp(QMainWindow):
 
         hbox_layout = QHBoxLayout()
         hbox_layout.setSpacing(20)
-        self.record_button = QPushButton()  # QToolButton()
+        self.record_button = QPushButton(parent=self)  # QToolButton()
         self.record_button.setText("Record")
         self.record_button.setCheckable(True)
         self.record_button.setChecked(False)
         self.record_button.setIcon(self.record_off_icon)
         self.record_button.setIconSize(QSize(32, 32))
         self.record_button.setGeometry(QRect(34, 34, 34, 34))
+        hbox_layout.addWidget(self.record_button)
         # Bei ToolButton könnte man noch sowas machen
         # self.record_button.setArrowType(Qt.RightArrow)
         # self.record_button.setAutoRaise(True)
         # self.record_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
-        self.record_button.clicked.connect(self.record)
-        hbox_layout.addWidget(self.record_button)
 
         hbox_layout.addWidget(QLabel('Benutzer'))
         self.user_combo = QComboBox()
         self.user_combo.addItem(getpass.getuser())
         self.user_combo.currentIndexChanged.connect(self.on_user_change)
         hbox_layout.addWidget(self.user_combo)
+
+        self.record_button.clicked.connect(self.record)
+        self.satzzeichen_check = QCheckBox(parent=self)
+        self.satzzeichen_check.setText('Satzzeichen diktieren')
+        hbox_layout.addWidget(self.satzzeichen_check)
 
         self.text_area = QPlainTextEdit()
         self.text_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -98,10 +102,11 @@ class QtSpeechToTextApp(QMainWindow):
                 print('Exiting Display Thread')
                 break
 
-            # evtl können hier Satzzeichen ersetzt werden
-            satzzeichen = {'punkt': '.', 'komma': ',', 'fragezeichen': '?', 'ausrufezeichen': '!'}
-            regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
-            translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
+            if self.satzzeichen_check.isChecked():
+                # evtl können hier Satzzeichen ersetzt werden
+                satzzeichen = {'punkt': '.', 'komma': ',', 'fragezeichen': '?', 'ausrufezeichen': '!'}
+                regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
+                translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
 
             self._append_text(translated_text)
 
