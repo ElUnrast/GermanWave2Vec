@@ -101,7 +101,7 @@ class GermanSpeechToTextTranslaterBase:
                     return db['ci'], db['ss'].item()
 
         samples, samples_size = self.load_as_sr16000(audio_file_name)
-        ci = self.my_processor(samples)
+        ci = self.audio_to_cuda_inputs(samples)
 
         if ds_id and self.cache_directory:
             db = {'ci': ci, 'ss': torch.tensor([samples_size])}
