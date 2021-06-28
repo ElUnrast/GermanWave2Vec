@@ -365,7 +365,7 @@ class GermanTrainingWav2Vec2Dataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         mp3_file = f'{self.snippet_directory}/{self.paths[idx]}'
         # print(f'Loading MP3: {mp3_file}')
-        inputs, _ = self.german_speech_translator.audio_to_cuda_inputs(
+        inputs, _ = self.german_speech_translator.audio_file_to_cuda_inputs(
             mp3_file, self.ds_id
         )
 
