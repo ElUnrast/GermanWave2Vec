@@ -111,16 +111,20 @@ class GermanSpeechToTextTranslaterBase:
 
     def translate_numpy_audio(self, numpy_audio: np.ndarray):
         samples = self.audio_to_cuda_inputs(numpy_audio)
+        return self.translate_cuda_input(samples), numpy_audio.shape[0]
+
+    def translate_cuda_input(self, samples: np.ndarray):
         with torch.no_grad():
             logits = self.my_model(samples.to(self.device)).logits
 
         # Storing predicted ids
         predicted_ids = torch.argmax(logits, dim=-1)
         # Converting audio to text - Passing the prediction to the tokenzer decode to get the transcription
-        return self.my_processor.decode(predicted_ids[0]), numpy_audio.shape[0]
+        return self.my_processor.decode(predicted_ids[0])
 
     def translate_audio(self, audio_file_name, ds_id=None):
-        return self.translate_numpy_audio(self.audio_file_to_cuda_inputs(audio_file_name, ds_id))
+        cuda_inputs, samples_size = self.audio_file_to_cuda_inputs(audio_file_name, ds_id)
+        return self.translate_cuda_input(cuda_inputs), samples_size
 
     def translate_dataset(self, mp3_dir, ds, cache_id=None):
         files = [f'{mp3_dir}/{file_name}' for file_name in ds.Datei]
