@@ -240,7 +240,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     print(f'Actual WER: {100 * wer_result:3.4f}%')
                     early_stopping = False
 
-                    if (bad_translation_ds.shape[0] > 200) and (wer_result > early_stopping_value):
+                    if (bad_translation_ds.shape[0] > 100) and (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
