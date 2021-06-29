@@ -8,11 +8,11 @@ def html_diff(text, n_text):
     SequenceMatcher instance whose a & b are strings
     """
     output = []
+    dist = 0
     output.append('<p style="font-size:100%;">')
 
     try:
         seqm = difflib.SequenceMatcher(None, text, n_text)
-        dist = 0
 
         for opcode, a0, a1, b0, b1 in seqm.get_opcodes():
             if opcode == 'equal':

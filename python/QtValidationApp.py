@@ -18,7 +18,6 @@ class QtValidationApp(QMainWindow):
         self.corrected1_color = QColor(int("ADD8E6", 16))  # lightblue #ADD8E6
         self.corrected2_color = QColor(int("9999FF", 16))  #
         self.my_datasets = dataset_loader
-        self.setWindowTitle('Dataset Validation')
 
         pygame.init()
         pygame.mixer.init()
@@ -57,14 +56,20 @@ class QtValidationApp(QMainWindow):
         self.ds_id = self.ds_id_combo.currentText()
         wer = self.my_datasets.get_word_error_rate(self.ds_id)
         self.ds_epoche = wer['trained_epochs']
+        self.wer = wer['wer']
 
         vbox = QVBoxLayout()
         self.ds = self.my_datasets.load_ds_content_translated_with_original(self.ds_id, prune=False)
+
+        if not 'Sort1' in self.ds.columns:
+            self.ds['Sort1'] = 0
+
         self.snipped_directory = self.my_datasets.get_snippet_directory(self.ds_id)
         all = len(self.ds)
         self.translation_row = 'Translated1' if 'Translated1' in self.ds.columns else 'Translated0'
         ds_problematic = self.ds[self.ds['OriginalText'] != self.ds[self.translation_row]]
         wrong = len(ds_problematic)
+        self.setWindowTitle(f'Dataset Validation of {self.ds_id}, epoche {self.ds_epoche}, WER: {self.wer:3.4f}%, bad {wrong}')
         print(f'Use Snipped Directory: {self.snipped_directory} - {all}/{wrong} Wrong')
         self.action = []
         self.mp3_files = []
@@ -74,7 +79,8 @@ class QtValidationApp(QMainWindow):
         manuell_validated_train_actions = ['train7', 'train8', 'train9']
 
         for idx in range(len(ds_problematic)):
-            self.ds_index.append(ds_problematic.index[idx])
+            ds_idx = ds_problematic.index[idx]
+            self.ds_index.append(ds_idx)
             aktion = ds_problematic.iloc[idx]['Action']
             self.action.append(aktion)
             translated_text = ds_problematic.iloc[idx][self.translation_row]
@@ -82,6 +88,7 @@ class QtValidationApp(QMainWindow):
             file_name = ds_problematic.iloc[idx]['Datei']
             self.mp3_files.append(file_name)
             html, diff_value1 = html_diff(original_text, translated_text)
+            self.ds['Action'].values[ds_idx] = diff_value1
             row = QGroupBox(title=f'{file_name} - {diff_value1}')
 
             if aktion.startswith('exclude') or (aktion in manuell_validated_train_actions):

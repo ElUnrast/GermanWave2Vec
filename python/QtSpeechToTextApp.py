@@ -104,7 +104,16 @@ class QtSpeechToTextApp(QMainWindow):
 
             if self.satzzeichen_check.isChecked():
                 # evtl können hier Satzzeichen ersetzt werden
-                satzzeichen = {'punkt': '.', 'komma': ',', 'fragezeichen': '?', 'ausrufezeichen': '!'}
+                satzzeichen = {
+                    'punkt': '.',
+                    'komma': ',',
+                    'fragezeichen': '?',
+                    'ausrufezeichen': '!',
+                    'Bindestrich': '-',
+                    'semikolon': ';',
+                    'zeilenumbruch': '\n',
+                    'absatz': '\n\n'
+                }
                 regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
                 translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
 
