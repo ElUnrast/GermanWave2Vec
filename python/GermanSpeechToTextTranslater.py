@@ -210,8 +210,10 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
         logging_steps,
         learning_rate,
         warmup_steps,
-        early_stopping_value=0.2
+        early_stopping_value=0.1
     ):
+        manuell_validated_train_actions = ['train7', 'train8', 'train9']
+
         for runde in range(max_rounds):
             print('======================================')
             print(f'Starting round {runde + 1} of {max_rounds}')
@@ -239,8 +241,9 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
                     print(f'Actual WER: {100 * wer_result:3.4f}%')
                     early_stopping = False
+                    validated_ds = bad_translation_ds[bad_translation_ds['Action']].isin(manuell_validated_train_actions)
 
-                    if (bad_translation_ds.shape[0] > 100) and (wer_result > early_stopping_value):
+                    if (bad_translation_ds.shape[0] > min(20, 200 - validated_ds.shape[0])) and (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
