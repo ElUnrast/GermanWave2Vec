@@ -68,6 +68,7 @@ class QtValidationApp(QMainWindow):
         all = len(self.ds)
         self.translation_row = 'Translated1' if 'Translated1' in self.ds.columns else 'Translated0'
         ds_problematic = self.ds[self.ds['OriginalText'] != self.ds[self.translation_row]]
+        ds_problematic = ds_problematic.sort_values(['Action', 'Sort1'], ascending=[True, False])
         wrong = len(ds_problematic)
         self.setWindowTitle(f'Dataset Validation of {self.ds_id}, epoche {self.ds_epoche}, WER: {self.wer:3.4f}%, bad {wrong}')
         print(f'Use Snipped Directory: {self.snipped_directory} - {all}/{wrong} Wrong')
@@ -88,7 +89,7 @@ class QtValidationApp(QMainWindow):
             file_name = ds_problematic.iloc[idx]['Datei']
             self.mp3_files.append(file_name)
             html, diff_value1 = html_diff(original_text, translated_text)
-            self.ds['Action'].values[ds_idx] = diff_value1
+            self.ds['Sort1'].values[ds_idx] = diff_value1
             row = QGroupBox(title=f'{file_name} - {diff_value1}')
 
             if aktion.startswith('exclude') or (aktion in manuell_validated_train_actions):

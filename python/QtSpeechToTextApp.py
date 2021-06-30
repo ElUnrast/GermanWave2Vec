@@ -91,7 +91,7 @@ class QtSpeechToTextApp(QMainWindow):
         vbox_layout.addWidget(self.text_area)
         self.setCentralWidget(self.central_widget)
         self.translated_text_queue = Queue()
-        self._append_text = run_in_main_thread(self.text_area.appendPlainText)
+        self._append_translated_text = run_in_main_thread(self.text_area.appendPlainText)
 
     def display_new_messages(self):
         while True:
@@ -109,7 +109,7 @@ class QtSpeechToTextApp(QMainWindow):
                     'komma': ',',
                     'fragezeichen': '?',
                     'ausrufezeichen': '!',
-                    'Bindestrich': '-',
+                    'bindestrich': '-',
                     'semikolon': ';',
                     'zeilenumbruch': '\n',
                     'absatz': '\n\n'
@@ -117,7 +117,7 @@ class QtSpeechToTextApp(QMainWindow):
                 regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
                 translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
 
-            self._append_text(translated_text)
+            self._append_translated_text(translated_text)
 
     def on_change_base_directory(self):
         home_dir = str(Path.home())
