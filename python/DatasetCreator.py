@@ -4,6 +4,7 @@ import glob
 import eyed3
 import pandas as pd
 from Mp3VoiceSplitter import get_snippet_info_from_mp3_file
+from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
 
 _regex_spaces = re.compile(r"  +")
 _regex_number = re.compile(r"\d+")
@@ -20,6 +21,7 @@ def create_content_in_snippet_directory(snippet_directory, translator, orig_from
         file_name, start, end, length, duration, sample_length = get_snippet_info_from_mp3_file(mp3_file_path)
         snippet_df = pd.DataFrame({
             'DsId': [ds_id],
+            'Sprecher': 'Unbekannt',
             'Orginaldatei': [file_name],
             'Datei': [file_name],
             'Start': [start],
@@ -61,3 +63,14 @@ def _get_text_from_title_tag(mp3_file_path):
             new_orig_text += c
 
     return _regex_spaces.sub(' ', new_orig_text), 'train'
+
+
+def main():
+    model_name = 'c:/share/NLP-Models/GermanWave2Vec/trained_model'
+    snippet_directory = '//matlab3/D/NLP-Data/audio/HspSections/HspSections-065'
+    translator = GermanSpeechToTextTranslaterBase(model_name=model_name, device='cpu')
+    create_content_in_snippet_directory(snippet_directory=snippet_directory, translator=translator)
+
+
+if __name__ == '__main__':
+    main()
