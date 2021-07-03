@@ -14,6 +14,7 @@ import collections
 import numpy as np
 import sklearn
 import jiwer
+import random
 import pandas as pd
 from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
@@ -218,8 +219,9 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
             print('======================================')
             print(f'Starting round {runde + 1} of {max_rounds}')
             print('======================================')
+            shuffled_ds_to_train = random.shuffle(list(ds_to_train))
 
-            for ds_id in ds_to_train:
+            for ds_id in shuffled_ds_to_train:
                 print('--------------------------------------')
                 print(f'-- Start train of Dataset: {ds_id}')
                 print('--------------------------------------')
@@ -244,7 +246,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     # validated_ds = bad_translation_ds[bad_translation_ds['Action']].isin(manuell_validated_train_actions)
                     # (bad_translation_ds.shape[0] > min(20, 200 - validated_ds.shape[0]))
 
-                    if (bad_translation_ds.shape[0] > 150) or (wer_result > early_stopping_value):
+                    if (bad_translation_ds.shape[0] > 50) or (wer_result > early_stopping_value):
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
@@ -299,7 +301,9 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     else:
                         # mindestens 98% der Sätze wurde korrekt übersetzt. Überprüfung der Problemfälle ist angebracht.
                         # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
-                        print('Early stopping!')
+                        print('Early stopping: {ds_id}')
+                        print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
+                        print(f'Actual WER: {100 * wer_result:3.4f}')
                         early_stopping = True
                         # keine gute Idee: ds_to_train.remove(ds_id)
                         break
