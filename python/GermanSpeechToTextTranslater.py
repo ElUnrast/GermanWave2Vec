@@ -221,7 +221,8 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
             print('======================================')
             print(f'Starting round {runde + 1} of {max_rounds}')
             print('======================================')
-            shuffled_ds_to_train = random.shuffle(list(ds_to_train))
+            shuffled_ds_to_train = list(ds_to_train)
+            random.shuffle(shuffled_ds_to_train)
 
             for ds_id in shuffled_ds_to_train:
                 print('--------------------------------------')
