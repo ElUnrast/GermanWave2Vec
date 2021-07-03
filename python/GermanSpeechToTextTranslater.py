@@ -144,6 +144,8 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
         print(f'aktual trained epoches: {self.trained_epochs}')
         print(f'old trained epoches: {old_word_error_rate["trained_epochs"]}')
         print(f'old word error rate: {old_word_error_rate["wer"]}%')
+        bad_translation_ds = pandas_df[pandas_df[translation_column_name] != pandas_df['OriginalText']]
+        print(f'No. of bad translated snippets: {bad_translation_ds.shape[0]}')
 
         if self.trained_epochs == old_word_error_rate['trained_epochs']:
             print('Translation is up to date')
