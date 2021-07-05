@@ -65,6 +65,7 @@ class QtSpeechToTextApp(QMainWindow):
         self.record_button.setIcon(self.record_off_icon)
         self.record_button.setIconSize(QSize(32, 32))
         self.record_button.setGeometry(QRect(34, 34, 34, 34))
+        self.record_button.clicked.connect(self.record)
         hbox_layout.addWidget(self.record_button)
         # Bei ToolButton könnte man noch sowas machen
         # self.record_button.setArrowType(Qt.RightArrow)
@@ -77,30 +78,35 @@ class QtSpeechToTextApp(QMainWindow):
         self.user_combo.currentIndexChanged.connect(self.on_user_change)
         hbox_layout.addWidget(self.user_combo)
 
-        self.record_button.clicked.connect(self.record)
         self.satzzeichen_check = QCheckBox(parent=self)
         self.satzzeichen_check.setText('Satzzeichen diktieren')
         hbox_layout.addWidget(self.satzzeichen_check)
 
-        self.text_area = QPlainTextEdit()
-        self.text_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.formated_text_area = QPlainTextEdit()
+        self.formated_text_area.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.received_text_area = QPlainTextEdit()
+        self.received_text_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         self.top_widget = QWidget()
         self.top_widget.setLayout(hbox_layout)
         vbox_layout.addWidget(self.top_widget)
-        vbox_layout.addWidget(self.text_area)
+        vbox_layout.addWidget(self.formated_text_area)
+        vbox_layout.addWidget(self.received_text_area)
         self.setCentralWidget(self.central_widget)
         self.translated_text_queue = Queue()
-        self._append_translated_text = run_in_main_thread(self.text_area.appendPlainText)
+        self._append_formated_text = run_in_main_thread(self.formated_text_area.appendHtml)
+        self._append_received_text = run_in_main_thread(self.received_text_area.appendPlainText)
 
     def display_new_messages(self):
         while True:
-            translated_text = self.translated_text_queue.get()
-            print(f'Got translation from queue: {translated_text}')
+            received_text = self.translated_text_queue.get()
+            print(f'Got translation from queue: {received_text}')
 
-            if not translated_text:
+            if not received_text:
                 print('Exiting Display Thread')
                 break
+
+            self._append_received_text(received_text)
 
             if self.satzzeichen_check.isChecked():
                 # evtl können hier Satzzeichen ersetzt werden
@@ -115,9 +121,9 @@ class QtSpeechToTextApp(QMainWindow):
                     'absatz': '\n\n'
                 }
                 regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
-                translated_text = regex.sub(lambda match: satzzeichen[match.group(0)], translated_text)
+                formated_text = regex.sub(lambda match: satzzeichen[match.group(0)], received_text)
 
-            self._append_translated_text(translated_text)
+            self._append_formated_text(formated_text)
 
     def on_change_base_directory(self):
         home_dir = str(Path.home())
