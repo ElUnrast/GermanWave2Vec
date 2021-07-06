@@ -7,6 +7,8 @@ import os
 import re
 import sounddevice as sd
 import pandas as pd
+from SpeechComanndProcessor import SpeechEventHandler, SpeechComanndSatzzeichenProcessor
+from SpeechComanndProcessor import SpeechComanndFormatProcessor, SpeechComanndBuchstabierenProcessor
 from queue import Queue
 from datetime import datetime as dt
 from pathlib import Path
@@ -18,7 +20,7 @@ from threading import Thread
 from threadutil import run_in_main_thread
 
 
-class QtSpeechToTextApp(QMainWindow):
+class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
     def __init__(self, recording_base_path: str, translator: GermanSpeechToTextTranslaterBase = None):
         super().__init__()
         self.translator = translator
@@ -40,6 +42,12 @@ class QtSpeechToTextApp(QMainWindow):
         self.file_name = None  # wird in start gesetzt
         self.record_thread = None
         self.write_thread = None
+
+        self.speech_command_processors = [
+            SpeechComanndSatzzeichenProcessor(speech_event_handler=self),
+            SpeechComanndFormatProcessor(speech_event_handler=self),
+            SpeechComanndBuchstabierenProcessor(speech_event_handler=self)
+        ]
 
         self.init_gui()
         self.display_thread = Thread(target=self.display_new_messages, daemon=True)
@@ -82,7 +90,7 @@ class QtSpeechToTextApp(QMainWindow):
         self.satzzeichen_check.setText('Satzzeichen diktieren')
         hbox_layout.addWidget(self.satzzeichen_check)
 
-        self.formated_text_area = QPlainTextEdit()
+        self.formated_text_area = QTextEdit()
         self.formated_text_area.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.received_text_area = QPlainTextEdit()
         self.received_text_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -94,7 +102,8 @@ class QtSpeechToTextApp(QMainWindow):
         vbox_layout.addWidget(self.received_text_area)
         self.setCentralWidget(self.central_widget)
         self.translated_text_queue = Queue()
-        self._append_formated_text = run_in_main_thread(self.formated_text_area.appendHtml)
+        self._insert_formated_text = run_in_main_thread(self.formated_text_area.insertPlainText)
+        self._insert_formated_html_text = run_in_main_thread(self.formated_text_area.insertHtml)
         self._append_received_text = run_in_main_thread(self.received_text_area.appendPlainText)
 
     def display_new_messages(self):
@@ -107,23 +116,30 @@ class QtSpeechToTextApp(QMainWindow):
                 break
 
             self._append_received_text(received_text)
+            self.handle_speech_event(received_text)
 
-            if self.satzzeichen_check.isChecked():
-                # evtl können hier Satzzeichen ersetzt werden
-                satzzeichen = {
-                    'punkt': '.',
-                    'komma': ',',
-                    'fragezeichen': '?',
-                    'ausrufezeichen': '!',
-                    'bindestrich': '-',
-                    'semikolon': ';',
-                    'zeilenumbruch': '\n',
-                    'absatz': '\n\n'
-                }
-                regex = re.compile('|'.join(r'\b%s\b' % re.escape(s) for s in satzzeichen))
-                formated_text = regex.sub(lambda match: satzzeichen[match.group(0)], received_text)
+    def handle_speech_event(self, text: str):
+        txt = text.strip()
 
-            self._append_formated_text(formated_text)
+        if txt:
+            for processor in self.speech_command_processors:
+                if processor.process(text):
+                    return
+
+            if text.startswith('<'):
+                self.append_formatted_text(txt)
+            else:
+                formatted_text = text if self.formated_text_area.textCursor().atBlockStart() else f' {text}'
+                self.append_formatted_text(formatted_text)
+
+    def append_formatted_text(self, text):
+        if text:
+            if text.startswith('<'):
+                print(f'insert html: {text}')
+                self._insert_formated_html_text(text)
+            else:
+                print(f'insert text: {text}')
+                self._insert_formated_text(text)
 
     def on_change_base_directory(self):
         home_dir = str(Path.home())
@@ -146,14 +162,14 @@ class QtSpeechToTextApp(QMainWindow):
 
     def record(self):
         if self.record_button.isChecked():
-            # self.record_button.setIcon(self.record_on_icon)
+            self.record_button.setIcon(self.record_on_icon)
             self.statusBar().showMessage("Recording....")
             self.start()
         else:
             self.statusBar().showMessage("Stop recording...")
             self.stop()
             self.statusBar().showMessage("Not recording")
-            # self.record_button.setIcon(self.record_off_icon)
+            self.record_button.setIcon(self.record_off_icon)
 
     def start(self):
         if not self.allow_recording:
