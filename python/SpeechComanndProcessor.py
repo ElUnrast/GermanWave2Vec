@@ -9,6 +9,12 @@ class SpeechEventHandler():
     def append_formatted_text(self, text: str):
         pass
 
+    def set_bold(self, b: bool):
+        pass
+
+    def set_italic(self, b: bool):
+        pass
+
 
 class SpeechComanndProcessor():
     def __init__(
@@ -114,9 +120,9 @@ class SpeechComanndSatzzeichenProcessor(SpeechComanndProcessor):
         'eckige klammer zu': '[',
         'geschweifte klammer auf': '{',
         'geschweifte klammer zu': '}',
-        'zeilenumbruch': '<br/>',
-        'neue zeile': '<br/>',
-        'absatz': '<p/>'
+        'zeilenumbruch': '\n',  # '<br/>',
+        'neue zeile': '\n',  # '<br/>',
+        'absatz': '\n\n'  # <p/>'
     }
 
     def __init__(self, speech_event_handler, active: bool = True):
@@ -140,7 +146,7 @@ class SpeechComanndFormatProcessor(SpeechComanndProcessor):
     formate = {
         'fett aus': '</b>',
         'fett ende': '</b>',
-        'fett': '<b>michael</b>',
+        'fett': '<b>',
         'kursiv aus': '</l>',
         'kursiv ende': '</l>',
         'kursiv': '<l>',
@@ -159,7 +165,16 @@ class SpeechComanndFormatProcessor(SpeechComanndProcessor):
     def process_cmd(self, cmd, text):
         mapped_format = SpeechComanndFormatProcessor.formate[cmd]
         print(f'Mapped {cmd} -> {mapped_format}')
-        self.speech_event_handler.append_formatted_text(mapped_format)
+
+        if '<b>' == mapped_format:
+            self.speech_event_handler.set_bold(True)
+        elif '</b>' == mapped_format:
+            self.speech_event_handler.set_bold(False)
+        elif '<l>' == mapped_format:
+            self.speech_event_handler.set_italic(True)
+        elif '</l>' == mapped_format:
+            self.speech_event_handler.set_italic(False)
+
         return super().process_cmd(cmd, text)
 
 
@@ -191,3 +206,36 @@ class SpeechComanndBuchstabierenProcessor(SpeechComanndProcessor):
             self.speech_event_handler.append_formatted_text(wort)
 
         return True
+
+
+class SpeechComanndDatumProcessor(SpeechComanndProcessor):
+    def __init__(self, speech_event_handler, active: bool = True):
+        super().__init__(
+            processor_name='Buchstabieren',
+            start_command='ich buchstabiere',
+            stop_command='buchstabieren aus',
+            trigger_words=[],
+            speech_event_handler=speech_event_handler,
+            active=active
+        )
+
+    def process_cmd(self, cmd, text):
+        stop_match = self.cmd_regexp_map[self.stop_cmd].search(text)
+
+        if stop_match:
+            self._append_text(text[0:stop_match.start()])
+            self.active = False
+            self.speech_event_handler.handle_speech_event(text[stop_match.end():])
+            return True
+
+        return self._append_text(text)
+
+    def _append_text(self, text: str):
+        pass  # TODO
+
+
+class SpeechComanndZahlProcessor(SpeechComanndProcessor):
+    zahl_regexp = re.compile(r'\b((ers|zwei|drit|vier|fünf|sechs|sieb|ach|neun|zehn|elf|zwölf)ter)\b'.format())
+
+    def __init__(self, speech_event_handler, active: bool = True):
+        pass  # TODO

@@ -20,6 +20,14 @@ from threading import Thread
 from threadutil import run_in_main_thread
 
 
+class SpeechTextEvent(QObject):
+    progressSignal = pyqtSignal(str)
+
+
+class SpeechFromatEvent(QObject):
+    progressSignal = pyqtSignal(bool)
+
+
 class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
     def __init__(self, recording_base_path: str, translator: GermanSpeechToTextTranslaterBase = None):
         super().__init__()
@@ -90,7 +98,8 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
         self.satzzeichen_check.setText('Satzzeichen diktieren')
         hbox_layout.addWidget(self.satzzeichen_check)
 
-        self.formated_text_area = QTextEdit()
+        self.formated_text_area = QTextBrowser()
+        self.formated_text_area.setAcceptRichText(True)
         self.formated_text_area.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.received_text_area = QPlainTextEdit()
         self.received_text_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -102,9 +111,14 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
         vbox_layout.addWidget(self.received_text_area)
         self.setCentralWidget(self.central_widget)
         self.translated_text_queue = Queue()
-        self._insert_formated_text = run_in_main_thread(self.formated_text_area.insertPlainText)
-        self._insert_formated_html_text = run_in_main_thread(self.formated_text_area.insertHtml)
         self._append_received_text = run_in_main_thread(self.received_text_area.appendPlainText)
+
+        self.formated_text_emitter = SpeechTextEvent()
+        self.formated_text_emitter.progressSignal.connect(self._insert_formatted_text)
+        self.text_bold_format_event_emmiter = SpeechFromatEvent()
+        self.text_bold_format_event_emmiter.progressSignal.connect(self._set_bold)
+        self.text_italic_format_event_emmiter = SpeechFromatEvent()
+        self.text_italic_format_event_emmiter.progressSignal.connect(self._set_italic)
 
     def display_new_messages(self):
         while True:
@@ -126,20 +140,28 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
                 if processor.process(text):
                     return
 
-            if text.startswith('<'):
-                self.append_formatted_text(txt)
-            else:
-                formatted_text = text if self.formated_text_area.textCursor().atBlockStart() else f' {text}'
-                self.append_formatted_text(formatted_text)
+            formatted_text = text if self.formated_text_area.textCursor().atBlockStart() else f' {text}'
+            self.append_formatted_text(formatted_text)
 
     def append_formatted_text(self, text):
         if text:
-            if text.startswith('<'):
-                print(f'insert html: {text}')
-                self._insert_formated_html_text(text)
-            else:
-                print(f'insert text: {text}')
-                self._insert_formated_text(text)
+            print(f'insert text: {text}')
+            self.formated_text_emitter.progressSignal.emit(text)
+
+    def _insert_formatted_text(self, text):
+        self.formated_text_area.insertPlainText(text)
+
+    def set_bold(self, b: bool):
+        self.text_bold_format_event_emmiter.progressSignal.emit(b)
+
+    def _set_bold(self, b: bool):
+        self.formated_text_area.setFontWeight(QFont.Weight.Bold if b else QFont.Weight.Normal)
+
+    def set_italic(self, b: bool):
+        self.text_italic_format_event_emmiter.progressSignal.emit(b)
+
+    def _set_italic(self, b: bool):
+        self.formated_text_area.setFontItalic(b)
 
     def on_change_base_directory(self):
         home_dir = str(Path.home())
