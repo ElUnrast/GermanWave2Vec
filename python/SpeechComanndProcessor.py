@@ -235,7 +235,8 @@ class SpeechComanndDatumProcessor(SpeechComanndProcessor):
 
 
 class SpeechComanndZahlProcessor(SpeechComanndProcessor):
-    zahl_regexp = re.compile(r'\b((ers|zwei|drit|vier|fünf|sechs|sieb|ach|neun|zehn|elf|zwölf)ter)\b'.format())
+    aufzaehlung_regexp = re.compile(r'\b((ers|zwei|drit|vier|fünf|sechs|sieb|ach|neun|zehn|elf|zwölf)(ter|tes))\b'.format())
+    zahl_start_regexp = re.compile(r'\b((ein|zwei|drei|vier|fünf|sech|sieb|acht|neun|zehn|elf|zwölf|zwan|hundert|tausend))'.format())
 
     def __init__(self, speech_event_handler, active: bool = True):
         pass  # TODO
