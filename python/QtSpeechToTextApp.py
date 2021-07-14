@@ -9,6 +9,7 @@ import sounddevice as sd
 import pandas as pd
 from SpeechComanndProcessor import SpeechEventHandler, SpeechComanndSatzzeichenProcessor
 from SpeechComanndProcessor import SpeechComanndFormatProcessor, SpeechComanndBuchstabierenProcessor
+from SpeechComanndProcessor import SpeechComanndZahlProcessor
 from queue import Queue
 from datetime import datetime as dt
 from pathlib import Path
@@ -54,7 +55,8 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
         self.speech_command_processors = [
             SpeechComanndSatzzeichenProcessor(speech_event_handler=self),
             SpeechComanndFormatProcessor(speech_event_handler=self),
-            SpeechComanndBuchstabierenProcessor(speech_event_handler=self)
+            SpeechComanndBuchstabierenProcessor(speech_event_handler=self),
+            SpeechComanndZahlProcessor(speech_event_handler=self),
         ]
 
         self.init_gui()
