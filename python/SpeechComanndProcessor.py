@@ -1,5 +1,6 @@
 import re
 from typing import List
+from NumberConverter import zahl_start_re, aufzaehlung_re, extract_number
 
 
 class SpeechEventHandler():
@@ -22,7 +23,7 @@ class SpeechComanndProcessor():
         processor_name: str,
         start_command: str,
         stop_command: str,
-        trigger_words: List[str],
+        trigger,  # List of words or Dictionary cmd -> regexp
         speech_event_handler: SpeechEventHandler,
         active: bool = False
     ):
@@ -33,40 +34,69 @@ class SpeechComanndProcessor():
         self.cmd_regexp_map[start_command] = re.compile(r'\b{0}\b'.format(start_command))
         self.stop_cmd = stop_command
         self.cmd_regexp_map[stop_command] = re.compile(r'\b{0}\b'.format(stop_command))
-        self.trigger_words = trigger_words
+        self.trigger = trigger
 
-        for cmd in trigger_words:
-            self.cmd_regexp_map[cmd] = re.compile(r'\b{0}\b'.format(cmd))
+        if trigger:
+            if isinstance(trigger, dict):
+                self.cmd_regexp_map.update(trigger)
+            else:
+                print(f'{type(trigger)}')
+                for cmd in trigger:
+                    self.cmd_regexp_map[cmd] = re.compile(r'\b{0}\b'.format(cmd))
 
-        self.first_cmd_regexp = re.compile('({0})'.format('|'.join(self.cmd_regexp_map.keys())))
+        pattern_list = []
+        zahl_start_re.pattern
+
+        for p in self.cmd_regexp_map.values():
+            pattern_list.append(p.pattern)
+
+        self.first_cmd_regexp = re.compile('({0})'.format('|'.join(pattern_list)))
         self.active = active
 
     def get_pending_command(self):
-        if self.active and not self.trigger_words:
+        if self.active and not self.trigger:
             return self.start_cmd
 
         return None
 
-    def process_cmd(self, cmd, text):
+    def process_cmd(self, match, cmd, text):
         if text:
             print(f'Writing Command {cmd} as: {text}')
             self.speech_event_handler.handle_speech_event(text)
 
         return True
 
+    def find_first_match(self, text):
+        first_idx = None
+        first_cmd = None
+        first_match = None
+
+        for cmd, pattern in self.cmd_regexp_map.items():
+            match = pattern.search(text)
+
+            if match:
+                if (not first_idx) or match.start() < first_idx:
+                    first_idx = match.start()
+                    first_match = match
+                    first_cmd = cmd
+
+                    if first_idx == 0:
+                        break
+
+        return first_cmd, first_match
+
     def process(self, text):
         if not text:
             return True
 
-        if self.active and self.get_pending_command():
-            return self.process_cmd(cmd=self.get_pending_command(), text=text)
+        cmd, first_match = self.find_first_match(text)
 
-        first_match = self.first_cmd_regexp.search(text)
+        if self.active and self.get_pending_command():
+            return self.process_cmd(match=first_match, cmd=self.get_pending_command(), text=text)
 
         if not first_match:
             return False
 
-        cmd = first_match.group()
         prefix = text[0:first_match.start()]
         postfix = text[first_match.end():]
 
@@ -90,7 +120,7 @@ class SpeechComanndProcessor():
                 self.speech_event_handler.handle_speech_event(postfix)
                 return True
 
-            return self.process_cmd(cmd, text=postfix)
+            return self.process_cmd(match=first_match, cmd=cmd, text=postfix)
 
         return False
 
@@ -130,16 +160,16 @@ class SpeechComanndSatzzeichenProcessor(SpeechComanndProcessor):
             processor_name='Satzzeichen',
             start_command='satzzeichen diktieren',
             stop_command='satzzeichen aus',
-            trigger_words=SpeechComanndSatzzeichenProcessor.satzzeichen.keys(),
+            trigger=SpeechComanndSatzzeichenProcessor.satzzeichen.keys(),
             speech_event_handler=speech_event_handler,
             active=active
         )
 
-    def process_cmd(self, cmd, text):
+    def process_cmd(self, match, cmd, text):
         mapped_satzzeichen = SpeechComanndSatzzeichenProcessor.satzzeichen[cmd]
         print(f'Mapped {cmd} -> {mapped_satzzeichen}')
         self.speech_event_handler.append_formatted_text(mapped_satzzeichen)
-        return super().process_cmd(cmd, text)
+        return super().process_cmd(match, cmd, text)
 
 
 class SpeechComanndFormatProcessor(SpeechComanndProcessor):
@@ -157,12 +187,12 @@ class SpeechComanndFormatProcessor(SpeechComanndProcessor):
             processor_name='Formatierung',
             start_command='formatierung ein',
             stop_command='formatierung aus',
-            trigger_words=SpeechComanndFormatProcessor.formate.keys(),
+            trigger=SpeechComanndFormatProcessor.formate.keys(),
             speech_event_handler=speech_event_handler,
             active=active
         )
 
-    def process_cmd(self, cmd, text):
+    def process_cmd(self, match, cmd, text):
         mapped_format = SpeechComanndFormatProcessor.formate[cmd]
         print(f'Mapped {cmd} -> {mapped_format}')
 
@@ -175,7 +205,7 @@ class SpeechComanndFormatProcessor(SpeechComanndProcessor):
         elif '</l>' == mapped_format:
             self.speech_event_handler.set_italic(False)
 
-        return super().process_cmd(cmd, text)
+        return super().process_cmd(match, cmd, text)
 
 
 class SpeechComanndBuchstabierenProcessor(SpeechComanndProcessor):
@@ -184,12 +214,12 @@ class SpeechComanndBuchstabierenProcessor(SpeechComanndProcessor):
             processor_name='Buchstabieren',
             start_command='ich buchstabiere',
             stop_command='buchstabieren aus',
-            trigger_words=[],
+            trigger=[],
             speech_event_handler=speech_event_handler,
             active=active
         )
 
-    def process_cmd(self, cmd, text):
+    def process_cmd(self, match, cmd, text):
         stop_match = self.cmd_regexp_map[self.stop_cmd].search(text)
 
         if stop_match:
@@ -214,12 +244,12 @@ class SpeechComanndDatumProcessor(SpeechComanndProcessor):
             processor_name='Buchstabieren',
             start_command='ich buchstabiere',
             stop_command='buchstabieren aus',
-            trigger_words=[],
+            trigger=[],
             speech_event_handler=speech_event_handler,
             active=active
         )
 
-    def process_cmd(self, cmd, text):
+    def process_cmd(self, match, cmd, text):
         stop_match = self.cmd_regexp_map[self.stop_cmd].search(text)
 
         if stop_match:
@@ -235,8 +265,22 @@ class SpeechComanndDatumProcessor(SpeechComanndProcessor):
 
 
 class SpeechComanndZahlProcessor(SpeechComanndProcessor):
-    aufzaehlung_regexp = re.compile(r'\b((ers|zwei|drit|vier|fünf|sechs|sieb|ach|neun|zehn|elf|zwölf)(ter|tes))\b'.format())
-    zahl_start_regexp = re.compile(r'\b((ein|zwei|drei|vier|fünf|sech|sieb|acht|neun|zehn|elf|zwölf|zwan|hundert|tausend))'.format())
-
     def __init__(self, speech_event_handler, active: bool = True):
-        pass  # TODO
+        trigger = {}
+        trigger['zahl'] = zahl_start_re
+        super().__init__(
+            processor_name='Zahlen umwandeln',
+            start_command='zahlen umwandeln',
+            stop_command='zahlen umwandeln aus',
+            trigger=trigger,
+            speech_event_handler=speech_event_handler,
+            active=active
+        )
+
+    def process_cmd(self, match, cmd, text):
+        mapped_number = extract_number(text, match)
+
+        if mapped_number:
+            self.speech_event_handler.append_formatted_text(f'{mapped_number:d}')
+
+        return super().process_cmd(match, cmd, text)
