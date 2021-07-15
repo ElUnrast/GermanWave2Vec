@@ -34,6 +34,7 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
         super().__init__()
         self.translator = translator
         self.allow_recording = False
+        self.last_processor = None
         # speakers = sc.all_speakers()
         # self.speaker = sc.default_speaker()
         # mics = sc.all_microphones()
@@ -134,15 +135,23 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
             self._append_received_text(received_text)
             self.handle_speech_event(received_text)
 
+    def is_formated_text_at_block_start(self):
+        return self.formated_text_area.textCursor().atBlockStart()
+
+    def get_last_proccessor(self):
+        return self.last_processor
+
     def handle_speech_event(self, text: str):
         txt = text.strip()
 
         if txt:
             for processor in self.speech_command_processors:
                 if processor.process(text):
+                    self.last_processor = processor
                     return
 
-            formatted_text = text if self.formated_text_area.textCursor().atBlockStart() else f' {text}'
+            self.last_processor = None
+            formatted_text = text if self.is_formated_text_at_block_start() else f' {text}'
             self.append_formatted_text(formatted_text)
 
     def append_formatted_text(self, text):

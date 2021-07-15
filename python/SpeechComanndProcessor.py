@@ -7,6 +7,12 @@ class SpeechEventHandler():
     def handle_speech_event(self, text: str):
         pass
 
+    def is_formated_text_at_block_start(self):
+        pass
+
+    def get_last_proccessor(self):
+        pass
+
     def append_formatted_text(self, text: str):
         pass
 
@@ -238,36 +244,12 @@ class SpeechComanndBuchstabierenProcessor(SpeechComanndProcessor):
         return True
 
 
-class SpeechComanndDatumProcessor(SpeechComanndProcessor):
-    def __init__(self, speech_event_handler, active: bool = True):
-        super().__init__(
-            processor_name='Buchstabieren',
-            start_command='ich buchstabiere',
-            stop_command='buchstabieren aus',
-            trigger=[],
-            speech_event_handler=speech_event_handler,
-            active=active
-        )
-
-    def process_cmd(self, match, cmd, text):
-        stop_match = self.cmd_regexp_map[self.stop_cmd].search(text)
-
-        if stop_match:
-            self._append_text(text[0:stop_match.start()])
-            self.active = False
-            self.speech_event_handler.handle_speech_event(text[stop_match.end():])
-            return True
-
-        return self._append_text(text)
-
-    def _append_text(self, text: str):
-        pass  # TODO
-
-
 class SpeechComanndZahlProcessor(SpeechComanndProcessor):
     def __init__(self, speech_event_handler, active: bool = True):
         trigger = {}
         trigger['zahl'] = zahl_start_re
+        trigger['datum'] = re.compile(r'\b{0}\b'.format('datum'))
+        trigger['datum aus'] = re.compile(r'\b{0}\b'.format('datum aus'))
         super().__init__(
             processor_name='Zahlen umwandeln',
             start_command='zahlen umwandeln',
@@ -276,11 +258,49 @@ class SpeechComanndZahlProcessor(SpeechComanndProcessor):
             speech_event_handler=speech_event_handler,
             active=active
         )
+        self.datum_erkennen = True
 
     def process_cmd(self, match, cmd, text):
-        mapped_number = extract_number(text, match)
+        if 'datum' == cmd:
+            self.datum_erkennen = True
+        elif 'datum_aus' == cmd:
+            self.datum_erkennen = False
+        else:
+            typ = 'zahl'
+            matched_text = match.group()
+            print(f'Potentielle Zahl erkannt in: {matched_text}')
+            aufzaehlungMatcher = aufzaehlung_re.search(matched_text)
 
-        if mapped_number:
-            self.speech_event_handler.append_formatted_text(f'{mapped_number:d}')
+            if aufzaehlungMatcher:
+                matched_text = aufzaehlungMatcher.group(1)
+                match = zahl_start_re.search(matched_text)
+
+                if not match:
+                    return False
+
+                typ = 'aufzaehlung'
+
+            mapped_number = extract_number(text, match)
+
+            if mapped_number:
+                print('Zahlen Typ: {typ}')
+
+                if 'aufzaehlung' == typ:
+                    formatted_text = f'{mapped_number:d}.'
+                else:
+                    formatted_text = f'{mapped_number:d}'
+
+                prepend_space = not self.speech_event_handler.is_formated_text_at_block_start()
+
+                if prepend_space and self.speech_event_handler.get_last_proccessor:
+                    if 'Zahlen umwandeln' == self.speech_event_handler.get_last_proccessor().name:
+                        prepend_space = False
+
+                if prepend_space:
+                    formatted_text = f' {formatted_text}'
+
+                self.speech_event_handler.append_formatted_text(formatted_text)
+            else:
+                return False
 
         return super().process_cmd(match, cmd, text)
