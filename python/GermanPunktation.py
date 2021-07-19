@@ -67,6 +67,7 @@ class GermanPunctation:
         self.max_token_length = max_token_length
 
         if os.path.isfile(f'{self.trained_model_dir}/pytorch_model.bin'):
+            print(f'Loading local Model: {self.trained_model_dir}')
             self.tokenizer, self.model = self.load_model("byt5", self.trained_model_dir, use_gpu=self.use_gpu)
         else:
             model_name = 'flozi00/byt5-german-grammar'
@@ -190,6 +191,7 @@ class GermanPunctation:
         )
 
         trainer.fit(self.T5Model, data_module)
+        trainer.optimizers
         return trainer
 
     def train_potter(self):
@@ -236,7 +238,7 @@ class GermanPunctation:
             if self.git_repository:
                 pandas_df.to_csv(dataset_file_name, sep=';', index=False)
 
-        pandas_df['target_text'] = pandas_df.apply(self.do_text_manipulation, axis=1)
+        pandas_df['target_text'] = pandas_df['target_text'].apply(self.do_text_manipulation)
         train, test = train_test_split(pandas_df, test_size=0.2)
 
         for i in range(0, len(train) - 100, 100):
@@ -286,27 +288,28 @@ class GermanPunctation:
         input_ids = self.tokenizer.encode(
             source_text, return_tensors="pt", add_special_tokens=True
         )
-        input_ids = input_ids.to(self.device)
-        generated_ids = self.model.generate(
-            input_ids=input_ids,
-            num_beams=num_beams,
-            max_length=max_length,
-            repetition_penalty=repetition_penalty,
-            length_penalty=length_penalty,
-            early_stopping=early_stopping,
-            top_p=top_p,
-            top_k=top_k,
-            num_return_sequences=num_return_sequences,
-        )
-        preds = [
-            self.tokenizer.decode(
-                g,
-                skip_special_tokens=skip_special_tokens,
-                clean_up_tokenization_spaces=clean_up_tokenization_spaces,
+        with torch.no_grad():
+            input_ids = input_ids.to(self.device)
+            generated_ids = self.model.generate(
+                input_ids=input_ids,
+                num_beams=num_beams,
+                max_length=max_length,
+                repetition_penalty=repetition_penalty,
+                length_penalty=length_penalty,
+                early_stopping=early_stopping,
+                top_p=top_p,
+                top_k=top_k,
+                num_return_sequences=num_return_sequences,
             )
-            for g in generated_ids
-        ]
-        return preds
+            preds = [
+                self.tokenizer.decode(
+                    g,
+                    skip_special_tokens=skip_special_tokens,
+                    clean_up_tokenization_spaces=clean_up_tokenization_spaces,
+                )
+                for g in generated_ids
+            ]
+            return preds
 
     def convert_and_load_onnx_model(self, model_dir: str):
         """ returns ONNX model """
@@ -548,8 +551,11 @@ class LightningModel(pl.LightningModule):
             torch.mean(torch.stack([x["loss"] for x in training_step_outputs])).item(),
             4,
         )
-        path = f"{self.outputdir}/SimpleT5-epoch-{self.current_epoch}-train-loss-{str(avg_traning_loss)}"
-        self.tokenizer.save_pretrained(path)
+        # path = f"{self.outputdir}/SimpleT5-epoch-{self.current_epoch}-train-loss-{str(avg_traning_loss)}"
+        path = self.outputdir
+        # sollte sich nicht verändert haben
+        # self.tokenizer.save_pretrained(path)
+        print(f'Saving Model to: {path}')
         self.model.save_pretrained(path)
 
     # def validation_epoch_end(self, validation_step_outputs):
