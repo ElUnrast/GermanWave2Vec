@@ -1,50 +1,91 @@
 import re
 from SnippetDatasets import SnippetDatasets
 
+ersetzungen = {
+    # first person verb append e
+    re.compile(r"(\b)ich (steh|seh|würd|geb|heb|komm|geh|erklär)(\b)"): r'\1ich \2e\3',
+    re.compile(r"(\b)(wir|war)'s(\b)"): r'\1\2 es\3',
+    # remove ' at word ending
+    re.compile(r"(\b)(stirn|fern|all|allein|lass)'(\b)"): r'\1\2\3',
+    # insert e instead of '
+    re.compile(r"(\b)(hab|gern|werd|wär|glaub|tu|würd|hätt)'(\b)"): r'\1\2e\3',
+    # insert en instead of 'n
+    re.compile(r"(\b)(hätt)'n(\b) "): r'\1\2en\3',
+    # remove ' in ...'s
+    re.compile(r"(\b)(auf|durch)'s(\b)"): r'\1\2\3',
+    # replace es -> s at word ending
+    re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff)es(\b)"): r'\1s\2',
+    # insert e
+    re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
+    re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
+    re.compile(r"(\b)innern(\b)"): r'\1inneren\2',
+    re.compile(r"(\b)gruslig(\b)"): r'\1gruselig\2',
+    # replay complete word
+    re.compile(r"(\b)okay(\b)"): r'\1ok\2',
+    re.compile(r"(\b)ham(\b)"): r'\1haben\2',
+    # remove space beteen words
+    re.compile(r"(\b)ex (\w+)"): r'\1ex\2',
+    # remoove double vocals
+    re.compile(r"(\b)([Oo])o+h(\b)"): r'\1\2h\3',
+    re.compile(r"(\b)([Jj])a[ah]+(\b)"): r'\1\2a\3',
+    re.compile(r"(\b)([Nn]ei)i+n+(\b)"): r'\1\2n\3',
+    # wörtliche rede ...
+    re.compile(r"(\b)isses(\b)"): r'\1ist es\2',
+    re.compile(r"soll'n"): r'sollen',
+    re.compile(r"sollt'n"): r'sollten',
+    re.compile(r"krieg'n"): r'kriegen',
+    re.compile(r"(\b)ham's"): r'\1haben es',
+    re.compile(r"(\b)ham(\b)"): r'\1haben\2',
+    re.compile(r" 'n(\b)"): r' ein\1',
+    re.compile(r" 'ne(\b)"): r' eine\1',
+    re.compile(r" 'nen(\b)"): r' einen\1',
+    re.compile(r" 'nem(\b)"): r' einem\1',
+    # Fleur
+    re.compile(r"(\b)'Ochzeit(\b)"): r'\1Hochzeit\2',
+    re.compile(r"(\b)'Arry(\b)"): r'\1Harry\2',
+    re.compile(r"(\b)'abe(\b)"): r'\1habe\2',
+    re.compile(r"(\b)'aben(\b)"): r'\1haben\2',
+    re.compile(r"(\b)'ässlisch(\b)"): r'\1hässlisch\2',
+    re.compile(r"(\b)unge'euer(\b)"): r'\1ungeheuer\2',
+    re.compile(r"(\b)(Nn)atürlisch(\b)"): r'\1\2atürlich\3',
+    re.compile(r"(\b)(Ii)sch(\b)"): r'\1\2ch\3',
+    re.compile(r"(\b)(Nn)ischt(\b)"): r'\1\2icht\3',
+    # ähms
+    re.compile(r", ähm,(\b)"): r'\1',
+    re.compile(r"\bähm "): '',
+    re.compile(r"\bahm "): '',
+}
+
+
+def substitute(text):
+    result = text
+
+    for regex, replacement in ersetzungen.items():
+        try:
+            result = regex.sub(replacement, result)
+        except:
+            print(f'text: {text}, pattern: {regex.pattern}')
+            result = text
+
+    return result
+
 
 def main():
-    ersetzungen = {
-        re.compile(r"(\b)stirn' "): r'\1stirn ',
-        re.compile(r"(\b)fern' "): r'\1fern ',
-        re.compile(r"(\b)all' "): r'\1all ',
-        re.compile(r"(\b)allein' "): r'\1allein ',
-        re.compile(r"(\b)lass' "): r'\1lass ',
-
-        re.compile(r"(\b)hab' "): r'\1habe ',
-        re.compile(r"(\b)gern' "): r'\1gerne ',
-        re.compile(r"(\b)werd' "): r'\1werde ',
-        re.compile(r"(\b)wär' "): r'\1wäre ',
-        re.compile(r"(\b)glaub' "): r'\1glaube ',
-        re.compile(r"(\b)tu' "): r'\1tue ',
-        re.compile(r"(\b)würd' "): r'\1würde ',
-        re.compile(r"(\b)hätt'n "): r'\1hätten ',
-
-        re.compile(r"(\b)auf's "): r'\1aufs ',
-        re.compile(r"(\b)durch's "): r'\1durchs ',
-
-        re.compile(r"(\b)ham(\b)"): r'\1haben\2',
-
-        re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr)es(\b)"): r'\1s\2',
-        re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
-        re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
-        re.compile(r"(\b)innern(\b)"): r'\1inneren\2',
-        re.compile(r"(\b)gruslig(\b)"): r'\1gruselig\2',
-        re.compile(r"(\b)okay(\b)"): r'\1ok\2',
-        re.compile(r"(\b)ex (\w+)"): r'\1ex\2',
-    }
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
     for ds_id in dataset_loader.local_datasets.keys():
         if ds_id.endswith('FvM'):
+            print(f'')
             ds = dataset_loader.load_ds_content_translated_with_original(ds_id, prune=False)
             wer = dataset_loader.get_word_error_rate(ds_id)
             ds_epoche = wer['trained_epochs']
+            ds['OriginalText'] = ds['OriginalText'].apply(substitute)
 
-            for idx in range(len(ds)):
-                original_text = ds.iloc[idx]['OriginalText']
+            # for idx in range(len(ds)):
+            #     original_text = ds.iloc[idx]['OriginalText']
 
-                for regex, replacement in ersetzungen.items():
-                    ds['OriginalText'].values[idx] = re.sub(regex, replacement, original_text)
+            #     for regex, replacement in ersetzungen.items():
+            #         ds['OriginalText'].values[idx] = re.sub(regex, replacement, original_text)
 
             dataset_loader.save_content_translated_with_original(ds_id, ds, ds_epoche)
 

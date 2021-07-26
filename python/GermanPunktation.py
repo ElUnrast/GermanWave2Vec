@@ -1,8 +1,6 @@
 import os
-import re
 import phonetics
 import random
-import glob
 import numpy as np
 import pandas as pd
 import torch
@@ -21,6 +19,7 @@ from fastT5 import export_and_get_onnx_model
 from torch.utils.data import Dataset, DataLoader
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from sklearn.model_selection import train_test_split
+from PunktationDataSets import PunktationDataSets
 
 '''
 # import
@@ -61,17 +60,10 @@ model.onnx_predict("input text for prediction")
 class GermanPunctation:
     def __init__(self, model_name='flozi00/byt5-german-grammar', git_repository=None, max_token_length=128):
         self.git_repository = git_repository
-        self.chars_to_ignore_regex = "[^A-Za-z0-9\ö\ä\ü\Ö\Ä\Ü\ß\-,;.:?! ']+"
-        self.broken_chars_to_ignore_regex = "[^A-Za-z0-9\ö\ä\ü\Ö\Ä\Ü\ß\- ]+"
+        self.chars_to_ignore_regex = "[^A-Za-z0-9'\ö\ä\ü\Ö\Ä\Ü\ß\-,;.:?!»«… ']+"
+        self.broken_chars_to_ignore_regex = "[^A-Za-z0-9'\ö\ä\ü\Ö\Ä\Ü\ß\- ]+"
         self.trained_model_dir = model_name
         self.max_token_length = max_token_length
-
-        if os.path.isfile(f'{self.trained_model_dir}/pytorch_model.bin'):
-            print(f'Loading local Model: {self.trained_model_dir}')
-            self.tokenizer, self.model = self.load_model("byt5", self.trained_model_dir, use_gpu=self.use_gpu)
-        else:
-            model_name = 'flozi00/byt5-german-grammar'
-            self.tokenizer, self.model = self.from_pretrained('byt5', model_name)
 
         if torch.cuda.is_available():
             self.use_gpu = True
@@ -79,6 +71,13 @@ class GermanPunctation:
         else:
             self.use_gpu = False
             self.device = torch.device("cpu")
+
+        if os.path.isfile(f'{self.trained_model_dir}/pytorch_model.bin'):
+            print(f'Loading local Model: {self.trained_model_dir}')
+            self.tokenizer, self.model = self.load_model("byt5", self.trained_model_dir, use_gpu=self.use_gpu)
+        else:
+            model_name = 'flozi00/byt5-german-grammar'
+            self.tokenizer, self.model = self.from_pretrained('byt5', model_name)
 
         self.model.to(self.device)
         self.T5Model = LightningModel(tokenizer=self.tokenizer, model=self.model, outputdir=self.trained_model_dir)
@@ -117,11 +116,6 @@ class GermanPunctation:
     def punctate_text(self, text):
         return self.model.predict(text)
 
-    def extract_source_and_target_text(self, text):
-        source_text = re.sub(self.chars_to_ignore_regex, '', text)
-        targetn_text = re.sub(self.broken_chars_to_ignore_regex, "", text.lower())
-        return source_text, targetn_text
-
     def do_text_manipulation(self, source_text):
         broken_text = source_text
 
@@ -136,6 +130,9 @@ class GermanPunctation:
                         broken_text = broken_text.replace(randc, phonetics.metaphone(randc).lower())
 
         return broken_text
+
+    def prepend_command(self, source_text):
+        return f'correct german grammar: {source_text}'
 
     def train(
         self,
@@ -194,6 +191,42 @@ class GermanPunctation:
         trainer.optimizers
         return trainer
 
+    def train_datafarme(self, pandas_df):
+        pandas_df['source_text'] = pandas_df['source_text'].apply(self.do_text_manipulation)
+        pandas_df['source_text'] = pandas_df['source_text'].apply(self.prepend_command)
+        train, test = train_test_split(pandas_df, test_size=0.2)
+
+        for i in range(0, len(train) - 100, 100):
+            print(f'range start: {i:d}')
+            train = train.iloc[i:i + 100]
+            test = test.iloc[i // 5:(i // 5) + 20]
+            trainer = self.train(train_df=train, eval_df=test, batch_size=4)
+            trainer.save_model()
+
+            if self.use_gpu:
+                self.wipe_out_memory(trainer)
+
+            del trainer
+            torch.cuda.empty_cache()
+
+    def wipe_out_memory(self, trainer):
+        device = 'cpu'
+        for k, o in trainer._lightning_optimizers.items():
+            o._trainer = None
+            for param in o._optimizer.state.values():
+                # Not sure there are any global tensors in the state dict
+                if isinstance(param, torch.Tensor):
+                    param.data = param.data.to(device)
+                    if param._grad is not None:
+                        param._grad.data = param._grad.data.to(device)
+                elif isinstance(param, dict):
+                    for subparam in param.values():
+                        if isinstance(subparam, torch.Tensor):
+                            subparam.data = subparam.data.to(device)
+                            if subparam._grad is not None:
+                                subparam._grad.data = subparam._grad.data.to(device)
+            del o
+
     def train_potter(self):
         txt_directory = f'{self.git_repository}/datasets/punkctation'
         dataset_file_name = f'{self.git_repository}/datasets/punkctation/potter_punktation.csv'
@@ -201,54 +234,13 @@ class GermanPunctation:
         if os.path.isfile(dataset_file_name):
             pandas_df = pd.read_csv(dataset_file_name, sep=';')
         else:
-            all_potters = ''
-            for text_file in glob.glob(f'{txt_directory}/*.txt'):
-                first = True
-
-                with open(text_file, encoding='utf8') as f:
-                    print(f'reading: {text_file}')
-                    for line in f:
-                        if not first:
-                            all_potters += ' '
-                        first = False
-                        all_potters += line.strip()
-
-            print(f'all Potters length: {len(all_potters):d}')
-            source_text_list = []
-            target_text_list = []
-            first_index = 0
-            last_index = self.max_token_length
-
-            while True:
-                last_index = all_potters.rfind(' ', first_index, last_index)
-                target_text, source_text = self.extract_source_and_target_text(all_potters[first_index:last_index])
-                source_text_list.append(source_text)
-                target_text_list.append(target_text)
-
-                first_index = last_index + 1
-                last_index += self.max_token_length
-
-                if last_index > len(all_potters):
-                    break
-
-            pandas_df = pd.DataFrame()
-            pandas_df['source_text'] = source_text_list
-            pandas_df['target_text'] = target_text_list
+            punctation_ds = PunktationDataSets()
+            pandas_df = punctation_ds.prepare_punctation_dataset(txt_directory)
 
             if self.git_repository:
                 pandas_df.to_csv(dataset_file_name, sep=';', index=False)
 
-        pandas_df['target_text'] = pandas_df['target_text'].apply(self.do_text_manipulation)
-        train, test = train_test_split(pandas_df, test_size=0.2)
-
-        for i in range(0, len(train) - 100, 100):
-            print(f'range start: {i:d}')
-            train1 = train.iloc[i:i + 100]
-            test1 = test.iloc[i // 5:(i // 5) + 20]
-            trainer = self.train(train_df=train1, eval_df=test1, batch_size=4)
-            trainer.save_model()
-            del trainer
-            torch.cuda.empty_cache()
+        self.train_datafarme(pandas_df)
 
     def predict(
         self,
@@ -554,7 +546,7 @@ class LightningModel(pl.LightningModule):
         # path = f"{self.outputdir}/SimpleT5-epoch-{self.current_epoch}-train-loss-{str(avg_traning_loss)}"
         path = self.outputdir
         # sollte sich nicht verändert haben
-        # self.tokenizer.save_pretrained(path)
+        self.tokenizer.save_pretrained(path)
         print(f'Saving Model to: {path}')
         self.model.save_pretrained(path)
 
@@ -566,7 +558,6 @@ class LightningModel(pl.LightningModule):
 
 
 def main():
-    punctation = GermanPunctation()
     # ''Ein weiterer lauter Knall ertönte, und Dobby, Luna, Dean und Ollivander verschwanden.''
     print(punctation.punctate_text(f'ein weiterer lauter knall ertönte und dobby luna dean und ollivander verschwanden'))
     print(punctation.punctate_text(f'correct german grammar: ein weiterer lauter knall ertönte und dobby luna dean und ollivander verschwanden'))
