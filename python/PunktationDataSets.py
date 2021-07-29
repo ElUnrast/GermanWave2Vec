@@ -38,7 +38,7 @@ class PunktationDataSets:
 
             while True:
                 print(f'first: {first_index}, last: {last_index}')
-                last_index = all_text.rfind(r'[.,]', first_index, last_index)
+                last_index = all_text.rfind(' ', first_index, last_index)
 
                 if last_index < 0:
                     print('Mist')

@@ -558,6 +558,7 @@ class LightningModel(pl.LightningModule):
 
 
 def main():
+    punctation = GermanPunctation()
     # ''Ein weiterer lauter Knall ertönte, und Dobby, Luna, Dean und Ollivander verschwanden.''
     print(punctation.punctate_text(f'ein weiterer lauter knall ertönte und dobby luna dean und ollivander verschwanden'))
     print(punctation.punctate_text(f'correct german grammar: ein weiterer lauter knall ertönte und dobby luna dean und ollivander verschwanden'))
