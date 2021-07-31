@@ -4,7 +4,7 @@ from SnippetDatasets import SnippetDatasets
 ersetzungen = {
     # first person verb append e
     re.compile(r"(\b)ich (steh|seh|würd|geb|heb|komm|geh|erklär)(\b)"): r'\1ich \2e\3',
-    re.compile(r"(\b)(wir|war)'s(\b)"): r'\1\2 es\3',
+    re.compile(r"(\b)(wir|war|ich|du|er|sie|gab|ging|seht|probier|wollt|kommt)'s(\b)"): r'\1\2 es\3',
     # remove ' at word ending
     re.compile(r"(\b)(stirn|fern|all|allein|lass)'(\b)"): r'\1\2\3',
     # insert e instead of '
@@ -14,7 +14,7 @@ ersetzungen = {
     # remove ' in ...'s
     re.compile(r"(\b)(auf|durch)'s(\b)"): r'\1\2\3',
     # replace es -> s at word ending
-    re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff)es(\b)"): r'\1s\2',
+    re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)es(\b)"): r'\1s\2',
     # insert e
     re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
     re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
@@ -22,6 +22,10 @@ ersetzungen = {
     re.compile(r"(\b)gruslig(\b)"): r'\1gruselig\2',
     # replay complete word
     re.compile(r"(\b)okay(\b)"): r'\1ok\2',
+    re.compile(r"(\b)zirka(\b)"): r'\1ca\2',
+    re.compile(r"(\b)und so weiter(\b)"): r'\1usw\2',
+    re.compile(r"(\b)mister(\b)"): r'\1mr\2',
+    re.compile(r"(\b)misses(\b)"): r'\1mrs\2',
     re.compile(r"(\b)ham(\b)"): r'\1haben\2',
     # remove space beteen words
     re.compile(r"(\b)ex (\w+)"): r'\1ex\2',
@@ -74,7 +78,7 @@ def main():
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
     for ds_id in dataset_loader.local_datasets.keys():
-        if ds_id.endswith('FvM'):
+        if ds_id.startswith('common'):
             print(f'')
             ds = dataset_loader.load_ds_content_translated_with_original(ds_id, prune=False)
             wer = dataset_loader.get_word_error_rate(ds_id)

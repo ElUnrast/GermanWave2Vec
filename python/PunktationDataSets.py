@@ -6,7 +6,7 @@ import pandas as pd
 
 
 class PunktationDataSets:
-    def __init__(self, max_token_length=128):
+    def __init__(self, max_token_length=196):
         self.max_token_length = max_token_length
         self.chars_to_ignore_regex = re.compile(r"[^A-Za-z0-9'öäüÖÄÜß,;.:?!»«… -']+")
         self.broken_chars_to_ignore_regex = re.compile(r"[^A-Za-z0-9'öäüÖÄÜß -]+")
@@ -20,6 +20,7 @@ class PunktationDataSets:
     def prepare_punctation_dataset(self, txt_directory):
         source_text_list = []
         target_text_list = []
+        ende_zeichen = ',;.:?!«'
 
         for text_file in glob.glob(f'{txt_directory}/*.txt'):
             all_text = ''
@@ -38,12 +39,20 @@ class PunktationDataSets:
 
             while True:
                 print(f'first: {first_index}, last: {last_index}')
-                last_index = all_text.rfind(' ', first_index, last_index)
+                idx = -1
+
+                for z in ende_zeichen:
+                    idx = max(idx, all_text.rfind(z, first_index, last_index))
+
+                if idx > first_index:
+                    last_index = idx + 1
+                else:
+                    idx = all_text.rfind(' ', first_index, last_index)
 
                 if last_index < 0:
-                    print('Mist')
+                    raise ValueError()
 
-                source_text, target_text = self.extract_source_and_target_text(all_text[first_index:last_index+1])
+                source_text, target_text = self.extract_source_and_target_text(all_text[first_index:last_index])
                 source_text_list.append(source_text)
                 target_text_list.append(target_text)
 
