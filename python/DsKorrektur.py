@@ -4,17 +4,19 @@ from SnippetDatasets import SnippetDatasets
 ersetzungen = {
     # first person verb append e
     re.compile(r"(\b)ich (steh|seh|würd|geb|heb|komm|geh|erklär)(\b)"): r'\1ich \2e\3',
-    re.compile(r"(\b)(wir|war|ich|du|er|sie|gab|ging|seht|probier|wollt|kommt)'s(\b)"): r'\1\2 es\3',
+    re.compile(r"(\b)(wundert|der|die|hätten|und|mich|mussten|mal|will|erzählen|kapiert|hört|wollte|man|gefällt|können|kümmert|stimmt|zeige|versuche|läuft|steht|darf|wartet|versuchen|verstehe|aber|ihr|erkläre|bin|wie|glaube|tun|gebe|wird|liegt|schlage|nimm|werden|sieht|würdet|hat|kann|habt|geht|bin|soll|hat|reicht|verstehe|würdet|wüsstet|sein|wenn|gibt|mache|heißt|hätte|sollen|werde|wäre|tut|habe|haben|sage|sagen|wäre|macht|legt|wir|war|ich|du|er|sie|gab|geht|gib|sind|ging|seht|probier|wollt|kommt)'s(\b)"): r'\1\2 es\3',
     # remove ' at word ending
     re.compile(r"(\b)(stirn|fern|all|allein|lass)'(\b)"): r'\1\2\3',
     # insert e instead of '
     re.compile(r"(\b)(hab|gern|werd|wär|glaub|tu|würd|hätt)'(\b)"): r'\1\2e\3',
     # insert en instead of 'n
     re.compile(r"(\b)(hätt)'n(\b) "): r'\1\2en\3',
+    re.compile(r"(\b)aus'm(\b) "): r'\1aus dem\2',
     # remove ' in ...'s
     re.compile(r"(\b)(auf|durch)'s(\b)"): r'\1\2\3',
     # replace es -> s at word ending
     re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)es(\b)"): r'\1s\2',
+    re.compile(r"(pfad|gang|haus|blick|tisch|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab|fall)es(\b)"): r'\1s\2',
     # insert e
     re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
     re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
@@ -78,7 +80,7 @@ def main():
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
     for ds_id in dataset_loader.local_datasets.keys():
-        if ds_id.startswith('common'):
+        if ds_id.endswith('FvM'):
             print(f'')
             ds = dataset_loader.load_ds_content_translated_with_original(ds_id, prune=False)
             wer = dataset_loader.get_word_error_rate(ds_id)
