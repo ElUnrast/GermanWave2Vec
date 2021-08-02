@@ -16,7 +16,7 @@ ersetzungen = {
     re.compile(r"(\b)(auf|durch)'s(\b)"): r'\1\2\3',
     # replace es -> s at word ending
     re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)es(\b)"): r'\1s\2',
-    re.compile(r"(pfad|gang|haus|blick|tisch|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab|fall)es(\b)"): r'\1s\2',
+    re.compile(r"(pfad|gang|blick|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab|fall)es(\b)"): r'\1s\2',
     # insert e
     re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
     re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
@@ -29,6 +29,7 @@ ersetzungen = {
     re.compile(r"(\b)mister(\b)"): r'\1mr\2',
     re.compile(r"(\b)misses(\b)"): r'\1mrs\2',
     re.compile(r"(\b)ham(\b)"): r'\1haben\2',
+    re.compile(r"(\b)doktor(\b)"): r'\1dr\2',
     # remove space beteen words
     re.compile(r"(\b)ex (\w+)"): r'\1ex\2',
     # remoove double vocals
@@ -60,6 +61,8 @@ ersetzungen = {
     re.compile(r", ähm,(\b)"): r'\1',
     re.compile(r"\bähm "): '',
     re.compile(r"\bahm "): '',
+    # korrektur
+    re.compile(r"([A-Za-zÄÖÜäöüß]+)hauss "): r'\1haus ',
 }
 
 
@@ -80,7 +83,7 @@ def main():
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
     for ds_id in dataset_loader.local_datasets.keys():
-        if ds_id.endswith('FvM'):
+        if ds_id.startswith('common'):
             print(f'')
             ds = dataset_loader.load_ds_content_translated_with_original(ds_id, prune=False)
             wer = dataset_loader.get_word_error_rate(ds_id)
