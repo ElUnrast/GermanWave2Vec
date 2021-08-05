@@ -8,7 +8,7 @@ ersetzungen = {
     # remove ' at word ending
     re.compile(r"(\b)(stirn|fern|all|allein|lass)'(\b)"): r'\1\2\3',
     # insert e instead of '
-    re.compile(r"(\b)(hab|gern|werd|wär|glaub|tu|würd|hätt)'(\b)"): r'\1\2e\3',
+    re.compile(r"(\b)(hab|gern|werd|wär|glaub|tu|würd|hätt|setzt)'(\b)"): r'\1\2e\3',
     # insert en instead of 'n
     re.compile(r"(\b)(hätt)'n(\b) "): r'\1\2en\3',
     re.compile(r"(\b)aus'm(\b) "): r'\1aus dem\2',
@@ -32,6 +32,17 @@ ersetzungen = {
     re.compile(r"(\b)doktor(\b)"): r'\1dr\2',
     # remove space beteen words
     re.compile(r"(\b)ex (\w+)"): r'\1ex\2',
+    re.compile(r"(\b)mit hilfe(\b)"): r'\1mithilfe\2',
+    re.compile(r"(\b)hinter dem(\b)"): r'\1hinterm\2',
+    # re.compile(r"(\b)vor dem(\b)"): r'\1vorm\2',
+    re.compile(r"(\b)unter dem(\b)"): r'\1unterm\2',
+    # re.compile(r"(\b)über dem(\b)"): r'\1überm\2',
+    re.compile(r"(\b)unsern(\b)"): r'\1unseren\2',
+    # ph
+    re.compile(r"(\b)([Gg])eografi(\w+)"): r'\1\2eographi\3',
+    re.compile(r"(\b)([Bb])iografi(\w+)"): r'\1\2iographi\3',
+    re.compile(r"(\b)([De])emografi(\w+)"): r'\1\2eographi\3',
+    re.compile(r"(\b)([Ff])otografi(\w+)"): r'\1\2otographi\3',
     # remoove double vocals
     re.compile(r"(\b)([Oo])o+h(\b)"): r'\1\2h\3',
     re.compile(r"(\b)([Jj])a[ah]+(\b)"): r'\1\2a\3',
