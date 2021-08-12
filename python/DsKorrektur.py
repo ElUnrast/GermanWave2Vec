@@ -1,4 +1,5 @@
 import re
+import glob
 from SnippetDatasets import SnippetDatasets
 
 ersetzungen = {
@@ -74,6 +75,7 @@ ersetzungen = {
     re.compile(r"\bahm "): '',
     # korrektur
     re.compile(r"([A-Za-zÄÖÜäöüß]+)hauss "): r'\1haus ',
+    re.compile(r'\.\.\.'): '…'
 }
 
 
@@ -90,7 +92,7 @@ def substitute(text):
     return result
 
 
-def main():
+def correct_dataset():
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
     for ds_id in dataset_loader.local_datasets.keys():
@@ -100,14 +102,25 @@ def main():
             wer = dataset_loader.get_word_error_rate(ds_id)
             ds_epoche = wer['trained_epochs']
             ds['OriginalText'] = ds['OriginalText'].apply(substitute)
-
-            # for idx in range(len(ds)):
-            #     original_text = ds.iloc[idx]['OriginalText']
-
-            #     for regex, replacement in ersetzungen.items():
-            #         ds['OriginalText'].values[idx] = re.sub(regex, replacement, original_text)
-
             dataset_loader.save_content_translated_with_original(ds_id, ds, ds_epoche)
+
+
+def main():
+    txt_directory = 'C:/share/NLP-Data'
+
+    for text_file in glob.glob(f'{txt_directory}/*.txt'):
+        orig_text = ''
+
+        with open(text_file, 'r', encoding='utf8') as f:
+            print(f'reading: {text_file}')
+
+            for line in f:
+                orig_text += line
+
+        new_text = substitute(orig_text)
+
+        with open(text_file, 'w', encoding='utf8') as f:
+            f. write(new_text)
 
 
 if __name__ == '__main__':

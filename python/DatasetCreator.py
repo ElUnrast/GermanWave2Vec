@@ -36,13 +36,18 @@ def create_content_in_snippet_directory(snippet_directory, translator, orig_from
 
         if not orig_from_title_tag:
             result = result.append(snippet_df, ignore_index=True)
-            result.to_csv(f'{snippet_directory}/content-translated.csv', sep=';', index=False)
+            # result.to_csv(f'{snippet_directory}/content-translated.csv', sep=';', index=False)
         else:
             orig_text, action = _get_text_from_title_tag(mp3_file_path)
             snippet_df['OriginalText'] = orig_text
             snippet_df['Action'] = action
             result = result.append(snippet_df, ignore_index=True)
-            result.to_csv(f'{snippet_directory}/content-translated-with_original.csv', sep=';', index=False)
+
+    if not orig_from_title_tag:
+        snippet_df['OriginalText'] = ' '
+        snippet_df['Action'] = 'validate'
+
+    result.to_csv(f'{snippet_directory}/content-translated-with_original.csv', sep=';', index=False)
 
     return result
 

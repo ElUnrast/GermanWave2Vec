@@ -1,6 +1,4 @@
 import re
-import phonetics
-import random
 import glob
 import pandas as pd
 
