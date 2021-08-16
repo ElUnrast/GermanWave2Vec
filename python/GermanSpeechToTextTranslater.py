@@ -235,6 +235,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     ds_to_train.remove(ds_id)
                     continue
 
+                pandas_df = pandas_df[~pandas_df.Action.str.startswith('validate')]
                 print(f'Dataset - {ds_id} loaded with {pandas_df.shape[0]} Entries')
                 mp3_dir = dataset_loader.get_snippet_directory(ds_id)
 
