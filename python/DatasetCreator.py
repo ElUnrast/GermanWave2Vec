@@ -3,11 +3,20 @@ import re
 import glob
 import eyed3
 import pandas as pd
-from Mp3VoiceSplitter import get_snippet_info_from_mp3_file
+from Mp3VoiceSplitter import get_snippet_info_from_mp3_file, split_mp3s
 from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
 
 _regex_spaces = re.compile(r"  +")
 _regex_number = re.compile(r"\d+")
+
+
+def create_snippets_from_directory(source_directory, snippet_directory, translator):
+    ds_id = os.path.basename(snippet_directory)
+    translated_df = split_mp3s(ds_id, translator, source_directory, snippet_directory)
+    translated_df['OriginalText'] = ' '
+    translated_df['Action'] = 'validate'
+    translated_df.to_csv(f'{snippet_directory}/content-translated-with_original.csv', sep=';', index=False)
+    return translated_df
 
 
 def create_content_in_snippet_directory(snippet_directory, translator, orig_from_title_tag=False):
