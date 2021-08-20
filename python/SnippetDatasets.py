@@ -252,4 +252,4 @@ def chunked_wer(targets, predictions, chunk_size=1000):
         start += chunk_size
         end += chunk_size
 
-    return float(S + D + I) / float(H + S + D)
+    return float(S + D + I) / max(1, float(H + S + D))
