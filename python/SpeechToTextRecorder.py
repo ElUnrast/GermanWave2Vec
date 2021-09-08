@@ -9,8 +9,8 @@ from queue import Queue
 from datetime import datetime as dt
 from pathlib import Path
 from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
-from RecordingThread import RecordingThread
-from SplitterThread import SplitterThread
+from dictator.RecordingThread import RecordingThread
+from dictator.SplitterThread import SplitterThread
 
 
 class SpeechRecordingGui:
