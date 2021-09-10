@@ -6,7 +6,8 @@ from SrcTranslationService import SrcTranslationService
 
 def main():
     app = QApplication(sys.argv)
-    translator = SrcTranslationService('127.0.0.1:8080')
+    # translator = SrcTranslationService('127.0.0.1:8080')
+    translator = SrcTranslationService('192.168.9.105:8080')
 
     w = QtSpeechToTextApp(recording_base_path='c:/temp/audio', translator=translator)
     w.showMaximized()
