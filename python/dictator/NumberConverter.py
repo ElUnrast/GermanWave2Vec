@@ -157,10 +157,11 @@ def get_number(text: str):
     first_match = zahl_start_re.search(text)
 
     if first_match:
-        number = extract_number(text, first_match)
+        if text == f'{first_match.group(1)}{first_match.group(2)}':
+            number = extract_number(text, first_match)
 
-        if number:
-            return number, 'zahl', text[first_match.end():]
+            if number:
+                return number, 'zahl', text[first_match.end():]
 
     return '', 'text', text  # number string, type, pending text
 
@@ -173,6 +174,8 @@ def main():
     print(f'{n2}')
     n13 = get_number('dreizehn')
     print(f'{n13}')
+    noNumber = get_number('einsprechen')
+    print(f'noNumber: {noNumber}')
 
 
 if __name__ == '__main__':
