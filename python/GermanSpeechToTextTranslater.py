@@ -20,7 +20,7 @@ from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
 from sklearn.model_selection import train_test_split
 from pathlib import Path
-from SnippetDatasets import SnippetDatasets, calc_wer
+from dictator.SnippetDatasets import SnippetDatasets, calc_wer
 from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
 
 
