@@ -3,13 +3,14 @@ import json
 import torch
 import librosa
 import numpy as np
-from tqdm.notebook import tqdm_notebook
+from tqdm import tqdm
 from pathlib import Path
-from SrcAudioTools import load_mp3_as_sr16000
+from dictator.SrcAudioTools import load_mp3_as_sr16000
+from dictator.AudioTranslator import AudioTranslator
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2CTCTokenizer, Wav2Vec2FeatureExtractor
 
 
-class GermanSpeechToTextTranslaterBase:
+class GermanSpeechToTextTranslaterBase(AudioTranslator):
     def __init__(
             self,
             model=None,
@@ -109,11 +110,11 @@ class GermanSpeechToTextTranslaterBase:
 
         return ci, samples_size
 
-    def translate_numpy_audio(self, numpy_audio: np.ndarray):
+    def translate_numpy_audio(self, numpy_audio: np.ndarray) -> str:
         samples = self.audio_to_cuda_inputs(numpy_audio)
-        return self.translate_cuda_input(samples), numpy_audio.shape[0]
+        return self.translate_cuda_input(samples)
 
-    def translate_cuda_input(self, samples: np.ndarray):
+    def translate_cuda_input(self, samples: np.ndarray) -> str:
         with torch.no_grad():
             logits = self.my_model(samples.to(self.device)).logits
 
@@ -135,7 +136,7 @@ class GermanSpeechToTextTranslaterBase:
         size_list = []
         idx = 0
 
-        for file_name in tqdm_notebook(files):
+        for file_name in tqdm(files):
             if (idx % 20) == 0:
                 torch.cuda.empty_cache()
 

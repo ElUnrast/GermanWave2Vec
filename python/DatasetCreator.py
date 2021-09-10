@@ -3,7 +3,7 @@ import re
 import glob
 import eyed3
 import pandas as pd
-from Mp3VoiceSplitter import get_snippet_info_from_mp3_file, split_mp3s
+from dictator.Mp3VoiceSplitter import get_snippet_info_from_mp3_file, split_mp3s
 from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
 
 _regex_spaces = re.compile(r"  +")

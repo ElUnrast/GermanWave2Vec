@@ -1,9 +1,19 @@
 import sys
-from numpy.lib.npyio import save
 import pygame
-from PyQt6.QtCore import *
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
+from PyQt6.QtCore import Qt, QEvent
+from PyQt6.QtWidgets import (
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QComboBox,
+    QMessageBox,
+    QScrollArea,
+    QGroupBox,
+    QTextEdit,
+    QApplication
+)
+from PyQt6.QtGui import QColor, QFontMetrics
 from SrcTextUtils import html_diff
 from SnippetDatasets import SnippetDatasets
 from OrigTextEditWidget import OrigTextEditWidget

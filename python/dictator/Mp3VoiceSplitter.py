@@ -1,12 +1,12 @@
 import glob
 import collections
 import sys
-import platform
+# import platform
 import pandas as pd
 from pathlib import Path
 from queue import Queue
 from typing import Iterator
-from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
+from AudioTranslator import AudioTranslator
 from SrcAudioTools import convert_audio_bytes_to_numpy, write_mp3, write_wave, load_mp3_as_sr16000, convert_numpy_samples_to_audio_bytes
 
 import webrtcvad
@@ -81,6 +81,7 @@ def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippe
     vad.set_mode(3)
 
     voiced_frames = []
+    voiced_frames_is_speech = []
 
     while True:
         frame = frame_queue.get()
@@ -104,21 +105,23 @@ def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippe
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
                 # audio that's already in the ring buffer.
-                for f, _ in ring_buffer:
+                for f, s in ring_buffer:
                     voiced_frames.append(f)
+                    voiced_frames_is_speech.append(s)
 
                 ring_buffer.clear()
         else:
             # We're in the TRIGGERED state, so collect the audio data
             # and add it to the ring buffer.
             voiced_frames.append(frame)
+            voiced_frames_is_speech.append(is_speech)
             ring_buffer.append((frame, is_speech))
-            num_unvoiced = len([f for f, speech in ring_buffer if not speech])
+            num_unvoiced_buffered = len([f for f, speech in ring_buffer if not speech])
             # If more than 90% of the frames in the ring buffer are
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
-            # num_unvoiced > (0.8 * ring_buffer.maxlen)
-            if num_unvoiced == ring_buffer.maxlen:
+            # num_unvoiced_buffered > (0.8 * ring_buffer.maxlen)
+            if num_unvoiced_buffered == ring_buffer.maxlen:
                 triggered = False
                 vad.set_mode(3)
 
@@ -128,6 +131,7 @@ def vad_collector(sample_rate, vad, frame_queue: Queue) -> Iterator[VoicedSnippe
 
                 ring_buffer.clear()
                 voiced_frames = []
+                voiced_frames_is_speech = []
 
     if frame and triggered:
         sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
@@ -143,7 +147,7 @@ def join_frames(
     sample_rate,
     frame_queue,
     df=pd.DataFrame(),
-    translator: GermanSpeechToTextTranslaterBase = None,
+    translator: AudioTranslator = None,
     translated_text_queue=None,
     vad_level=1  # (0 - 3)
 ) -> pd.DataFrame:
@@ -160,7 +164,9 @@ def join_frames(
         snippet_df['Duration'] = [snippet.duration]
 
         if translator:
-            translation, samples_size = translator.translate_numpy_audio(snippet.get_samples())
+            numpy_audio = snippet.get_samples()
+            samples_size = numpy_audio.shape[0]
+            translation = translator.translate_numpy_audio(numpy_audio)
 
             if not translation:
                 continue

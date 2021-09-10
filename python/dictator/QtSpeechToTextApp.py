@@ -1,10 +1,21 @@
-import sys
-from PyQt6.QtCore import *
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
+from PyQt6.QtCore import Qt, QSize, QRect, QObject, pyqtSignal
+from PyQt6.QtWidgets import (
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+    QLabel,
+    QComboBox,
+    QCheckBox,
+    QTextBrowser,
+    QPlainTextEdit,
+    QFileDialog,
+    QMessageBox
+)
+from PyQt6.QtGui import QFont, QIcon, QPixmap
 import getpass
 import os
-import re
 import sounddevice as sd
 import pandas as pd
 from SpeechComanndProcessor import SpeechEventHandler, SpeechComanndSatzzeichenProcessor
@@ -13,11 +24,12 @@ from SpeechComanndProcessor import SpeechComanndZahlProcessor
 from queue import Queue
 from datetime import datetime as dt
 from pathlib import Path
-from GermanSpeechToTextTranslaterBase import GermanSpeechToTextTranslaterBase
+from AudioTranslator import AudioTranslator
 from RecordingThread import RecordingThread
 from SplitterThread import SplitterThread
 from time import sleep
 from threading import Thread
+
 from threadutil import run_in_main_thread
 
 
@@ -30,7 +42,7 @@ class SpeechFromatEvent(QObject):
 
 
 class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
-    def __init__(self, recording_base_path: str, translator: GermanSpeechToTextTranslaterBase = None):
+    def __init__(self, recording_base_path: str, translator: AudioTranslator = None):
         super().__init__()
         self.translator = translator
         self.allow_recording = False
@@ -264,18 +276,3 @@ class QtSpeechToTextApp(QMainWindow, SpeechEventHandler):
             self.stop()
             self.translated_text_queue.put(None)
             self.display_thread.join()
-
-
-def main():
-    app = QApplication(sys.argv)
-    model_name = 'c:/share/NLP-Models/GermanWave2Vec/trained_model'
-    translator = GermanSpeechToTextTranslaterBase(model_name=model_name, device='cpu')
-    w = QtSpeechToTextApp(recording_base_path='c:/temp/audio', translator=translator)
-    w.showMaximized()
-    w.show()
-
-    sys.exit(app.exec())
-
-
-if __name__ == '__main__':
-    main()
