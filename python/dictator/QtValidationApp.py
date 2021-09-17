@@ -102,7 +102,7 @@ class QtValidationApp(QMainWindow):
         for idx in range(len(ds_problematic)):
             aktion = ds_problematic.iloc[idx]['Action']
 
-            if (all > 500) and (aktion.startswith('exclude') or (aktion in manuell_validated_train_actions) or (count > 500)):
+            if (wrong > 500) and (aktion.startswith('exclude') or (aktion in manuell_validated_train_actions) or (count > 500)):
                 continue
 
             ds_idx = ds_problematic.index[idx]
