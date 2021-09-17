@@ -25,12 +25,15 @@ class QtValidationApp(QMainWindow):
         self.focus_color = QColor(int("A48111", 16))  # gold
         self.exclude_color = QColor(int("ffcccb", 16))  # Light red #ffcccb
         self.correct_color = QColor(int("90EE90", 16))  # lightgreen #90EE90
+        self.rated_color = QColor(int("BB65E0", 16))  # lightgreen #90EE90
         self.corrected1_color = QColor(int("ADD8E6", 16))  # lightblue #ADD8E6
         self.corrected2_color = QColor(int("9999FF", 16))  #
         self.my_datasets = dataset_loader
 
         pygame.init()
         pygame.mixer.init()
+        self.playing = False
+        self.halting = False
 
         all_ds_ids_set = set()
         all_ds_ids_set.update(list(self.my_datasets.local_datasets.keys()))
@@ -71,6 +74,12 @@ class QtValidationApp(QMainWindow):
         vbox = QVBoxLayout()
         self.ds = self.my_datasets.load_ds_content_translated_with_original(self.ds_id, prune=False)
 
+        if not 'OriginalText' in self.ds.columns:
+            self.ds['OriginalText'] = ' '
+            self.ds['Action'] = 'validate'
+
+        without_original = len(self.ds[self.ds.OriginalText.str.len() < 2])
+
         if not 'Sort1' in self.ds.columns:
             self.ds['Sort1'] = 0
 
@@ -80,7 +89,7 @@ class QtValidationApp(QMainWindow):
         ds_problematic = self.ds[self.ds['OriginalText'] != self.ds[self.translation_row]]
         ds_problematic = ds_problematic.sort_values(['Action', 'Sort1'], ascending=[True, False])
         wrong = len(ds_problematic)
-        self.setWindowTitle(f'Dataset Validation of {self.ds_id}, epoche {self.ds_epoche}, WER: {self.wer:3.4f}%, bad {wrong}')
+        self.setWindowTitle(f'Dataset Validation of {self.ds_id}, epoche {self.ds_epoche}, WER: {self.wer:3.4f}%, bad {wrong}, without original {without_original}')
         print(f'Use Snipped Directory: {self.snipped_directory} - {all}/{wrong} Wrong')
         self.action = []
         self.mp3_files = []
@@ -88,11 +97,16 @@ class QtValidationApp(QMainWindow):
         self.ds_index = []
         self.edit_rows = []
         manuell_validated_train_actions = ['train7', 'train8', 'train9']
+        count = 0
 
         for idx in range(len(ds_problematic)):
+            aktion = ds_problematic.iloc[idx]['Action']
+
+            if (all > 500) and (aktion.startswith('exclude') or (aktion in manuell_validated_train_actions) or (count > 500)):
+                continue
+
             ds_idx = ds_problematic.index[idx]
             self.ds_index.append(ds_idx)
-            aktion = ds_problematic.iloc[idx]['Action']
             self.action.append(aktion)
             translated_text = ds_problematic.iloc[idx][self.translation_row]
             original_text = ds_problematic.iloc[idx]['OriginalText']
@@ -110,12 +124,12 @@ class QtValidationApp(QMainWindow):
             row.setAutoFillBackground(True)
             row_vbox = QVBoxLayout()
             row.setLayout(row_vbox)
-            row.setProperty('index', idx)
+            row.setProperty('index', count)
             diff = QTextEdit()
             diff.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             diff.setHtml(html)
             diff.setReadOnly(True)
-            diff.setProperty('index', idx)
+            diff.setProperty('index', count)
             font = diff.document().defaultFont()
             fontMetrics = QFontMetrics(font)
             textSize = fontMetrics.size(0, diff.toPlainText())
@@ -125,7 +139,7 @@ class QtValidationApp(QMainWindow):
             orig = OrigTextEditWidget(self, self.translation_row)
             orig.setPlainText(original_text)
             orig.setReadOnly(False)
-            orig.setProperty('index', idx)
+            orig.setProperty('index', count)
             orig.setMinimumHeight(h)
             orig.setMaximumHeight(h)
             self.edit_rows.append(orig)
@@ -133,6 +147,7 @@ class QtValidationApp(QMainWindow):
             row_vbox.addWidget(diff)
             row_vbox.addWidget(orig)
             vbox.addWidget(row)
+            count += 1
 
         result = QWidget()
         result.setLayout(vbox)
@@ -166,6 +181,8 @@ class QtValidationApp(QMainWindow):
             return self.corrected1_color
         elif action == 'train8':
             return self.corrected2_color
+        elif action == 'rated':
+            return self.rated_color
 
         return self.correct_color
 
@@ -185,6 +202,11 @@ class QtValidationApp(QMainWindow):
             self.close()
 
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if e.key() == Qt.Key.Key_Space:
+                if self.pause:
+                    self.unpause()
+                else:
+                    self.pause()
             if e.key() == Qt.Key.Key_P:
                 self.play()
             elif e.key() == Qt.Key.Key_S:
@@ -220,14 +242,32 @@ class QtValidationApp(QMainWindow):
                     self.ds['Action'].values[ds_idx] = 'exclude9'
 
                 self.play_next()
+            elif e.key() == 92:
+                # Toggle Ratet
+                idx = self.get_current_row_index()
+                ds_idx = self.ds_index[idx]
+
+                if self.action[idx] == 'rated':
+                    self.action[idx] = 'train'
+                    self.ds['Action'].values[ds_idx] = 'train'
+                else:
+                    self.action[idx] = 'rated'
+                    self.ds['Action'].values[ds_idx] = 'rated'
+
+                    if not self.edit_rows[idx].toPlainText().strip():
+                        translated_text = self.ds[self.translation_row].values[ds_idx]
+                        self.edit_rows[idx].setPlainText(translated_text)
+                        self.play_next()
 
     def copy_translated_to_original(self):
         idx = self.get_current_row_index()
         ds_idx = self.ds_index[idx]
         translated_text = self.ds[self.translation_row].values[ds_idx]
-        # print(f'setting original text (idx = {idx}, ds_idx = {ds_idx}): {translated_text}')
-        # print(f'mp3: {self.mp3_files[idx]}, orig_mp3: {self.ds["Datei"].values[ds_idx]})')
-        self.edit_rows[idx].setPlainText(translated_text)
+
+        if isinstance(translated_text, str):
+            # print(f'setting original text (idx = {idx}, ds_idx = {ds_idx}): {translated_text}')
+            # print(f'mp3: {self.mp3_files[idx]}, orig_mp3: {self.ds["Datei"].values[ds_idx]})')
+            self.edit_rows[idx].setPlainText(translated_text)
 
     def save(self):
         print('saving dataset')
@@ -261,15 +301,27 @@ class QtValidationApp(QMainWindow):
         pygame.mixer.music.load(f'{self.snipped_directory}/{self.mp3_files[curr_index]}')
         # var.set(play_list.get(tkr.ACTIVE))
         pygame.mixer.music.play()
+        self.playing = True
+        self.halting = False
 
     def stop(self):
         pygame.mixer.music.stop()
+        self.playing = False
+        self.halting = False
 
     def pause(self):
-        pygame.mixer.music.pause()
+        if not self.playing:
+            pygame.mixer.music.pause()
+            self.playing = False
+            self.halting = True
 
     def unpause(self):
-        pygame.mixer.music.unpause()
+        if self.halting:
+            pygame.mixer.music.unpause()
+            self.halting = False
+            self.playing = True
+        else:
+            self.play()
 
     def closeEvent(self, event):
         close_msg_dialog = QMessageBox(parent=self)
