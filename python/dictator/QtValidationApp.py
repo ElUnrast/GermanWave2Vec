@@ -87,7 +87,7 @@ class QtValidationApp(QMainWindow):
         all = len(self.ds)
         self.translation_row = 'Translated1' if 'Translated1' in self.ds.columns else 'Translated0'
         ds_problematic = self.ds[self.ds['OriginalText'] != self.ds[self.translation_row]]
-        ds_problematic = ds_problematic.sort_values(['Action', 'Sort1'], ascending=[True, False])
+        ds_problematic = ds_problematic.sort_values(['Action', 'Sort1'], ascending=[False, True])
         wrong = len(ds_problematic)
         self.setWindowTitle(f'Dataset Validation of {self.ds_id}, epoche {self.ds_epoche}, WER: {self.wer:3.4f}%, bad {wrong}, without original {without_original}')
         print(f'Use Snipped Directory: {self.snipped_directory} - {all}/{wrong} Wrong')
@@ -102,7 +102,7 @@ class QtValidationApp(QMainWindow):
         for idx in range(len(ds_problematic)):
             aktion = ds_problematic.iloc[idx]['Action']
 
-            if (wrong > 500) and (aktion.startswith('exclude') or (aktion in manuell_validated_train_actions) or (count > 500)):
+            if (wrong > 500) and (aktion.startswith('exclude') or ((aktion in manuell_validated_train_actions) and (count > 500))):
                 continue
 
             ds_idx = ds_problematic.index[idx]
