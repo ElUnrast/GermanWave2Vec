@@ -1,6 +1,14 @@
 import re
 import glob
-from SnippetDatasets import SnippetDatasets
+from dictator.SnippetDatasets import SnippetDatasets
+
+ersetzungen_revert = {
+    # replace es -> s at word ending
+    re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)s(\b)"): r'\1es\2',
+    re.compile(r"(marsch|pfad|gang|blick|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab)s(\b)"): r'\1es\2',
+    # fall
+    re.compile(r"(\b)inneren(\b)"): r'\1innern\2',
+}
 
 ersetzungen = {
     # first person verb append e
@@ -16,12 +24,12 @@ ersetzungen = {
     # remove ' in ...'s
     re.compile(r"(\b)(auf|durch)'s(\b)"): r'\1\2\3',
     # replace es -> s at word ending
-    re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)es(\b)"): r'\1s\2',
-    re.compile(r"(pfad|gang|blick|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab|fall)es(\b)"): r'\1s\2',
+    # re.compile(r"(nebelig|stab|mitglied|turm|gericht|meer|trank|kobold|zustand|feld|fluch|geschöpf|jahr|wirt|schiff|schritt|mann|traum|wunsch|blick|freund|tag|geist|hund|kampf|tag|fall|sohn|mond|land|dorf|krieg|ort)es(\b)"): r'\1s\2',
+    # re.compile(r"(pfad|gang|blick|raum|arm|baum|wort|wind|grad|kind|buch|haar|tag|mund|raum|grab|fall)es(\b)"): r'\1s\2',
     # insert e
     re.compile(r"(\b)wacklig(\b)"): r'\1wackelig\2',
     re.compile(r"(\b)knubblig(\b)"): r'\1knubbelig\2',
-    re.compile(r"(\b)innern(\b)"): r'\1inneren\2',
+    # re.compile(r"(\b)innern(\b)"): r'\1inneren\2',
     re.compile(r"(\b)gruslig(\b)"): r'\1gruselig\2',
     # replay complete word
     re.compile(r"(\b)okay(\b)"): r'\1ok\2',
@@ -92,6 +100,19 @@ def substitute(text):
     return result
 
 
+def revert_substitute(text):
+    result = text
+
+    for regex, replacement in ersetzungen_revert.items():
+        try:
+            result = regex.sub(replacement, result)
+        except:
+            print(f'text: {text}, pattern: {regex.pattern}')
+            result = text
+
+    return result
+
+
 def correct_dataset():
     dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
 
@@ -105,7 +126,23 @@ def correct_dataset():
             dataset_loader.save_content_translated_with_original(ds_id, ds, ds_epoche)
 
 
+def revert_ds():
+    dataset_loader = SnippetDatasets(False, '//matlab3/D/NLP-Data/audio', 'C:/gitviews/GermanWave2Vec')
+
+    for ds_id in dataset_loader.local_datasets.keys():
+        if ds_id.startswith('HP') or ds_id.startswith('common'):
+            print(f'{ds_id}')
+            ds = dataset_loader.load_ds_content_translated_with_original(ds_id, prune=False)
+            wer = dataset_loader.get_word_error_rate(ds_id)
+            ds_epoche = wer['trained_epochs']
+            ds['OriginalText'] = ds['OriginalText'].apply(revert_substitute)
+            dataset_loader.save_content_translated_with_original(ds_id, ds, ds_epoche)
+
+
 def main():
+    revert_ds()
+
+    '''
     txt_directory = 'C:/share/NLP-Data'
 
     for text_file in glob.glob(f'{txt_directory}/*.txt'):
@@ -121,6 +158,7 @@ def main():
 
         with open(text_file, 'w', encoding='utf8') as f:
             f. write(new_text)
+    '''
 
 
 if __name__ == '__main__':
