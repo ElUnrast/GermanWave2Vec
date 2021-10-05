@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from PyQt6.QtWidgets import QApplication
 from QtSpeechToTextApp import QtSpeechToTextApp
 from SrcTranslationService import SrcTranslationService
@@ -9,6 +10,7 @@ def main():
     # translator = SrcTranslationService('127.0.0.1:8080')
     translator = SrcTranslationService('192.168.9.105:8080')
 
+    Path("c:/temp/audio").mkdir(parents=True, exist_ok=True)
     w = QtSpeechToTextApp(recording_base_path='c:/temp/audio', translator=translator)
     w.showMaximized()
     w.show()
