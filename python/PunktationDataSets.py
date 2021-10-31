@@ -131,11 +131,18 @@ class PunktationDataSets:
 
 def main():
     punctation = PunktationDataSets()
+
     git_repository = 'C:/gitviews/GermanWave2Vec'
-    txt_directory = f'{git_repository}/datasets/punkctation'
-    potter_df = punctation.prepare_truecase_dataset(txt_directory)
-    dataset_file_name = f'{git_repository}/datasets/punkctation/potter_punktation_truecase.csv'
-    potter_df.to_csv(dataset_file_name, sep=';', index=False)
+    txt_directory = f'{git_repository}/datasets/Punkt-MB'
+    mb_df = punctation.prepare_truecase_dataset(txt_directory)
+    dataset_file_name = f'{git_repository}/datasets/punkctation/mb_punktation_truecase.csv'
+    mb_df.to_csv(dataset_file_name, sep=';', index=False)
+
+    # git_repository = 'C:/gitviews/GermanWave2Vec'
+    # txt_directory = f'{git_repository}/datasets/punkctation'
+    # potter_df = punctation.prepare_truecase_dataset(txt_directory)
+    # dataset_file_name = f'{git_repository}/datasets/punkctation/potter_punktation_truecase.csv'
+    # potter_df.to_csv(dataset_file_name, sep=';', index=False)
 
 
 if __name__ == '__main__':
