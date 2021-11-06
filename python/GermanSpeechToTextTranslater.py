@@ -256,6 +256,9 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
                         print(f' - {train_pandas_ds.shape[0]} Entries left after Length Cut (min=31, max={max_training_sample_size})')
 
+                        train_pandas_ds = train_pandas_ds[~train_pandas_ds.Action.str.startswith('ignore')]
+                        print(f' - {train_pandas_ds.shape[0]} Entries left after Length Cut (min=31, max={max_training_sample_size})')
+
                         if max_trainingset_size:
                             train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
                             print(f' - {train_pandas_ds.shape[0]} left after Entries Max Samples Cut (max={max_trainingset_size})')

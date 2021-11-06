@@ -24,7 +24,7 @@ class OrigTextEditWidget(QTextEdit):
                 if orig_text_in_gui == orig_translated_in_ds:
                     self.validation_app.action[idx] = 'train9'
                     self.validation_app.ds['Action'].values[ds_idx] = 'train9'
-                else:
+                elif not self.validation_app.action[idx].startswith('ignore'):
                     self.validation_app.action[idx] = 'train8'
                     self.validation_app.ds['Action'].values[ds_idx] = 'train8'
 

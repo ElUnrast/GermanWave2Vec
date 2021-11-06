@@ -28,6 +28,7 @@ class QtValidationApp(QMainWindow):
         self.rated_color = QColor(int("BB65E0", 16))  # lightgreen #90EE90
         self.corrected1_color = QColor(int("ADD8E6", 16))  # lightblue #ADD8E6
         self.corrected2_color = QColor(int("9999FF", 16))  #
+        self.ignore_color = QColor(int("4ffdec ", 16))  # ignore
         self.my_datasets = dataset_loader
 
         pygame.init()
@@ -181,6 +182,8 @@ class QtValidationApp(QMainWindow):
             return self.corrected1_color
         elif action == 'train8':
             return self.corrected2_color
+        elif action == 'ignore':
+            return self.ignore_color
         elif action == 'rated':
             return self.rated_color
 
@@ -189,6 +192,8 @@ class QtValidationApp(QMainWindow):
     def get_color_for_action(self, action) -> QColor:
         if action.startswith('exclude'):
             return self.exclude_color
+        elif action == 'ignore':
+            return self.ignore_color
         elif action == 'train9':
             return self.corrected1_color
         elif action == 'train8':
@@ -240,6 +245,17 @@ class QtValidationApp(QMainWindow):
                 else:
                     self.action[idx] = 'exclude9'
                     self.ds['Action'].values[ds_idx] = 'exclude9'
+
+                self.play_next()
+            elif e.key() == Qt.Key.Key_I:
+                idx = self.get_current_row_index()
+                ds_idx = self.ds_index[idx]
+
+                if self.action[idx] == 'ignore':
+                    self.ds['Action'].values[ds_idx] = 'train'
+                else:
+                    self.action[idx] = 'ignore'
+                    self.ds['Action'].values[ds_idx] = 'ignore'
 
                 self.play_next()
             elif e.key() == 92:
