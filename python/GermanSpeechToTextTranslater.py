@@ -251,13 +251,14 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     # (bad_translation_ds.shape[0] > min(20, 200 - validated_ds.shape[0]))
 
                     if (bad_translation_ds.shape[0] > 50) or (wer_result > early_stopping_value):
+                        print('prepare training dataset')
                         train_pandas_ds = sklearn.utils.shuffle(bad_translation_ds)
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_training_sample_size) & (train_pandas_ds.Length >= 31)]
                         print(f' - {train_pandas_ds.shape[0]} Entries left after Length Cut (min=31, max={max_training_sample_size})')
 
                         train_pandas_ds = train_pandas_ds[~train_pandas_ds.Action.str.startswith('ignore')]
-                        print(f' - {train_pandas_ds.shape[0]} Entries left after Length Cut (min=31, max={max_training_sample_size})')
+                        print(f' - {train_pandas_ds.shape[0]} Entries left after ignore Cut')
 
                         if max_trainingset_size:
                             train_pandas_ds = train_pandas_ds[:min(train_pandas_ds.shape[0], max_trainingset_size)]
@@ -308,7 +309,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                     else:
                         # mindestens 98% der Sätze wurde korrekt übersetzt. Überprüfung der Problemfälle ist angebracht.
                         # Es hat sich gezeigt, dass das Ergebnis wieder schlechter werden kann.
-                        print('Early stopping: {ds_id}')
+                        print(f'Early stopping: {ds_id}')
                         print(f'Actual number of bad translated {bad_translation_ds.shape[0]}')
                         print(f'Actual WER: {100 * wer_result:3.4f}')
                         early_stopping = True
