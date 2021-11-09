@@ -292,7 +292,7 @@ class SpeechComanndZahlProcessor(SpeechComanndProcessor):
 
                 prepend_space = not self.speech_event_handler.is_formated_text_at_block_start()
 
-                if prepend_space and self.speech_event_handler.get_last_proccessor:
+                if prepend_space and self.speech_event_handler.get_last_proccessor():
                     if 'Zahlen umwandeln' == self.speech_event_handler.get_last_proccessor().name:
                         prepend_space = False
 
