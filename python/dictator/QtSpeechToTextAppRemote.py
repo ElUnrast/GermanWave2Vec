@@ -7,8 +7,11 @@ from SrcTranslationService import SrcTranslationService
 
 
 def main():
-    if not os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']:
+    if os.environ.get('QT_QPA_PLATFORM_PLUGIN_PATH') is None:
         os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = '.'
+    else:
+        x = os.environ['QT_QPA_PLATFORM_PLUGIN_PATH']
+        print(f'QT_QPA_PLATFORM_PLUGIN_PATH: {x}')
 
     app = QApplication(sys.argv)
     # translator = SrcTranslationService('127.0.0.1:8080')
