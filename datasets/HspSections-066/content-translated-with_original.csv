@@ -25,7 +25,7 @@ HspSections-066;Unbekannt;00004183.mp3;00004183.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00004228.mp3;00004228.mp3;0;55680;58;1.740000000000001;28004;wo man eigentlich recht hat;wo man eigentlich recht hat;train9;120000
 HspSections-066;Unbekannt;00004442.mp3;00004442.mp3;0;55680;58;1.740000000000001;28004;oder ad hominem falsch ist;oder ad hominem falsch ist;train8;200000
 HspSections-066;Unbekannt;00004465.mp3;00004465.mp3;0;55680;58;1.740000000000001;28004;denn das kann man selbst nicht sicher wissen;denn das kann man selbst nicht sicher wissen;train9;200000
-HspSections-066;Unbekannt;00004640.mp3;00004640.mp3;0;55680;58;1.740000000000001;28004;was der gegner sagt wahr;was der gegner sagt war;ignore;10000
+HspSections-066;Unbekannt;00004640.mp3;00004640.mp3;0;55680;58;1.740000000000001;28004;was der gegner sagt wahr;was der gegner sagt war;train7;10000
 HspSections-066;Unbekannt;00004667.mp3;00004667.mp3;0;55680;58;1.740000000000001;28004;aber ad hominem wahr sind;aber ad hominem wahr sind;train8;100
 HspSections-066;Unbekannt;00004942.mp3;00004942.mp3;0;55680;58;1.740000000000001;28004;kunstgriff siebenundzwanzig;kunstgriff siebenundzwanzig;train9;200000
 HspSections-066;Unbekannt;00004980.mp3;00004980.mp3;0;55680;58;1.740000000000001;28004;kunstgriff neunundzwanzig;kunstgriff neunundzwanzig;train9;200000
@@ -94,7 +94,7 @@ HspSections-066;Unbekannt;00012488.mp3;00012488.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00012573.mp3;00012573.mp3;0;55680;58;1.740000000000001;28004;und die grundhaltung;und die grundhaltung;train9;200000
 HspSections-066;Unbekannt;00012712.mp3;00012712.mp3;0;55680;58;1.740000000000001;28004;in einem labilen;in einem labilen;train9;120000
 HspSections-066;Unbekannt;00012967.mp3;00012967.mp3;0;55680;58;1.740000000000001;28004;fachangelegenheit;fachangelegenheit;train9;10
-HspSections-066;Unbekannt;00012981.mp3;00012981.mp3;0;55680;58;1.740000000000001;28004;so wie man;sowie man;train9;200000
+HspSections-066;Unbekannt;00012981.mp3;00012981.mp3;0;55680;58;1.740000000000001;28004;so wie man;sowie man;train9;10000
 HspSections-066;Unbekannt;00013029.mp3;00013029.mp3;0;55680;58;1.740000000000001;28004;solche urteilsweisen;solche urteilsweisen;train9;200000
 HspSections-066;Unbekannt;00013302.mp3;00013302.mp3;0;55680;58;1.740000000000001;28004;warum behauptete sie;warum behauptete sie;train9;200000
 HspSections-066;Unbekannt;00013578.mp3;00013578.mp3;0;55680;58;1.740000000000001;28004;das ist aber eine rechte gans;das ist aber eine rechte gans;train8;1
@@ -912,7 +912,7 @@ HspSections-066;Unbekannt;00168273.mp3;00168273.mp3;0;50880;53;1.590000000000001
 HspSections-066;Unbekannt;00168617.mp3;00168617.mp3;0;50880;53;1.5900000000000012;25728;und so geht es weiter mit zwei;und so geht es weiter mit zwei;train9;200000
 HspSections-066;Unbekannt;00168649.mp3;00168649.mp3;0;50880;53;1.5900000000000012;25728;sich hypnotisieren zu lassen;sich hypnotisieren zu lassen;train9;200000
 HspSections-066;Unbekannt;00168663.mp3;00168663.mp3;0;50880;53;1.5900000000000012;25728;ich hatte es erwartet und lächelte;ich hatte es erwartet und lächelte;train9;1
-HspSections-066;Unbekannt;00168695.mp3;00168695.mp3;0;50880;53;1.5900000000000012;25728;was ihre fragen beantwortet;das ihre fragen beantwortet;train8;1
+HspSections-066;Unbekannt;00168695.mp3;00168695.mp3;0;50880;53;1.5900000000000012;25728;was ihre fragen beantwortet;was ihre fragen beantwortet;train9;1
 HspSections-066;Unbekannt;00169086.mp3;00169086.mp3;0;50880;53;1.5900000000000012;25728;und damit ins trance zu fallen;und damit ins trance zu fallen;train8;200000
 HspSections-066;Unbekannt;00169107.mp3;00169107.mp3;0;50880;53;1.5900000000000012;25728;oder atmet langsam aus;oder atmet langsam aus;train9;200000
 HspSections-066;Unbekannt;00169117.mp3;00169117.mp3;0;50880;53;1.5900000000000012;25728;überhaupt nicht mehr herauskommen wollen;überhaupt nicht mehr herauskommen wollen;train9;200000
@@ -973,11 +973,11 @@ HspSections-066;Unbekannt;00181512.mp3;00181512.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00181792.mp3;00181792.mp3;0;55680;58;1.740000000000001;28004;in dem augenblick;in dem augenblick;train9;120000
 HspSections-066;Unbekannt;00181830.mp3;00181830.mp3;0;55680;58;1.740000000000001;28004;doch vielleicht die feigheit;doch vielleicht die feigheit;train9;200000
 HspSections-066;Unbekannt;00182189.mp3;00182189.mp3;0;55680;58;1.740000000000001;28004;ich habe das buch gelesen;ich habe das buch gelesen;train9;200000
-HspSections-066;Unbekannt;00182279.mp3;00182279.mp3;0;55680;58;1.740000000000001;28004;u dann wurde ihr alles vergeben;dann wurde ihr alles vergeben;train9;200000
+HspSections-066;Unbekannt;00182279.mp3;00182279.mp3;0;55680;58;1.740000000000001;28004;u dann wurde ihr alles vergeben;dann wurde ihr alles vergeben;train9;20000
 HspSections-066;Unbekannt;00182288.mp3;00182288.mp3;0;55680;58;1.740000000000001;28004;die den herrn jesus predigt;die den herrn jesus predigt;train8;200000
 HspSections-066;Unbekannt;00182350.mp3;00182350.mp3;0;55680;58;1.740000000000001;28004;weil jesus;weil jesus;train9;200000
 HspSections-066;Unbekannt;00182492.mp3;00182492.mp3;0;55680;58;1.740000000000001;28004;der siebzig jahre alt;der siebzig jahre alt;train9;200000
-HspSections-066;Unbekannt;00182678.mp3;00182678.mp3;0;55680;58;1.740000000000001;28004;und da habe ich ihmen gesagt;und da habe ich ihm gesagt;train8;120000
+HspSections-066;Unbekannt;00182678.mp3;00182678.mp3;0;55680;58;1.740000000000001;28004;und da habe ich ihmen gesagt;und da habe ich ihm gesagt;train8;20000
 HspSections-066;Unbekannt;00182927.mp3;00182927.mp3;0;55680;58;1.740000000000001;28004;evangelium sagt uns;evangelium sagt uns;train8;120000
 HspSections-066;Unbekannt;00182952.mp3;00182952.mp3;0;55680;58;1.740000000000001;28004;durch dein vergossenes blut;durch dein vergossenes blut;train9;200000
 HspSections-066;Unbekannt;00182956.mp3;00182956.mp3;0;55680;58;1.740000000000001;28004;der vater hat dich eingesetzt;der vater hat dich eingesetzt;train9;200000
@@ -1129,7 +1129,7 @@ HspSections-066;Unbekannt;00208445.mp3;00208445.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00208591.mp3;00208591.mp3;0;55680;58;1.740000000000001;28004;jenseits des lustprinzips;jenseits des lustprinzips;train9;200000
 HspSections-066;Unbekannt;00208634.mp3;00208634.mp3;0;55680;58;1.740000000000001;28004;immer wieder praktisch;immer wieder praktisch;train9;200000
 HspSections-066;Unbekannt;00208669.mp3;00208669.mp3;0;55680;58;1.740000000000001;28004;war sie wirklich spekulativen;war sie wirklich spekulativen;train9;10000
-HspSections-066;Unbekannt;00208842.mp3;00208842.mp3;0;55680;58;1.740000000000001;28004;und zu gleich auch eine ihn;und zugleich auch eine ihn;train9;200000
+HspSections-066;Unbekannt;00208842.mp3;00208842.mp3;0;55680;58;1.740000000000001;28004;und zu gleich auch eine ihn;und zugleich auch eine ihn;train9;10000
 HspSections-066;Unbekannt;00208852.mp3;00208852.mp3;0;55680;58;1.740000000000001;28004;bereitet sich vielleicht vor;bereitet sich vielleicht vor;train9;200000
 HspSections-066;Unbekannt;00208893.mp3;00208893.mp3;0;55680;58;1.740000000000001;28004;nur wärmstens empfehlen;nur wärmstens empfehlen;train9;200000
 HspSections-066;Unbekannt;00208907.mp3;00208907.mp3;0;55680;58;1.740000000000001;28004;die wunderbare fanfare;die wunderbare fanfare;train9;200000
@@ -1317,7 +1317,7 @@ HspSections-066;Unbekannt;00239060.mp3;00239060.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00239113.mp3;00239113.mp3;0;55680;58;1.740000000000001;28004;er wäscht seine hände in unschuld;er wäscht seine hände in unschuld;train9;120000
 HspSections-066;Unbekannt;00239221.mp3;00239221.mp3;0;55680;58;1.740000000000001;28004;ist ein fixierter merkur;ist ein fixierter merkur;train9;200000
 HspSections-066;Unbekannt;00239270.mp3;00239270.mp3;0;55680;58;1.740000000000001;28004;denn um einweihung zu begreifen;denn um einweihung zu begreifen;train9;200000
-HspSections-066;Unbekannt;00239575.mp3;00239575.mp3;0;55680;58;1.740000000000001;28004;zwischen dem paradiesisbaum;zwischen dem paradiesesbaum;train9;200000
+HspSections-066;Unbekannt;00239575.mp3;00239575.mp3;0;55680;58;1.740000000000001;28004;zwischen dem paradiesisbaum;zwischen dem paradiesesbaum;train9;1
 HspSections-066;Unbekannt;00239725.mp3;00239725.mp3;0;55680;58;1.740000000000001;28004;ich möchte heute abend;ich möchte heute abend;train9;200000
 HspSections-066;Unbekannt;00240293.mp3;00240293.mp3;0;55680;58;1.740000000000001;28004;sonst führen sie in sackgassen;sonst führen sie in sackgassen;train8;10000
 HspSections-066;Unbekannt;00240422.mp3;00240422.mp3;0;55680;58;1.740000000000001;28004;und damit beginnt;und damit beginnt;train9;200000
@@ -1510,7 +1510,7 @@ HspSections-066;Unbekannt;00265637.mp3;00265637.mp3;0;56640;59;1.770000000000001
 HspSections-066;Unbekannt;00265662.mp3;00265662.mp3;0;56640;59;1.7700000000000014;28422;so steht rom darauf;so steht rom darauf;train9;120000
 HspSections-066;Unbekannt;00265730.mp3;00265730.mp3;0;56640;59;1.7700000000000014;28422;die freiheit vom gesetz;die freiheit vom gesetz;train9;200000
 HspSections-066;Unbekannt;00265821.mp3;00265821.mp3;0;56640;59;1.7700000000000014;28422;kultur im wüstensand;kultur im wüstensand;train9;200000
-HspSections-066;Unbekannt;00265898.mp3;00265898.mp3;0;56640;59;1.7700000000000014;28422;und seinen gesandten mo hammad;und seinen gesandten mohammad;train9;200000
+HspSections-066;Unbekannt;00265898.mp3;00265898.mp3;0;56640;59;1.7700000000000014;28422;und seinen gesandten mo hammad;und seinen gesandten mohammad;train9;10000
 HspSections-066;Unbekannt;00266202.mp3;00266202.mp3;0;56640;59;1.7700000000000014;28422;nannte mohammad sie zärtlich;nannte mohammad sie zärtlich;train8;200000
 HspSections-066;Unbekannt;00266435.mp3;00266435.mp3;0;56640;59;1.7700000000000014;28422;die jüngste seiner vier töchter;die jüngste seiner vier töchter;train9;200000
 HspSections-066;Unbekannt;00266438.mp3;00266438.mp3;0;56640;59;1.7700000000000014;28422;darunter husain;darunter husain;train8;200000
@@ -2067,7 +2067,7 @@ HspSections-066;Unbekannt;00362927.mp3;00362927.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00362949.mp3;00362949.mp3;0;55680;58;1.740000000000001;28004;und george w bush;und george w bush;train8;10000
 HspSections-066;Unbekannt;00363008.mp3;00363008.mp3;0;55680;58;1.740000000000001;28004;kardinal ratzinger betete;kardinal ratzinger betete;train9;200000
 HspSections-066;Unbekannt;00363347.mp3;00363347.mp3;0;55680;58;1.740000000000001;28004;wurden in einen topf geworfen;wurden in einen topf geworfen;train9;200000
-HspSections-066;Unbekannt;00363443.mp3;00363443.mp3;0;55680;58;1.740000000000001;28004;statt dessen sprach er deutsch;stattdessen sprach er deutsch;train9;200000
+HspSections-066;Unbekannt;00363443.mp3;00363443.mp3;0;55680;58;1.740000000000001;28004;statt dessen sprach er deutsch;stattdessen sprach er deutsch;train9;10000
 HspSections-066;Unbekannt;00363511.mp3;00363511.mp3;0;55680;58;1.740000000000001;28004;und hatte einen unglaublichen erfolg;und hatte einen unglaublichen erfolg;train9;200000
 HspSections-066;Unbekannt;00363561.mp3;00363561.mp3;0;55680;58;1.740000000000001;28004;was bedeutete es für mich;was bedeutete es für mich;train9;200000
 HspSections-066;Unbekannt;00363609.mp3;00363609.mp3;0;55680;58;1.740000000000001;28004;in die krakauer gruft;in die krakauer gruft;train8;120000
@@ -2367,7 +2367,7 @@ HspSections-066;Unbekannt;00418949.mp3;00418949.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00419614.mp3;00419614.mp3;0;55680;58;1.740000000000001;28004;zeichnet kriegsanleihe;zeichnet kriegsanleihe;train9;200000
 HspSections-066;Unbekannt;00420422.mp3;00420422.mp3;0;55680;58;1.740000000000001;28004;das ihn schon lange beschäftigte;das ihn schon lange beschäftigte;train9;10000
 HspSections-066;Unbekannt;00420526.mp3;00420526.mp3;0;55680;58;1.740000000000001;28004;die ich für mich behalten möchte;die ich für mich behalten möchte;train9;200000
-HspSections-066;Unbekannt;00420875.mp3;00420875.mp3;0;55680;58;1.740000000000001;28004;politisch tendentiös erscheint;politisch tendenziös erscheint;train8;200000
+HspSections-066;Unbekannt;00420875.mp3;00420875.mp3;0;55680;58;1.740000000000001;28004;politisch tendentiös erscheint;politisch tendenziös erscheint;train8;1
 HspSections-066;Unbekannt;00421145.mp3;00421145.mp3;0;55680;58;1.740000000000001;28004;als seine eigene vollendung;als seine eigene vollendung;train9;200000
 HspSections-066;Unbekannt;00421209.mp3;00421209.mp3;0;55680;58;1.740000000000001;28004;leni riefenstahl ist anfang dreißig;leni riefenstahl ist anfang dreißig;train8;1
 HspSections-066;Unbekannt;00421553.mp3;00421553.mp3;0;55680;58;1.740000000000001;28004;im völkischen sinne sei;im völkischen sinne sei;train9;120000
@@ -2874,7 +2874,7 @@ HspSections-066;Unbekannt;00504704.mp3;00504704.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00504726.mp3;00504726.mp3;0;55680;58;1.740000000000001;28004;saßen alle drei da;saßen alle drei da;train9;200000
 HspSections-066;Unbekannt;00504904.mp3;00504904.mp3;0;55680;58;1.740000000000001;28004;hat das recht auf ihrer seite;hat das recht auf ihrer seite;train8;200000
 HspSections-066;Unbekannt;00505224.mp3;00505224.mp3;0;55680;58;1.740000000000001;28004;sie wissen natürlich über alles bescheid;sie wissen natürlich über alles bescheid;train9;200000
-HspSections-066;Unbekannt;00505324.mp3;00505324.mp3;0;55680;58;1.740000000000001;28004;habe ich gekauft so wie das passiert war;habe ich gekauft sowie das passiert war;train8;200000
+HspSections-066;Unbekannt;00505324.mp3;00505324.mp3;0;55680;58;1.740000000000001;28004;habe ich gekauft so wie das passiert war;habe ich gekauft sowie das passiert war;train8;10000
 HspSections-066;Unbekannt;00505334.mp3;00505334.mp3;0;55680;58;1.740000000000001;28004;und das gefiel mir immer besser;und das gefiel mir immer besser;train9;200000
 HspSections-066;Unbekannt;00505339.mp3;00505339.mp3;0;55680;58;1.740000000000001;28004;kam mir diese idee;kam mir diese idee;train9;200000
 HspSections-066;Unbekannt;00505391.mp3;00505391.mp3;0;55680;58;1.740000000000001;28004;muss ich ja nicht zur pistole greifen;muss ich ja nicht zur pistole greifen;train9;200000
@@ -3010,7 +3010,7 @@ HspSections-066;Unbekannt;00519301.mp3;00519301.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00519312.mp3;00519312.mp3;0;55680;58;1.740000000000001;28004;den verlobungsring ich meine den;den verlobungsring ich meine den;train9;20000
 HspSections-066;Unbekannt;00519313.mp3;00519313.mp3;0;55680;58;1.740000000000001;28004;verlobungsring ihrer mutter aber;verlobungsring ihrer mutter aber;train9;200000
 HspSections-066;Unbekannt;00519337.mp3;00519337.mp3;0;55680;58;1.740000000000001;28004;sondern nur ein zirkon;sondern nur ein zirkon;train9;200000
-HspSections-066;Unbekannt;00519464.mp3;00519464.mp3;0;55680;58;1.740000000000001;28004;sie waren ein bisschen knapp drin;sie waren ein bisschen knapp dran;train9;200000
+HspSections-066;Unbekannt;00519464.mp3;00519464.mp3;0;55680;58;1.740000000000001;28004;sie waren ein bisschen knapp drin;sie waren ein bisschen knapp dran;train9;1
 HspSections-066;Unbekannt;00519619.mp3;00519619.mp3;0;55680;58;1.740000000000001;28004;bei antiquitätenhändlern;bei antiquitätenhändlern;train8;200000
 HspSections-066;Unbekannt;00519794.mp3;00519794.mp3;0;55680;58;1.740000000000001;28004;es kann auch sein;es kann auch sein;train9;120000
 HspSections-066;Unbekannt;00519850.mp3;00519850.mp3;0;55680;58;1.740000000000001;28004;gott was war diese frau;gott was war diese frau;train9;200000
@@ -3606,7 +3606,7 @@ HspSections-066;Unbekannt;00592429.mp3;00592429.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00592656.mp3;00592656.mp3;0;55680;58;1.740000000000001;28004;wieder strahlte er die anderen an;wieder strahlte er die anderen an;train9;200000
 HspSections-066;Unbekannt;00592758.mp3;00592758.mp3;0;55680;58;1.740000000000001;28004;war es tschechow oder dostojewski;war es tschechow oder dostojewski;train8;200000
 HspSections-066;Unbekannt;00592795.mp3;00592795.mp3;0;55680;58;1.740000000000001;28004;das war vor allem zu bedenken;das war vor allem zu bedenken;train9;200000
-HspSections-066;Unbekannt;00593055.mp3;00593055.mp3;0;55680;58;1.740000000000001;28004;was ist ja jetzt so traurig hier;das ist ja jetzt so traurig hier;train9;200000
+HspSections-066;Unbekannt;00593055.mp3;00593055.mp3;0;55680;58;1.740000000000001;28004;was ist ja jetzt so traurig hier;das ist ja jetzt so traurig hier;train9;1
 HspSections-066;Unbekannt;00593536.mp3;00593536.mp3;0;55680;58;1.740000000000001;28004;sie sind mir nämlich beschrieben worden;sie sind mir nämlich beschrieben worden;train9;200000
 HspSections-066;Unbekannt;00593792.mp3;00593792.mp3;0;55680;58;1.740000000000001;28004;das sei mein gebiet sagte er;das sei mein gebiet sagte er;train9;200000
 HspSections-066;Unbekannt;00593843.mp3;00593843.mp3;0;55680;58;1.740000000000001;28004;das ist der richtige ausdruck;das ist der richtige ausdruck;train9;200000
@@ -3903,7 +3903,7 @@ HspSections-066;Unbekannt;00632453.mp3;00632453.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00632630.mp3;00632630.mp3;0;55680;58;1.740000000000001;28004;sie hat gesagt ich bin ein irrer;sie hat gesagt ich bin ein irrer;train9;200000
 HspSections-066;Unbekannt;00632873.mp3;00632873.mp3;0;55680;58;1.740000000000001;28004;der junge mann schoss dann tatsächlich;der junge mann schoss dann tatsächlich;train9;200000
 HspSections-066;Unbekannt;00632945.mp3;00632945.mp3;0;55680;58;1.740000000000001;28004;etwas war anders;etwas war anders;train9;200000
-HspSections-066;Unbekannt;00632978.mp3;00632978.mp3;0;55680;58;1.740000000000001;28004;s argent lake sagte;sargent lake sagte;train8;200000
+HspSections-066;Unbekannt;00632978.mp3;00632978.mp3;0;55680;58;1.740000000000001;28004;s argent lake sagte;sargent lake sagte;ignore;10000
 HspSections-066;Unbekannt;00633049.mp3;00633049.mp3;0;55680;58;1.740000000000001;28004;und was für bruchstücke waren das;und was für bruchstücke waren das;train9;200000
 HspSections-066;Unbekannt;00633152.mp3;00633152.mp3;0;55680;58;1.740000000000001;28004;unser gespräch war sehr kurz;unser gespräch war sehr kurz;train9;200000
 HspSections-066;Unbekannt;00633182.mp3;00633182.mp3;0;55680;58;1.740000000000001;28004;umd meiner frau kummer zu ersparen;um meiner frau kummer zu ersparen;train9;10000
@@ -4430,7 +4430,7 @@ HspSections-066;Unbekannt;00703500.mp3;00703500.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00703955.mp3;00703955.mp3;0;55680;58;1.740000000000001;28004;kennen sie ihn nein;kennen sie ihn nein;train9;200000
 HspSections-066;Unbekannt;00704139.mp3;00704139.mp3;0;55680;58;1.740000000000001;28004;brachte ein zittern auf seine lippen;brachte ein zittern auf seine lippen;train9;200000
 HspSections-066;Unbekannt;00704148.mp3;00704148.mp3;0;55680;58;1.740000000000001;28004;du weißt dass ich dich nicht nötig habe;du weißt dass ich dich nicht nötig habe;train8;110000
-HspSections-066;Unbekannt;00704174.mp3;00704174.mp3;0;55680;58;1.740000000000001;28004;ich dicht umbringe;ich dich umbringe;train8;200000
+HspSections-066;Unbekannt;00704174.mp3;00704174.mp3;0;55680;58;1.740000000000001;28004;ich dicht umbringe;ich dich umbringe;train8;10000
 HspSections-066;Unbekannt;00704230.mp3;00704230.mp3;0;55680;58;1.740000000000001;28004;ihr dienstmädchen hat sie gehört;ihr dienstmädchen hat sie gehört;train9;200000
 HspSections-066;Unbekannt;00704562.mp3;00704562.mp3;0;55680;58;1.740000000000001;28004;mit ihnen alles in ordnung;mit ihnen alles in ordnung;train9;200000
 HspSections-066;Unbekannt;00704819.mp3;00704819.mp3;0;55680;58;1.740000000000001;28004;da haben sie geheiratet;da haben sie geheiratet;train9;100
@@ -4579,7 +4579,7 @@ HspSections-066;Unbekannt;00728666.mp3;00728666.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00728873.mp3;00728873.mp3;0;55680;58;1.740000000000001;28004;luanne antwortete nicht;luanne antwortete nicht;train9;200000
 HspSections-066;Unbekannt;00728913.mp3;00728913.mp3;0;55680;58;1.740000000000001;28004;ricks spürte wie sie zitterte;ricks spürte wie sie zitterte;train9;200000
 HspSections-066;Unbekannt;00729862.mp3;00729862.mp3;0;55680;58;1.740000000000001;28004;die pistole fiel auf den boden;die pistole fiel auf den boden;train9;200000
-HspSections-066;Unbekannt;00730062.mp3;00730062.mp3;0;55680;58;1.740000000000001;28004;na ja;naja;train8;40000
+HspSections-066;Unbekannt;00730062.mp3;00730062.mp3;0;55680;58;1.740000000000001;28004;na ja;na ja;train9;10000
 HspSections-066;Unbekannt;00730369.mp3;00730369.mp3;0;76800;80;2.399999999999999;38592;hören sie ich muss wirklich mit ihm sprechen;hören sie ich muss wirklich mit ihm sprechen;train9;200000
 HspSections-066;Unbekannt;00730445.mp3;00730445.mp3;0;76800;80;2.399999999999999;38592;weshalb soll michels büro durchsucht werden;weshalb soll michels büro durchsucht werden;train9;1
 HspSections-066;Unbekannt;00730551.mp3;00730551.mp3;0;76800;80;2.399999999999999;38592;und jetzt kommt er unangenehme teil;und jetzt kommt er unangenehme teil;train9;200000
@@ -4615,7 +4615,7 @@ HspSections-066;Unbekannt;00737525.mp3;00737525.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00737561.mp3;00737561.mp3;0;55680;58;1.740000000000001;28004;sperren sie das gesamte gebiet ab;sperren sie das gesamte gebiet ab;train9;200000
 HspSections-066;Unbekannt;00737594.mp3;00737594.mp3;0;55680;58;1.740000000000001;28004;sie stoppen diesen leichenzug;sie stoppen diesen leichenzug;train9;200000
 HspSections-066;Unbekannt;00737633.mp3;00737633.mp3;0;55680;58;1.740000000000001;28004;michelle klopfte dagegen;michelle klopfte dagegen;train9;200000
-HspSections-066;Unbekannt;00737775.mp3;00737775.mp3;0;55680;58;1.740000000000001;28004;kein wunder bei so viel ruderei;kein wunder bei soviel ruderei;ignore;10000
+HspSections-066;Unbekannt;00737775.mp3;00737775.mp3;0;55680;58;1.740000000000001;28004;kein wunder bei so viel ruderei;kein wunder bei so viel ruderei;train9;10000
 HspSections-066;Unbekannt;00738112.mp3;00738112.mp3;0;55680;58;1.740000000000001;28004;wer ihn umgebracht hat weiß ich nicht;wer ihn umgebracht hat weiß ich nicht;train9;200000
 HspSections-066;Unbekannt;00738198.mp3;00738198.mp3;0;55680;58;1.740000000000001;28004;sie ließ sich in der tat herab;sie ließ sich in der tat herab;train9;200000
 HspSections-066;Unbekannt;00738288.mp3;00738288.mp3;0;55680;58;1.740000000000001;28004;tür hätte sich geöffnet;tür hätte sich geöffnet;train9;200000
@@ -4697,7 +4697,7 @@ HspSections-066;Unbekannt;00747679.mp3;00747679.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00747974.mp3;00747974.mp3;0;55680;58;1.740000000000001;28004;als wieder jemand aus dem haus kam;als wieder jemand aus dem haus kam;train9;200000
 HspSections-066;Unbekannt;00748183.mp3;00748183.mp3;0;55680;58;1.740000000000001;28004;ein schöner tag zum kämpfen;ein schöner tag zum kämpfen;train9;200000
 HspSections-066;Unbekannt;00748191.mp3;00748191.mp3;0;55680;58;1.740000000000001;28004;aber es ist immer ein tolles schauspiel;aber es ist immer ein tolles schauspiel;train9;200000
-HspSections-066;Unbekannt;00748192.mp3;00748192.mp3;0;55680;58;1.740000000000001;28004;wie ist eddie denn auf so was verfallen;wie ist eddie denn auf sowas verfallen;train7;10000
+HspSections-066;Unbekannt;00748192.mp3;00748192.mp3;0;55680;58;1.740000000000001;28004;wie ist eddie denn auf so was verfallen;wie ist eddie denn auf so was verfallen;train9;10000
 HspSections-066;Unbekannt;00748290.mp3;00748290.mp3;0;55680;58;1.740000000000001;28004;dann sprengte er erneut davon;dann sprengte er erneut davon;train9;200000
 HspSections-066;Unbekannt;00748334.mp3;00748334.mp3;0;55680;58;1.740000000000001;28004;es geht nicht alleine um dorothea;es geht nicht alleine um dorothea;train9;120000
 HspSections-066;Unbekannt;00748433.mp3;00748433.mp3;0;55680;58;1.740000000000001;28004;warum hattest du im krankenhaus gelegen;warum hattest du im krankenhaus gelegen;train8;10000
@@ -5073,7 +5073,7 @@ HspSections-066;Unbekannt;00814790.mp3;00814790.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00815007.mp3;00815007.mp3;0;55680;58;1.740000000000001;28004;der wirt fürchtete sich;der wirt fürchtete sich;train9;200000
 HspSections-066;Unbekannt;00815431.mp3;00815431.mp3;0;55680;58;1.740000000000001;28004;aber nicht mehr der wirt;aber nicht mehr der wirt;train9;200000
 HspSections-066;Unbekannt;00815552.mp3;00815552.mp3;0;55680;58;1.740000000000001;28004;über die karre geschüttet;über die karre geschüttet;train9;200000
-HspSections-066;Unbekannt;00815581.mp3;00815581.mp3;0;55680;58;1.740000000000001;28004;und jetzt hat der krieg ein end;jetzt hat der krieg ein end;train9;200000
+HspSections-066;Unbekannt;00815581.mp3;00815581.mp3;0;55680;58;1.740000000000001;28004;und jetzt hat der krieg ein end;jetzt hat der krieg ein end;ignore;100000
 HspSections-066;Unbekannt;00815969.mp3;00815969.mp3;0;55680;58;1.740000000000001;28004;die montagsmorgenlage;die montagsmorgenlage;train8;200000
 HspSections-066;Unbekannt;00816126.mp3;00816126.mp3;0;55680;58;1.740000000000001;28004;ein hässlich angstgeschrei;ein hässlich angstgeschrei;train9;200000
 HspSections-066;Unbekannt;00816283.mp3;00816283.mp3;0;55680;58;1.740000000000001;28004;den mist habe ich bekommen;den mist habe ich bekommen;train9;200000
@@ -5237,7 +5237,7 @@ HspSections-066;Unbekannt;00839192.mp3;00839192.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00839252.mp3;00839252.mp3;0;55680;58;1.740000000000001;28004;jetzt geht er an der garage vorbei zum haus;jetzt geht er an der garage vorbei zum haus;train9;200000
 HspSections-066;Unbekannt;00839699.mp3;00839699.mp3;0;55680;58;1.740000000000001;28004;er soll das buch nicht anrühren;er soll das buch nicht anrühren;train9;120000
 HspSections-066;Unbekannt;00839792.mp3;00839792.mp3;0;55680;58;1.740000000000001;28004;aber das stimmt doch nicht;aber das stimmt doch nicht;train9;200000
-HspSections-066;Unbekannt;00840586.mp3;00840586.mp3;0;55680;58;1.740000000000001;28004;u mr temple kommt sicher jeden moment;mr temple kommt sicher jeden moment;train9;120000
+HspSections-066;Unbekannt;00840586.mp3;00840586.mp3;0;55680;58;1.740000000000001;28004;u mr temple kommt sicher jeden moment;mr temple kommt sicher jeden moment;train9;20000
 HspSections-066;Unbekannt;00840648.mp3;00840648.mp3;0;55680;58;1.740000000000001;28004;tatsächlich mrs temple ja;tatsächlich mrs temple ja;train9;200000
 HspSections-066;Unbekannt;00841000.mp3;00841000.mp3;0;55680;58;1.740000000000001;28004;ja das werde ich;ja das werde ich;train9;120000
 HspSections-066;Unbekannt;00841052.mp3;00841052.mp3;0;55680;58;1.740000000000001;28004;was hat sie zu der fahrt veranlasst;was hat sie zu der fahrt veranlasst;train9;200000
@@ -5275,7 +5275,7 @@ HspSections-066;Unbekannt;00846041.mp3;00846041.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00846138.mp3;00846138.mp3;0;55680;58;1.740000000000001;28004;in zwanzig minuten bin ich da;in zwanzig minuten bin ich da;train9;120000
 HspSections-066;Unbekannt;00847063.mp3;00847063.mp3;0;55680;58;1.740000000000001;28004;dabei war es in einer gastwirtschaft;dabei war es in einer gastwirtschaft;train9;200000
 HspSections-066;Unbekannt;00847072.mp3;00847072.mp3;0;55680;58;1.740000000000001;28004;ach und was macht der jetzt;ach und was macht der jetzt;train9;200000
-HspSections-066;Unbekannt;00847104.mp3;00847104.mp3;0;55680;58;1.740000000000001;28004;nicht übers wetter h;nicht übers wetter;train9;200000
+HspSections-066;Unbekannt;00847104.mp3;00847104.mp3;0;55680;58;1.740000000000001;28004;nicht übers wetter h;nicht übers wetter;train7;20000
 HspSections-066;Unbekannt;00847216.mp3;00847216.mp3;0;55680;58;1.740000000000001;28004;was ist mit der brosche;was ist mit der brosche;train9;200000
 HspSections-066;Unbekannt;00847250.mp3;00847250.mp3;0;55680;58;1.740000000000001;28004;am zweiundzwanzigsten;am zweiundzwanzigsten;train9;120000
 HspSections-066;Unbekannt;00847632.mp3;00847632.mp3;0;55680;58;1.740000000000001;28004;hast du sie eigentlich mal gesehen;hast du sie eigentlich mal gesehen;train9;200000
@@ -5357,7 +5357,7 @@ HspSections-066;Unbekannt;00857847.mp3;00857847.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00857862.mp3;00857862.mp3;0;55680;58;1.740000000000001;28004;joseph verschwand in der küche;joseph verschwand in der küche;train8;200000
 HspSections-066;Unbekannt;00857891.mp3;00857891.mp3;0;55680;58;1.740000000000001;28004;es blieb ihm nur noch wenig zeit;es blieb ihm nur noch wenig zeit;train9;120000
 HspSections-066;Unbekannt;00857969.mp3;00857969.mp3;0;55680;58;1.740000000000001;28004;sagte adamsberg vorsichtig;sagte adamsberg vorsichtig;train9;200000
-HspSections-066;Unbekannt;00858155.mp3;00858155.mp3;0;55680;58;1.740000000000001;28004;aber dummer weise menschlich;aber dummerweise menschlich;train9;200000
+HspSections-066;Unbekannt;00858155.mp3;00858155.mp3;0;55680;58;1.740000000000001;28004;aber dummer weise menschlich;aber dummerweise menschlich;train9;10000
 HspSections-066;Unbekannt;00858169.mp3;00858169.mp3;0;55680;58;1.740000000000001;28004;adamsberg sah plötzlich auf;adamsberg sah plötzlich auf;train9;200000
 HspSections-066;Unbekannt;00858300.mp3;00858300.mp3;0;55680;58;1.740000000000001;28004;der zustimmend nickte;der zustimmend nickte;train9;200000
 HspSections-066;Unbekannt;00858403.mp3;00858403.mp3;0;55680;58;1.740000000000001;28004;vor dem gesetz ja;vor dem gesetz ja;train9;200000
@@ -5420,7 +5420,7 @@ HspSections-066;Unbekannt;00866260.mp3;00866260.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00866687.mp3;00866687.mp3;0;55680;58;1.740000000000001;28004;würden sie sie wiedererkennen;würden sie sie wiedererkennen;train9;200000
 HspSections-066;Unbekannt;00866689.mp3;00866689.mp3;0;55680;58;1.740000000000001;28004;er sah wie ein arbeiter aus;er sah wie ein arbeiter aus;train9;120000
 HspSections-066;Unbekannt;00866752.mp3;00866752.mp3;0;55680;58;1.740000000000001;28004;er sagte ohne sie anzusehen;er sagte ohne sie anzusehen;train9;120000
-HspSections-066;Unbekannt;00867009.mp3;00867009.mp3;0;55680;58;1.740000000000001;28004;denny versuchte gegenzu steuern;denny versuchte gegenzusteuern;train8;100
+HspSections-066;Unbekannt;00867009.mp3;00867009.mp3;0;55680;58;1.740000000000001;28004;denny versuchte gegenzu steuern;denny versuchte gegenzusteuern;train8;10000
 HspSections-066;Unbekannt;00867216.mp3;00867216.mp3;0;55680;58;1.740000000000001;28004;er sah wie sie sich entspannte;er sah wie sie sich entspannte;train9;120000
 HspSections-066;Unbekannt;00867355.mp3;00867355.mp3;0;55680;58;1.740000000000001;28004;was für ein schlamassel;was für ein schlamassel;train8;100
 HspSections-066;Unbekannt;00867537.mp3;00867537.mp3;0;55680;58;1.740000000000001;28004;nicht besonders klug lenz;nicht besonders klug lenz;train8;100
@@ -5544,7 +5544,7 @@ HspSections-066;Unbekannt;00881445.mp3;00881445.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00881591.mp3;00881591.mp3;0;55680;58;1.740000000000001;28004;ob es noch anderer gibt weiß ich nicht;ob es noch anderer gibt weiß ich nicht;train8;200000
 HspSections-066;Unbekannt;00881670.mp3;00881670.mp3;0;55680;58;1.740000000000001;28004;warum interessieren sie sich dafür;warum interessieren sie sich dafür;train9;200000
 HspSections-066;Unbekannt;00881873.mp3;00881873.mp3;0;55680;58;1.740000000000001;28004;oder jedenfalls nicht mehr;oder jedenfalls nicht mehr;train9;200000
-HspSections-066;Unbekannt;00881981.mp3;00881981.mp3;0;55680;58;1.740000000000001;28004;udas ist sicher was besonderes;das ist sicher was besonderes;train9;200000
+HspSections-066;Unbekannt;00881981.mp3;00881981.mp3;0;55680;58;1.740000000000001;28004;udas ist sicher was besonderes;das ist sicher was besonderes;train9;10000
 HspSections-066;Unbekannt;00882150.mp3;00882150.mp3;0;55680;58;1.740000000000001;28004;dass er verrückt ist;dass er verrückt ist;train9;200000
 HspSections-066;Unbekannt;00882435.mp3;00882435.mp3;0;55680;58;1.740000000000001;28004;und eine stunde später;und eine stunde später;train9;200000
 HspSections-066;Unbekannt;00882603.mp3;00882603.mp3;0;55680;58;1.740000000000001;28004;und meine lunge ist futsch;und meine lunge ist futsch;train8;10000
@@ -5930,7 +5930,7 @@ HspSections-066;Unbekannt;00937049.mp3;00937049.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00937523.mp3;00937523.mp3;0;55680;58;1.740000000000001;28004;sie nickte zu seinen füßen;sie nickte zu seinen füßen;train9;200000
 HspSections-066;Unbekannt;00937565.mp3;00937565.mp3;0;55680;58;1.740000000000001;28004;ich kaufe ein und koche;ich kaufe ein und koche;train9;200000
 HspSections-066;Unbekannt;00937598.mp3;00937598.mp3;0;55680;58;1.740000000000001;28004;man tut was man kann;man tut was man kann;train9;200000
-HspSections-066;Unbekannt;00937781.mp3;00937781.mp3;0;55680;58;1.740000000000001;28004;diesmal hatte er wenige angst;diesmal hatte er weniger angst;train9;200000
+HspSections-066;Unbekannt;00937781.mp3;00937781.mp3;0;55680;58;1.740000000000001;28004;diesmal hatte er wenige angst;diesmal hatte er weniger angst;train9;100
 HspSections-066;Unbekannt;00938075.mp3;00938075.mp3;0;55680;58;1.740000000000001;28004;aber es hätte auch besser sein können;aber es hätte auch besser sein können;train9;200000
 HspSections-066;Unbekannt;00938220.mp3;00938220.mp3;0;55680;58;1.740000000000001;28004;mein vater ist samuel;mein vater ist samuel;train9;200000
 HspSections-066;Unbekannt;00938308.mp3;00938308.mp3;0;55680;58;1.740000000000001;28004;aber er überlegte es sich doch;aber er überlegte es sich doch;train9;200000
@@ -6189,7 +6189,7 @@ HspSections-066;Unbekannt;00971950.mp3;00971950.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;00972308.mp3;00972308.mp3;0;55680;58;1.740000000000001;28004;der was;der was;train9;200000
 HspSections-066;Unbekannt;00972381.mp3;00972381.mp3;0;55680;58;1.740000000000001;28004;damit er nicht allein sein muss;damit er nicht allein sein muss;train9;200000
 HspSections-066;Unbekannt;00972540.mp3;00972540.mp3;0;55680;58;1.740000000000001;28004;was machst du heute nachmittag;was machst du heute nachmittag;train9;200000
-HspSections-066;Unbekannt;00972671.mp3;00972671.mp3;0;55680;58;1.740000000000001;28004;und so lange sie nicht da war;und solange sie nicht da war;train9;200000
+HspSections-066;Unbekannt;00972671.mp3;00972671.mp3;0;55680;58;1.740000000000001;28004;und so lange sie nicht da war;und solange sie nicht da war;train9;10000
 HspSections-066;Unbekannt;00972810.mp3;00972810.mp3;0;55680;58;1.740000000000001;28004;er ist schon auf dem weg hierher;er ist schon auf dem weg hierher;train9;120000
 HspSections-066;Unbekannt;00972934.mp3;00972934.mp3;0;55680;58;1.740000000000001;28004;ein unglaubliches glück;ein unglaubliches glück;train9;200000
 HspSections-066;Unbekannt;00972954.mp3;00972954.mp3;0;55680;58;1.740000000000001;28004;an den man vielleicht gar nicht glaubt;an den man vielleicht gar nicht glaubt;train9;20000
@@ -6526,7 +6526,7 @@ HspSections-066;Unbekannt;01012233.mp3;01012233.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01012312.mp3;01012312.mp3;0;55680;58;1.740000000000001;28004;ärgerte ihn diese erkenntnis;ärgerte ihn diese erkenntnis;train9;200000
 HspSections-066;Unbekannt;01012544.mp3;01012544.mp3;0;55680;58;1.740000000000001;28004;er blies den rauch über den tisch;er blies den rauch über den tisch;train9;120000
 HspSections-066;Unbekannt;01012722.mp3;01012722.mp3;0;55680;58;1.740000000000001;28004;wo ist der haken bei dieser sache;wo ist der haken bei dieser sache;train9;120000
-HspSections-066;Unbekannt;01012797.mp3;01012797.mp3;0;55680;58;1.740000000000001;28004;und einen kugelschreiber zu tage;und einen kugelschreiber zutage;train9;200000
+HspSections-066;Unbekannt;01012797.mp3;01012797.mp3;0;55680;58;1.740000000000001;28004;und einen kugelschreiber zu tage;und einen kugelschreiber zutage;train9;10000
 HspSections-066;Unbekannt;01012910.mp3;01012910.mp3;0;55680;58;1.740000000000001;28004;noch keine ahnung;noch keine ahnung;train9;200000
 HspSections-066;Unbekannt;01013294.mp3;01013294.mp3;0;55680;58;1.740000000000001;28004;ich habe nur noch sagen können;ich habe nur noch sagen können;train9;200000
 HspSections-066;Unbekannt;01013396.mp3;01013396.mp3;0;55680;58;1.740000000000001;28004;gehen wir eine schwule summe ziehen;gehen wir eine schwule summe ziehen;train9;200000
@@ -6646,7 +6646,7 @@ HspSections-066;Unbekannt;01027795.mp3;01027795.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01027922.mp3;01027922.mp3;0;55680;58;1.740000000000001;28004;er runzelte die stirn;er runzelte die stirn;train9;120000
 HspSections-066;Unbekannt;01028062.mp3;01028062.mp3;0;55680;58;1.740000000000001;28004;die sache auf den punkt;die sache auf den punkt;train9;1
 HspSections-066;Unbekannt;01028098.mp3;01028098.mp3;0;55680;58;1.740000000000001;28004;wir haben nicht die spur;wir haben nicht die spur;train9;200000
-HspSections-066;Unbekannt;01028168.mp3;01028168.mp3;0;55680;58;1.740000000000001;28004;na ja erklärte er;naja erklärte er;train9;100
+HspSections-066;Unbekannt;01028168.mp3;01028168.mp3;0;55680;58;1.740000000000001;28004;na ja erklärte er;na ja erklärte er;train9;10000
 HspSections-066;Unbekannt;01028252.mp3;01028252.mp3;0;55680;58;1.740000000000001;28004;ich suche jemand erklärte ich;ich suche jemand erklärte ich;train9;200000
 HspSections-066;Unbekannt;01028306.mp3;01028306.mp3;0;55680;58;1.740000000000001;28004;gefällt es ihnen in deutschland;gefällt es ihnen in deutschland;train9;200000
 HspSections-066;Unbekannt;01029013.mp3;01029013.mp3;0;55680;58;1.740000000000001;28004;ihre stadt war doch trier;ihre stadt war doch trier;train9;200000
@@ -6825,7 +6825,7 @@ HspSections-066;Unbekannt;01048147.mp3;01048147.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01048200.mp3;01048200.mp3;0;55680;58;1.740000000000001;28004;um die männer von der fährte zu locken;um die männer von der fährte zu locken;train9;120000
 HspSections-066;Unbekannt;01048212.mp3;01048212.mp3;0;55680;58;1.740000000000001;28004;nun habe auch er selbst;nun habe auch er selbst;train9;200000
 HspSections-066;Unbekannt;01048234.mp3;01048234.mp3;0;55680;58;1.740000000000001;28004;wir waren völlig hysterisch;wir waren völlig hysterisch;train9;200000
-HspSections-066;Unbekannt;01048313.mp3;01048313.mp3;0;55680;58;1.740000000000001;28004;n wurde auch irgendwie zeit;wurde auch irgendwie zeit;train8;200000
+HspSections-066;Unbekannt;01048313.mp3;01048313.mp3;0;55680;58;1.740000000000001;28004;n wurde auch irgendwie zeit;es wurde auch irgendwie zeit;train8;20000
 HspSections-066;Unbekannt;01048643.mp3;01048643.mp3;0;55680;58;1.740000000000001;28004;na gut ich will mal nicht so sein;na gut ich will mal nicht so sein;train8;120000
 HspSections-066;Unbekannt;01048850.mp3;01048850.mp3;0;55680;58;1.740000000000001;28004;wie weit ich weg war;wie weit ich weg war;train9;200000
 HspSections-066;Unbekannt;01048971.mp3;01048971.mp3;0;55680;58;1.740000000000001;28004;kommen sie sie sind schön genug;kommen sie sie sind schön genug;train8;10000
@@ -6901,7 +6901,7 @@ HspSections-066;Unbekannt;01056552.mp3;01056552.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01056721.mp3;01056721.mp3;0;55680;58;1.740000000000001;28004;die soll darin bestehen;die soll darin bestehen;train9;200000
 HspSections-066;Unbekannt;01056755.mp3;01056755.mp3;0;55680;58;1.740000000000001;28004;und nicht zu recherchieren;und nicht zu recherchieren;train9;200000
 HspSections-066;Unbekannt;01056795.mp3;01056795.mp3;0;55680;58;1.740000000000001;28004;dass seine augen lügen straften;dass seine augen lügen straften;train9;10000
-HspSections-066;Unbekannt;01056959.mp3;01056959.mp3;0;55680;58;1.740000000000001;28004;na ja also wir dachten alle;naja also wir dachten alle;train8;120000
+HspSections-066;Unbekannt;01056959.mp3;01056959.mp3;0;55680;58;1.740000000000001;28004;na ja also wir dachten alle;na ja also wir dachten alle;train9;10000
 HspSections-066;Unbekannt;01057073.mp3;01057073.mp3;0;55680;58;1.740000000000001;28004;ich ging zu meinem wagen;ich ging zu meinem wagen;train9;200000
 HspSections-066;Unbekannt;01057168.mp3;01057168.mp3;0;55680;58;1.740000000000001;28004;such dir ein anderes ziel ja;such dir ein anderes ziel ja;train9;200000
 HspSections-066;Unbekannt;01057254.mp3;01057254.mp3;0;55680;58;1.740000000000001;28004;ich hob meine tasse an die lippen;ich hob meine tasse an die lippen;train9;200000
@@ -6952,7 +6952,7 @@ HspSections-066;Unbekannt;01063446.mp3;01063446.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01063488.mp3;01063488.mp3;0;55680;58;1.740000000000001;28004;der pole hatte die augen offen;der pole hatte die augen offen;train9;200000
 HspSections-066;Unbekannt;01063569.mp3;01063569.mp3;0;55680;58;1.740000000000001;28004;kleine wirbelnde kreise;kleine wirbelnde kreise;train9;200000
 HspSections-066;Unbekannt;01063631.mp3;01063631.mp3;0;55680;58;1.740000000000001;28004;jetzt wurde sie langsam wach;jetzt wurde sie langsam wach;train9;200000
-HspSections-066;Unbekannt;01063635.mp3;01063635.mp3;0;55680;58;1.740000000000001;28004;ddu bist grauenhaft profan;du bist grauenhaft profan;train9;120000
+HspSections-066;Unbekannt;01063635.mp3;01063635.mp3;0;55680;58;1.740000000000001;28004;ddu bist grauenhaft profan;du bist grauenhaft profan;train9;10000
 HspSections-066;Unbekannt;01063747.mp3;01063747.mp3;0;55680;58;1.740000000000001;28004;und noch ein stück weiter rutschte;und noch ein stück weiter rutschte;train9;100
 HspSections-066;Unbekannt;01064132.mp3;01064132.mp3;0;55680;58;1.740000000000001;28004;ich kam mir ziemlich hilflos vor;ich kam mir ziemlich hilflos vor;train9;200000
 HspSections-066;Unbekannt;01064154.mp3;01064154.mp3;0;55680;58;1.740000000000001;28004;ist auch ein c sechzehn mann;ist auch ein c sechzehn mann;train9;200000
@@ -6998,7 +6998,7 @@ HspSections-066;Unbekannt;01068722.mp3;01068722.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01068749.mp3;01068749.mp3;0;55680;58;1.740000000000001;28004;träume ich oder ist es wahr;träume ich oder ist es wahr;train8;200000
 HspSections-066;Unbekannt;01068763.mp3;01068763.mp3;0;55680;58;1.740000000000001;28004;was ist daran so schwer zu glauben mann;was ist daran so schwer zu glauben mann;train9;200000
 HspSections-066;Unbekannt;01068805.mp3;01068805.mp3;0;55680;58;1.740000000000001;28004;er war ein geschickter kämpfer;er war ein geschickter kämpfer;train9;120000
-HspSections-066;Unbekannt;01068878.mp3;01068878.mp3;0;55680;58;1.740000000000001;28004;und es war nicht mehr mein zu hause;und es war nicht mehr mein zuhause;train9;200000
+HspSections-066;Unbekannt;01068878.mp3;01068878.mp3;0;55680;58;1.740000000000001;28004;und es war nicht mehr mein zu hause;und es war nicht mehr mein zuhause;train9;10000
 HspSections-066;Unbekannt;01069009.mp3;01069009.mp3;0;55680;58;1.740000000000001;28004;welche beweise gibt es dafür;welche beweise gibt es dafür;train9;200000
 HspSections-066;Unbekannt;01069086.mp3;01069086.mp3;0;55680;58;1.740000000000001;28004;was für eine sorte narr bist du;was für eine sorte narr bist du;train9;200000
 HspSections-066;Unbekannt;01069211.mp3;01069211.mp3;0;55680;58;1.740000000000001;28004;diese maskierten reiter;diese maskierten reiter;train9;200000
@@ -7392,7 +7392,7 @@ HspSections-066;Unbekannt;01124102.mp3;01124102.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01124290.mp3;01124290.mp3;0;55680;58;1.740000000000001;28004;rian die stimme der vernunft;rian die stimme der vernunft;train9;200000
 HspSections-066;Unbekannt;01124661.mp3;01124661.mp3;0;55680;58;1.740000000000001;28004;jetzt wusste ich bescheid;jetzt wusste ich bescheid;train9;200000
 HspSections-066;Unbekannt;01124757.mp3;01124757.mp3;0;55680;58;1.740000000000001;28004;nach einer ganzen minute;nach einer ganzen minute;train9;200000
-HspSections-066;Unbekannt;01124956.mp3;01124956.mp3;0;55680;58;1.740000000000001;28004;rassistisches pro filing;rassistisches profiling;train9;200000
+HspSections-066;Unbekannt;01124956.mp3;01124956.mp3;0;55680;58;1.740000000000001;28004;rassistisches pro filing;rassistisches profiling;train9;10000
 HspSections-066;Unbekannt;01125032.mp3;01125032.mp3;0;55680;58;1.740000000000001;28004;als sie rian und mich sah;als sie rian und mich sah;train8;200000
 HspSections-066;Unbekannt;01125242.mp3;01125242.mp3;0;55680;58;1.740000000000001;28004;neunzehn uhr zweiundvierzig;neunzehn uhr zweiundvierzig;train9;200000
 HspSections-066;Unbekannt;01125353.mp3;01125353.mp3;0;55680;58;1.740000000000001;28004;ich schüttelte ungläubig den kopf;ich schüttelte ungläubig den kopf;train9;200000
@@ -7514,7 +7514,7 @@ HspSections-066;Unbekannt;01143153.mp3;01143153.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01143190.mp3;01143190.mp3;0;55680;58;1.740000000000001;28004;das war der letzte tropfen;das war der letzte tropfen;train9;200000
 HspSections-066;Unbekannt;01143548.mp3;01143548.mp3;0;55680;58;1.740000000000001;28004;deine tür war unverschlossen;deine tür war unverschlossen;train9;200000
 HspSections-066;Unbekannt;01143630.mp3;01143630.mp3;0;55680;58;1.740000000000001;28004;was;was;train9;10
-HspSections-066;Unbekannt;01143674.mp3;01143674.mp3;0;55680;58;1.740000000000001;28004;da drin gab es jede menge engel;dadrin gab es jede menge engel;train7;10000
+HspSections-066;Unbekannt;01143674.mp3;01143674.mp3;0;55680;58;1.740000000000001;28004;da drin gab es jede menge engel;da drin gab es jede menge engel;train9;10000
 HspSections-066;Unbekannt;01143909.mp3;01143909.mp3;0;55680;58;1.740000000000001;28004;ich bin gerade am kaffee kochen;ich bin gerade am kaffee kochen;train8;100
 HspSections-066;Unbekannt;01143937.mp3;01143937.mp3;0;55680;58;1.740000000000001;28004;die zeitungen schreiben über ihn;die zeitungen schreiben über ihn;train9;200000
 HspSections-066;Unbekannt;01144096.mp3;01144096.mp3;0;55680;58;1.740000000000001;28004;sie wird stürmisch gefeiert;sie wird stürmisch gefeiert;train9;200000
@@ -7757,7 +7757,7 @@ HspSections-066;Unbekannt;01176038.mp3;01176038.mp3;0;56640;59;1.770000000000001
 HspSections-066;Unbekannt;01176136.mp3;01176136.mp3;0;56640;59;1.7700000000000014;28422;sind sie auch bei ihr eingezogen;sind sie auch bei ihr eingezogen;train9;200000
 HspSections-066;Unbekannt;01176139.mp3;01176139.mp3;0;56640;59;1.7700000000000014;28422;die beiden mädchen waren sehr still;die beiden mädchen waren sehr still;train9;200000
 HspSections-066;Unbekannt;01176179.mp3;01176179.mp3;0;56640;59;1.7700000000000014;28422;aber sie glaubten ihm natürlich;aber sie glaubten ihm natürlich;train9;200000
-HspSections-066;Unbekannt;01176314.mp3;01176314.mp3;0;56640;59;1.7700000000000014;28422;weil wir solche party löwen sind;weil wir solche partylöwen sind;train9;200000
+HspSections-066;Unbekannt;01176314.mp3;01176314.mp3;0;56640;59;1.7700000000000014;28422;weil wir solche party löwen sind;weil wir solche partylöwen sind;train9;10000
 HspSections-066;Unbekannt;01176425.mp3;01176425.mp3;0;56640;59;1.7700000000000014;28422;da hattest du nur zu hälfte recht;da hattest du nur zu hälfte recht;train9;120000
 HspSections-066;Unbekannt;01176518.mp3;01176518.mp3;0;56640;59;1.7700000000000014;28422;wissen sie wo er jetzt ist;wissen sie wo er jetzt ist;train9;200000
 HspSections-066;Unbekannt;01176611.mp3;01176611.mp3;0;56640;59;1.7700000000000014;28422;er schüttelte den kopf;er schüttelte den kopf;train9;120000
@@ -8216,14 +8216,14 @@ HspSections-066;Unbekannt;01238068.mp3;01238068.mp3;0;55680;58;1.740000000000001
 HspSections-066;Unbekannt;01238192.mp3;01238192.mp3;0;55680;58;1.740000000000001;28004;dem leimtank versammeln;dem leimtank versammeln;train9;10000
 HspSections-066;Unbekannt;01238469.mp3;01238469.mp3;0;55680;58;1.740000000000001;28004;das war in south beach;das war in south beach;train9;200000
 HspSections-066;Unbekannt;01238557.mp3;01238557.mp3;0;55680;58;1.740000000000001;28004;nichts als leere versprechungen;nichts als leere versprechungen;train9;200000
-HspSections-066;Unbekannt;01238902.mp3;01238902.mp3;0;55680;58;1.740000000000001;28004;hast du eine leiche da drin;hast du eine leiche dadrin;train7;10000
+HspSections-066;Unbekannt;01238902.mp3;01238902.mp3;0;55680;58;1.740000000000001;28004;hast du eine leiche da drin;hast du eine leiche da drin;train9;10000
 HspSections-066;Unbekannt;01239062.mp3;01239062.mp3;0;55680;58;1.740000000000001;28004;damals war hellen zwölf;damals war hellen zwölf;train9;100
 HspSections-066;Unbekannt;01239146.mp3;01239146.mp3;0;55680;58;1.740000000000001;28004;schließlich sind sie ihr blutsverwandt;schließlich sind sie ihr blutsverwandt;train9;10000
 HspSections-066;Unbekannt;01239192.mp3;01239192.mp3;0;55680;58;1.740000000000001;28004;woher könnte er die nummer haben;woher könnte er die nummer haben;train9;200000
 HspSections-066;Unbekannt;01239299.mp3;01239299.mp3;0;55680;58;1.740000000000001;28004;in fünf minuten geht es los;in fünf minuten geht es los;train9;120000
 HspSections-066;Unbekannt;01239734.mp3;01239734.mp3;0;55680;58;1.740000000000001;28004;der rotor dreht sich noch;der rotor dreht sich noch;train9;200000
 HspSections-066;Unbekannt;01239928.mp3;01239928.mp3;0;55680;58;1.740000000000001;28004;und ihre unterlippe bebt;und ihre unterlippe bebt;train9;200000
-HspSections-066;Unbekannt;01239930.mp3;01239930.mp3;0;55680;58;1.740000000000001;28004;undwenn er das wirklich getan hat;wenn er das wirklich getan hat;train9;200000
+HspSections-066;Unbekannt;01239930.mp3;01239930.mp3;0;55680;58;1.740000000000001;28004;undwenn er das wirklich getan hat;und wenn er das wirklich getan hat;train8;100000
 HspSections-066;Unbekannt;01240410.mp3;01240410.mp3;0;55680;58;1.740000000000001;28004;er muss müde gewesen sein;er muss müde gewesen sein;train9;120000
 HspSections-066;Unbekannt;01240550.mp3;01240550.mp3;0;55680;58;1.740000000000001;28004;er sei ihr natürlicher vater;er sei ihr natürlicher vater;train9;120000
 HspSections-066;Unbekannt;01240706.mp3;01240706.mp3;0;55680;58;1.740000000000001;28004;ich bin jack the ripper;ich bin jack the ripper;train8;100
@@ -8690,7 +8690,7 @@ HspSections-066;Unbekannt;01313598.mp3;01313598.mp3;0;50880;53;1.590000000000001
 HspSections-066;Unbekannt;01313744.mp3;01313744.mp3;0;50880;53;1.5900000000000012;25728;und vorwände;und vorwände;train9;200000
 HspSections-066;Unbekannt;01313795.mp3;01313795.mp3;0;50880;53;1.5900000000000012;25728;komisch ist das;komisch ist das;train8;200000
 HspSections-066;Unbekannt;01313917.mp3;01313917.mp3;0;50880;53;1.5900000000000012;25728;folge drei und vier;folge drei und vier;train9;200000
-HspSections-066;Unbekannt;01313933.mp3;01313933.mp3;0;50880;53;1.5900000000000012;25728;und mich aufs eis legen ließ;und mich auf eis legen ließ;train9;200000
+HspSections-066;Unbekannt;01313933.mp3;01313933.mp3;0;50880;53;1.5900000000000012;25728;und mich aufs eis legen ließ;und mich auf eis legen ließ;train9;10000
 HspSections-066;Unbekannt;01314336.mp3;01314336.mp3;0;50880;53;1.5900000000000012;25728;er sagt ihnen alles weitere;er sagt ihnen alles weitere;train9;120000
 HspSections-066;Unbekannt;01314477.mp3;01314477.mp3;0;50880;53;1.5900000000000012;25728;in fünf minuten kann ich da sein;in fünf minuten kann ich da sein;train8;120000
 HspSections-066;Unbekannt;01314796.mp3;01314796.mp3;0;50880;53;1.5900000000000012;25728;dass ich kannte;dass ich kannte;train9;200000
@@ -8782,7 +8782,7 @@ HspSections-066;Unbekannt;01330710.mp3;01330710.mp3;0;50880;53;1.590000000000001
 HspSections-066;Unbekannt;01330801.mp3;01330801.mp3;0;50880;53;1.5900000000000012;25728;denn auch er war zu spät gekommen;denn auch er war zu spät gekommen;train8;10000
 HspSections-066;Unbekannt;01330804.mp3;01330804.mp3;0;50880;53;1.5900000000000012;25728;ich spreche nicht gerne über ihn;ich spreche nicht gerne über ihn;train9;200000
 HspSections-066;Unbekannt;01330805.mp3;01330805.mp3;0;50880;53;1.5900000000000012;25728;eine traurige geschichte;eine traurige geschichte;train9;200000
-HspSections-066;Unbekannt;01330919.mp3;01330919.mp3;0;50880;53;1.5900000000000012;25728;außer willium;außer william;train9;200000
+HspSections-066;Unbekannt;01330919.mp3;01330919.mp3;0;50880;53;1.5900000000000012;25728;außer willium;außer william;train9;1
 HspSections-066;Unbekannt;01330930.mp3;01330930.mp3;0;50880;53;1.5900000000000012;25728;wehe des irrtums;wehe des irrtums;train8;100
 HspSections-066;Unbekannt;01331107.mp3;01331107.mp3;0;50880;53;1.5900000000000012;25728;und jetzt;und jetzt;train9;100
 HspSections-066;Unbekannt;01331249.mp3;01331249.mp3;0;50880;53;1.5900000000000012;25728;falls ich mich täuschen sollte;falls ich mich täuschen sollte;train8;200000
@@ -8897,7 +8897,7 @@ HspSections-066;Unbekannt;01349865.mp3;01349865.mp3;0;50880;53;1.590000000000001
 HspSections-066;Unbekannt;01350014.mp3;01350014.mp3;0;50880;53;1.5900000000000012;25728;der beweis der beweis;der beweis der beweis;train8;10000
 HspSections-066;Unbekannt;01350164.mp3;01350164.mp3;0;50880;53;1.5900000000000012;25728;ah;ah;train9;2
 HspSections-066;Unbekannt;01350344.mp3;01350344.mp3;0;50880;53;1.5900000000000012;25728;deutschland radio kultur;deutschland radio kultur;train9;200000
-HspSections-066;Unbekannt;01350353.mp3;01350353.mp3;0;50880;53;1.5900000000000012;25728;wir haben keine anderen anhailtspunkte;wir haben keine anderen anhaltspunkte;train9;200000
+HspSections-066;Unbekannt;01350353.mp3;01350353.mp3;0;50880;53;1.5900000000000012;25728;wir haben keine anderen anhailtspunkte;wir haben keine anderen anhaltspunkte;train9;10000
 HspSections-066;Unbekannt;01350371.mp3;01350371.mp3;0;50880;53;1.5900000000000012;25728;die oberschenkel nackt;die oberschenkel nackt;train9;200000
 HspSections-066;Unbekannt;01350498.mp3;01350498.mp3;0;50880;53;1.5900000000000012;25728;hier ist ihre telefonnummer;hier ist ihre telefonnummer;train8;200000
 HspSections-066;Unbekannt;01350526.mp3;01350526.mp3;0;50880;53;1.5900000000000012;25728;deutschland radio kultur;deutschland radio kultur;train9;200000
@@ -8951,7 +8951,7 @@ HspSections-066;Unbekannt;01357635.mp3;01357635.mp3;0;50880;53;1.590000000000001
 HspSections-066;Unbekannt;01358074.mp3;01358074.mp3;0;50880;53;1.5900000000000012;25728;wir waren beide verletzt;wir waren beide verletzt;train9;200000
 HspSections-066;Unbekannt;01358178.mp3;01358178.mp3;0;50880;53;1.5900000000000012;25728;der herr inspektor;der herr inspektor;train9;200000
 HspSections-066;Unbekannt;01358481.mp3;01358481.mp3;0;50880;53;1.5900000000000012;25728;geh sofort von der tür weg;geh sofort von der tür weg;train8;200000
-HspSections-066;Unbekannt;01358517.mp3;01358517.mp3;0;50880;53;1.5900000000000012;25728;bernadette von lanthen;bernadette vonlanthen;train8;10100
+HspSections-066;Unbekannt;01358517.mp3;01358517.mp3;0;50880;53;1.5900000000000012;25728;bernadette von lanthen;bernadette von lanthen;train9;10000
 HspSections-066;Unbekannt;01358544.mp3;01358544.mp3;0;50880;53;1.5900000000000012;25728;mit dem süddeutschen rundfunk;mit dem süddeutschen rundfunk;train9;200000
 HspSections-066;Unbekannt;01358677.mp3;01358677.mp3;0;50880;53;1.5900000000000012;25728;professor van dusen;professor van dusen;train8;200000
 HspSections-066;Unbekannt;01358696.mp3;01358696.mp3;0;50880;53;1.5900000000000012;25728;kein benzin tja;kein benzin tja;train8;100
