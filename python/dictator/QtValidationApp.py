@@ -104,10 +104,10 @@ class QtValidationApp(QMainWindow):
             aktion = ds_problematic.iloc[idx]['Action']
             length = ds_problematic.iloc[idx]['Length']
 
-            if (wrong > 500) and (aktion.startswith('exclude') or ((aktion in manuell_validated_train_actions) and (count > 500))):
+            if (wrong > 500) and (aktion.startswith('exclude') or ((aktion in manuell_validated_train_actions) and (count > 200))):
                 continue
 
-            if (wrong > 500) and (length > 120):
+            if (wrong > 500) and (length > 160):
                 continue
 
             ds_idx = ds_problematic.index[idx]
