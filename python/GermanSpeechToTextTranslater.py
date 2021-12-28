@@ -257,7 +257,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
                         max_ts_sample_size = max_training_sample_size
 
                         if bad_translation_ds.shape[0] > 600:
-                            train_pandas_ds = train_pandas_ds[train_pandas_ds['Action']].isin(manuell_validated_train_actions)
+                            train_pandas_ds = train_pandas_ds[train_pandas_ds['Action'].isin(manuell_validated_train_actions)]
                             print(f' - {train_pandas_ds.shape[0]} Entries Check Cut)')
 
                         train_pandas_ds = train_pandas_ds[(train_pandas_ds.Length <= max_ts_sample_size) & (train_pandas_ds.Length >= 31)]
