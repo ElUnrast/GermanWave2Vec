@@ -16,7 +16,7 @@ import sklearn
 import jiwer
 import random
 import pandas as pd
-from datasets import load_metric
+#  from datasets import load_metric
 from tqdm.notebook import tqdm_notebook
 from sklearn.model_selection import train_test_split
 from pathlib import Path
@@ -44,7 +44,7 @@ class GermanSpeechToTextTranslater(GermanSpeechToTextTranslaterBase):
         print('Set Dataset-Handler')
         self.ds_handler = ds_handler if ds_handler else SnippetDatasets()
         print('Loading metric')
-        self.my_metric = load_metric('wer')
+        #  self.my_metric = load_metric('wer')
 
     def reload_from_checkpoint(self, checkpoint):
         del self.my_model
